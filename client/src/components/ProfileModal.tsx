@@ -60,11 +60,11 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         return;
       }
 
-      // Check file size (limit to 5MB)
-      if (file.size > 5 * 1024 * 1024) {
+      // Check file size (limit to 2MB for better performance)
+      if (file.size > 2 * 1024 * 1024) {
         toast({
           title: "File too large",
-          description: "Please select an image smaller than 5MB",
+          description: "Please select an image smaller than 2MB",
           variant: "destructive",
         });
         return;
@@ -200,7 +200,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
                 </Button>
               )}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Upload an image file (PNG, JPG, etc.) - Max 5MB</p>
+            <p className="text-xs text-gray-500 mt-1">Upload an image file (PNG, JPG, etc.) - Max 2MB</p>
           </div>
 
           {/* Bio */}
