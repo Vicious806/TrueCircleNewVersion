@@ -66,6 +66,7 @@ export interface IStorage {
   
   // Matching operations
   findPotentialMatches(userId: number, meetupType: string): Promise<number[]>;
+  findSharedInterest(userId1: number, userId2: number): Promise<string | null>;
   createMatch(match: any): Promise<Match>;
   getUserMatches(userId: number): Promise<MatchWithUsers[]>;
   updateMatch(id: number, updates: Partial<Match>): Promise<Match | undefined>;
@@ -361,7 +362,7 @@ export class DatabaseStorage implements IStorage {
       .where(and(...conditions))
       .limit(10);
 
-    // For 1v1: Filter for users who share at least ONE survey answer
+    // For 1v1: Prefer users with shared survey answers, but fallback to any user for speed
     // For group: No survey compatibility required
     if (meetupType === '1v1') {
       const compatibleUsers = potentialRequests.filter(req => {
@@ -376,11 +377,47 @@ export class DatabaseStorage implements IStorage {
         );
       });
 
-      return compatibleUsers.map(user => user.userId);
+      // If we have compatible users, return them. Otherwise, return any user for speed
+      if (compatibleUsers.length > 0) {
+        return compatibleUsers.map(user => user.userId);
+      } else {
+        return potentialRequests.map(user => user.userId);
+      }
     } else {
       // Group matching - no survey requirements, just return all potential users
       return potentialRequests.map(user => user.userId);
     }
+  }
+
+  async findSharedInterest(userId1: number, userId2: number): Promise<string | null> {
+    const [survey1, survey2] = await Promise.all([
+      db.select().from(userSurveyResponses).where(eq(userSurveyResponses.userId, userId1)).limit(1),
+      db.select().from(userSurveyResponses).where(eq(userSurveyResponses.userId, userId2)).limit(1)
+    ]);
+
+    if (!survey1[0] || !survey2[0]) return null;
+
+    const user1Survey = survey1[0];
+    const user2Survey = survey2[0];
+
+    // Check each survey category for matches
+    if (user1Survey.favoriteConversationTopic === user2Survey.favoriteConversationTopic) {
+      return `Both enjoy talking about ${user1Survey.favoriteConversationTopic}`;
+    }
+    if (user1Survey.favoriteMusic === user2Survey.favoriteMusic) {
+      return `Both love ${user1Survey.favoriteMusic} music`;
+    }
+    if (user1Survey.favoriteShow === user2Survey.favoriteShow) {
+      return `Both enjoy ${user1Survey.favoriteShow} shows`;
+    }
+    if (user1Survey.personalityType === user2Survey.personalityType) {
+      return `Both have ${user1Survey.personalityType} personalities`;
+    }
+    if (user1Survey.hobbies === user2Survey.hobbies) {
+      return `Both enjoy ${user1Survey.hobbies}`;
+    }
+
+    return null; // No shared interests found
   }
 
   private calculateCompatibilityScore(user1: SurveyResponse, user2: SurveyResponse): number {

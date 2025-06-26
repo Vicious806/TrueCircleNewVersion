@@ -98,7 +98,7 @@ export default function Chat() {
     socket.send(JSON.stringify({
       type: 'chat_message',
       matchId,
-      userId: user.id,
+      userId: (user as any).id,
       message: message.trim(),
     }));
 
@@ -146,9 +146,17 @@ export default function Chat() {
             </Button>
           </Link>
           <div className="flex-1">
-            <h2 className="font-semibold text-gray-900">Group Chat</h2>
+            <h2 className="font-semibold text-gray-900">
+              {match.meetupType === '1v1' ? '1-on-1 Chat' : 'Group Chat'}
+            </h2>
             <p className="text-sm text-gray-600">
-              {match.users.length} participants • Anonymous chat
+              {match.meetupType === '1v1' ? (
+                match.sharedInterest ? 
+                  `💭 ${match.sharedInterest}` : 
+                  'Let\'s get to know each other!'
+              ) : (
+                `${match.users.length} participants • Anonymous chat`
+              )}
             </p>
           </div>
           <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100 rounded-full">
@@ -157,27 +165,33 @@ export default function Chat() {
         </div>
       </header>
 
-      {/* Anonymous Participants Bar */}
+      {/* Participants Bar */}
       <div className="bg-gray-50 px-4 py-2 border-b border-gray-100">
         <div className="flex items-center space-x-2">
-          {match.users.map((matchUser: any, index: number) => (
-            <div key={matchUser.id} className="flex items-center space-x-1">
-              <div className="w-6 h-6 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-semibold">
-                  A{index + 1}
-                </span>
+          {match.meetupType === 'group' ? (
+            // Anonymous participants for group chats
+            match.users.map((matchUser: any, index: number) => (
+              <div key={matchUser.id} className="flex items-center space-x-1">
+                <div className="w-6 h-6 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-semibold">
+                    A{index + 1}
+                  </span>
+                </div>
+                <span className="text-xs text-gray-600">Anonymous {index + 1}</span>
               </div>
-              <span className="text-xs text-gray-600">Anonymous {index + 1}</span>
-            </div>
-          ))}
+            ))
+          ) : (
+            // Show "You + 1 other" for 1v1 chats
+            <span className="text-xs text-gray-600">You + 1 other person</span>
+          )}
         </div>
       </div>
 
       {/* Pinned Meetup Details Header */}
       <ChatPinnedHeader
-        venueType="restaurant"
-        meetupType="group"
-        participantCount={3}
+        matchId={matchId}
+        venueType={match.venueType}
+        canEdit={true}
       />
 
       {/* Chat Messages */}
@@ -194,81 +208,154 @@ export default function Chat() {
           </div>
         ) : (
           (() => {
-            // Create anonymous mapping for users
-            const userAnonymousMap = new Map<number, number>();
-            let anonymousCounter = 1;
-            
-            // First pass: assign anonymous numbers
-            messages.forEach(msg => {
-              if (!userAnonymousMap.has(msg.user.id)) {
-                userAnonymousMap.set(msg.user.id, anonymousCounter++);
-              }
-            });
-
-            return messages.map((msg, index) => {
-              const anonymousNumber = userAnonymousMap.get(msg.user.id);
-              const anonymousName = `Anonymous ${anonymousNumber}`;
-              const anonymousInitials = `A${anonymousNumber}`;
+            // For group chats: Create anonymous mapping for users
+            // For 1v1 chats: Show "You" and "Other person"
+            if (match.meetupType === 'group') {
+              const userAnonymousMap = new Map<number, number>();
+              let anonymousCounter = 1;
               
-              const showDateSeparator = index === 0 || 
-                new Date(msg.createdAt || '').toDateString() !== new Date(messages[index - 1].createdAt || '').toDateString();
+              // First pass: assign anonymous numbers
+              messages.forEach(msg => {
+                if (!userAnonymousMap.has(msg.user.id)) {
+                  userAnonymousMap.set(msg.user.id, anonymousCounter++);
+                }
+              });
 
-              return (
-                <div key={msg.id}>
-                  {/* Date Separator */}
-                  {showDateSeparator && (
-                    <div className="flex items-center justify-center my-4">
-                      <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
-                        {new Date(msg.createdAt || '').toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </div>
-                    </div>
-                  )}
+              return messages.map((msg, index) => {
+                const anonymousNumber = userAnonymousMap.get(msg.user.id);
+                const anonymousName = `Anonymous ${anonymousNumber}`;
+                const anonymousInitials = `A${anonymousNumber}`;
+                
+                const showDateSeparator = index === 0 || 
+                  new Date(msg.createdAt || '').toDateString() !== new Date(messages[index - 1].createdAt || '').toDateString();
 
-                  {/* Discord-style Anonymous Message */}
-                  <div className="group flex items-start space-x-3 px-4 py-1 hover:bg-gray-50 rounded">
-                    {/* Anonymous Avatar */}
-                    <div className="flex-shrink-0">
-                      <Avatar className="w-10 h-10">
-                        <AvatarFallback className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-semibold">
-                          {anonymousInitials}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-
-                    {/* Message Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2">
-                        {/* Anonymous Username */}
-                        <span className="font-semibold text-gray-900 text-sm">
-                          {anonymousName}
-                        </span>
-
-                        {/* Timestamp */}
-                        <span className="text-xs text-gray-500">
-                          {new Date(msg.createdAt || '').toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: '2-digit',
-                            hour12: true
+                return (
+                  <div key={msg.id}>
+                    {/* Date Separator */}
+                    {showDateSeparator && (
+                      <div className="flex items-center justify-center my-4">
+                        <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
+                          {new Date(msg.createdAt || '').toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
                           })}
-                        </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Discord-style Anonymous Message */}
+                    <div className="group flex items-start space-x-3 px-4 py-1 hover:bg-gray-50 rounded">
+                      {/* Anonymous Avatar */}
+                      <div className="flex-shrink-0">
+                        <Avatar className="w-10 h-10">
+                          <AvatarFallback className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-semibold">
+                            {anonymousInitials}
+                          </AvatarFallback>
+                        </Avatar>
                       </div>
 
-                      {/* Message Text */}
-                      <div className="mt-1">
-                        <p className="text-gray-900 text-sm leading-relaxed break-words">
-                          {msg.message}
-                        </p>
+                      {/* Message Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2">
+                          {/* Anonymous Username */}
+                          <span className="font-semibold text-gray-900 text-sm">
+                            {anonymousName}
+                          </span>
+
+                          {/* Timestamp */}
+                          <span className="text-xs text-gray-500">
+                            {new Date(msg.createdAt || '').toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })}
+                          </span>
+                        </div>
+
+                        {/* Message Text */}
+                        <div className="mt-1">
+                          <p className="text-gray-900 text-sm leading-relaxed break-words">
+                            {msg.message}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              );
-            });
+                );
+              });
+            } else {
+              // 1v1 Chat: Show "You" and "Other person"
+              return messages.map((msg, index) => {
+                const isCurrentUser = user && msg.user.id === (user as any).id;
+                const displayName = isCurrentUser ? 'You' : 'Other person';
+                const initials = isCurrentUser ? 'Y' : 'O';
+                
+                const showDateSeparator = index === 0 || 
+                  new Date(msg.createdAt || '').toDateString() !== new Date(messages[index - 1].createdAt || '').toDateString();
+
+                return (
+                  <div key={msg.id}>
+                    {/* Date Separator */}
+                    {showDateSeparator && (
+                      <div className="flex items-center justify-center my-4">
+                        <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
+                          {new Date(msg.createdAt || '').toLocaleDateString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Discord-style Message */}
+                    <div className="group flex items-start space-x-3 px-4 py-1 hover:bg-gray-50 rounded">
+                      {/* Avatar */}
+                      <div className="flex-shrink-0">
+                        <Avatar className="w-10 h-10">
+                          <AvatarFallback className={`text-white text-sm font-semibold ${
+                            isCurrentUser 
+                              ? 'bg-gradient-to-r from-blue-500 to-indigo-500' 
+                              : 'bg-gradient-to-r from-gray-500 to-gray-600'
+                          }`}>
+                            {initials}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+
+                      {/* Message Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2">
+                          {/* Username */}
+                          <span className="font-semibold text-gray-900 text-sm">
+                            {displayName}
+                          </span>
+
+                          {/* Timestamp */}
+                          <span className="text-xs text-gray-500">
+                            {new Date(msg.createdAt || '').toLocaleTimeString('en-US', {
+                              hour: 'numeric',
+                              minute: '2-digit',
+                              hour12: true
+                            })}
+                          </span>
+                        </div>
+
+                        {/* Message Text */}
+                        <div className="mt-1">
+                          <p className="text-gray-900 text-sm leading-relaxed break-words">
+                            {msg.message}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            }
           })()
         )}
         <div ref={messagesEndRef} />

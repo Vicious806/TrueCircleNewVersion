@@ -8,15 +8,19 @@ import { MapPin, Calendar, Clock, Edit, Check, X, Coffee, Utensils, AlertTriangl
 import { useToast } from "@/hooks/use-toast";
 
 interface ChatPinnedHeaderProps {
+  matchId?: number;
   venueType?: string;
   meetupType?: string;
   participantCount?: number;
+  canEdit?: boolean;
 }
 
 export default function ChatPinnedHeader({ 
+  matchId,
   venueType = 'restaurant',
   meetupType = '1v1',
-  participantCount = 2 
+  participantCount = 2,
+  canEdit = true
 }: ChatPinnedHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [location, setLocation] = useState('');

@@ -291,6 +291,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Only match with ONE person at a time (1v1 matching)
         const participants = [userId, potentialMatches[0]]; // Just current user + one match
         
+        // For 1v1 matches, find shared interest
+        let sharedInterest = null;
+        if (requestData.meetupType === '1v1') {
+          sharedInterest = await storage.findSharedInterest(userId, potentialMatches[0]);
+        }
+        
         const match = await storage.createMatch({
           participants,
           meetupType: requestData.meetupType,
@@ -298,6 +304,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           suggestedTime: requestData.preferredTime,
           suggestedDate: requestData.preferredDate,
           matchScore: 75, // Simple matching score
+          sharedInterest,
         });
         
         res.json({ matchingRequest, match });

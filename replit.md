@@ -116,6 +116,7 @@ Changelog:
 - June 26, 2025. Optimized matching system for speed and simplicity: restricted to one-on-one matching only, requires just one shared survey answer for compatibility, limited scheduling to Fridays only with 1:00 PM and 5:30 PM time slots. Removed complex compatibility scoring algorithm to achieve sub-100ms matching performance.
 - June 26, 2025. Implemented anonymous group chat system where users appear as "Anonymous 1", "Anonymous 2", etc. to protect privacy during coordination. Added smart Friday availability logic that keeps Friday options open after Thursday 8am cutoff if people are waiting for matches (1+ for 1v1, 1-2 for groups) to prevent users from being stranded.
 - June 26, 2025. Updated matching requirements: 1v1 matching requires at least one shared survey answer for compatibility, while group matching has no survey requirements and focuses purely on logistics (date, time, venue type) for more diverse group dynamics.
+- June 26, 2025. Enhanced matching system for speed prioritization: 1v1 matching prefers users with shared survey answers but falls back to any available user if no compatible matches exist. Added shared interest detection and display in 1v1 chats (e.g., "Both enjoy talking about travel"). Chat interface now shows anonymous users for groups ("Anonymous 1", "Anonymous 2") and "You"/"Other person" labels for 1v1 conversations.
 
 ## User Preferences
 

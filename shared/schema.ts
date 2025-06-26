@@ -76,6 +76,7 @@ export const matches = pgTable("matches", {
   suggestedTime: varchar("suggested_time"),
   suggestedDate: varchar("suggested_date"),
   matchScore: integer("match_score").default(0),
+  sharedInterest: varchar("shared_interest"), // What they have in common for 1v1
   status: varchar("status").default("pending").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
