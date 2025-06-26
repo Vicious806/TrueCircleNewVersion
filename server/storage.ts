@@ -361,20 +361,26 @@ export class DatabaseStorage implements IStorage {
       .where(and(...conditions))
       .limit(10);
 
-    // Filter for users who share at least ONE survey answer
-    const compatibleUsers = potentialRequests.filter(req => {
-      if (!req.favoriteConversationTopic) return false; // Must have survey
-      
-      return (
-        req.favoriteConversationTopic === currentUserSurvey.favoriteConversationTopic ||
-        req.favoriteMusic === currentUserSurvey.favoriteMusic ||
-        req.favoriteShow === currentUserSurvey.favoriteShow ||
-        req.personalityType === currentUserSurvey.personalityType ||
-        req.hobbies === currentUserSurvey.hobbies
-      );
-    });
+    // For 1v1: Filter for users who share at least ONE survey answer
+    // For group: No survey compatibility required
+    if (meetupType === '1v1') {
+      const compatibleUsers = potentialRequests.filter(req => {
+        if (!req.favoriteConversationTopic) return false; // Must have survey
+        
+        return (
+          req.favoriteConversationTopic === currentUserSurvey.favoriteConversationTopic ||
+          req.favoriteMusic === currentUserSurvey.favoriteMusic ||
+          req.favoriteShow === currentUserSurvey.favoriteShow ||
+          req.personalityType === currentUserSurvey.personalityType ||
+          req.hobbies === currentUserSurvey.hobbies
+        );
+      });
 
-    return compatibleUsers.map(user => user.userId);
+      return compatibleUsers.map(user => user.userId);
+    } else {
+      // Group matching - no survey requirements, just return all potential users
+      return potentialRequests.map(user => user.userId);
+    }
   }
 
   private calculateCompatibilityScore(user1: SurveyResponse, user2: SurveyResponse): number {
