@@ -252,10 +252,6 @@ export default function FilterModal({ isOpen, onClose, meetupType }: FilterModal
                 <Label htmlFor="fine">Fine Dining</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="fast" id="fast" />
-                <Label htmlFor="fast">Fast Casual</Label>
-              </div>
-              <div className="flex items-center space-x-2">
                 <RadioGroupItem value="cafe" id="cafe" />
                 <Label htmlFor="cafe">Cafe & Coffee</Label>
               </div>
