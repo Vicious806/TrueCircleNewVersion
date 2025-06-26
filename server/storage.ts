@@ -331,7 +331,7 @@ export class DatabaseStorage implements IStorage {
 
   // Matching operations - ensures only same meetup types and venue types get matched
   async findPotentialMatches(userId: number, meetupType: string, venueType?: string): Promise<number[]> {
-    // Find other users who requested the SAME meetup type AND venue type
+    // Simple and fast: just find users with same meetup type and venue type
     const conditions = [
       eq(meetupRequests.meetupType, meetupType), // CRITICAL: Only same meetup type
       eq(meetupRequests.status, 'active'),
@@ -343,28 +343,12 @@ export class DatabaseStorage implements IStorage {
     }
 
     const potentialRequests = await db
-      .select()
+      .select({ userId: meetupRequests.userId })
       .from(meetupRequests)
-      .leftJoin(userSurveyResponses, eq(meetupRequests.userId, userSurveyResponses.userId))
       .where(and(...conditions))
-      .limit(10);
+      .limit(5); // Reduced limit for faster processing
 
-    // Get current user's survey for compatibility matching
-    const currentUserSurvey = await this.getSurveyResponse(userId);
-    if (!currentUserSurvey) return [];
-
-    // Calculate compatibility scores and return user IDs
-    const compatibleUsers = potentialRequests
-      .filter(result => result.user_survey_responses)
-      .map(result => ({
-        userId: result.meetup_requests.userId,
-        score: this.calculateCompatibilityScore(currentUserSurvey, result.user_survey_responses!)
-      }))
-      .filter(user => user.score >= 60) // Minimum compatibility threshold
-      .sort((a, b) => b.score - a.score)
-      .map(user => user.userId);
-
-    return compatibleUsers;
+    return potentialRequests.map(req => req.userId);
   }
 
   private calculateCompatibilityScore(user1: SurveyResponse, user2: SurveyResponse): number {
