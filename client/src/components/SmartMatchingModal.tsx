@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useLocation } from "wouter";
-import { Heart, Clock, MapPin, Users, Sparkles } from "lucide-react";
+import { Clock, MapPin, Users, Sparkles, Coffee, Utensils } from "lucide-react";
 import type { MeetupRequestFormData } from "@shared/schema";
 
 interface SmartMatchingModalProps {
@@ -27,6 +27,11 @@ const timeOptions = [
   { value: 'late-dinner', label: 'Late Dinner (8-10 PM)', icon: '🌙' },
 ];
 
+const venueOptions = [
+  { value: 'restaurant', label: 'Restaurant', description: 'Full meals and dining experience', icon: Utensils },
+  { value: 'cafe', label: 'Cafe', description: 'Coffee, light meals, and casual atmosphere', icon: Coffee },
+];
+
 export default function SmartMatchingModal({ isOpen, onClose, meetupType }: SmartMatchingModalProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -34,6 +39,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
   
   const [preferredDate, setPreferredDate] = useState('');
   const [preferredTime, setPreferredTime] = useState('');
+  const [venueType, setVenueType] = useState('');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([10]);
 
@@ -73,10 +79,10 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
   });
 
   const handleSubmit = () => {
-    if (!preferredDate || !preferredTime) {
+    if (!venueType || !preferredDate || !preferredTime) {
       toast({
         title: "Missing Information",
-        description: "Please select both date and time preferences.",
+        description: "Please select venue type, date, and time preferences.",
         variant: "destructive",
       });
       return;
@@ -84,6 +90,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
 
     const requestData: MeetupRequestFormData = {
       meetupType,
+      venueType: venueType as any,
       preferredDate,
       preferredTime: preferredTime as any,
       preferredLocation: preferredLocation || undefined,
@@ -119,6 +126,35 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Venue Type Selection */}
+          <div>
+            <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">
+              <MapPin className="w-4 h-4 mr-2" />
+              Where would you like to meet? *
+            </Label>
+            <div className="grid grid-cols-1 gap-3">
+              {venueOptions.map((venue) => (
+                <div
+                  key={venue.value}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    venueType === venue.value
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setVenueType(venue.value)}
+                >
+                  <div className="flex items-center space-x-3">
+                    <venue.icon className={`w-5 h-5 ${venueType === venue.value ? 'text-blue-600' : 'text-gray-500'}`} />
+                    <div>
+                      <h4 className="font-medium text-gray-900">{venue.label}</h4>
+                      <p className="text-sm text-gray-600">{venue.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Date Selection */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">
@@ -186,14 +222,14 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
           </div>
 
           {/* Smart Matching Info */}
-          <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg border border-pink-200">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
             <div className="flex items-center mb-2">
-              <Heart className="w-5 h-5 text-pink-500 mr-2" />
+              <Sparkles className="w-5 h-5 text-blue-500 mr-2" />
               <h4 className="font-medium text-gray-900">Smart Matching</h4>
             </div>
             <p className="text-sm text-gray-600">
               We'll match you with compatible people based on your conversation topics, 
-              communication style, social energy, and dining preferences from your survey.
+              shared interests, and venue preferences from your survey.
             </p>
           </div>
         </div>
@@ -201,10 +237,10 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
         <div className="sticky bottom-0 bg-white pt-4 border-t border-gray-100">
           <Button 
             onClick={handleSubmit}
-            disabled={createMatchingRequest.isPending || !preferredDate || !preferredTime}
-            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+            disabled={createMatchingRequest.isPending || !venueType || !preferredDate || !preferredTime}
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
           >
-            {createMatchingRequest.isPending ? 'Finding Your Match...' : 'Find My Perfect Match'}
+            {createMatchingRequest.isPending ? 'Finding Compatible People...' : 'Find Compatible People'}
           </Button>
         </div>
       </DialogContent>

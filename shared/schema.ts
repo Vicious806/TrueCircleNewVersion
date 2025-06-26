@@ -59,6 +59,7 @@ export const meetupRequests = pgTable("meetup_requests", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").notNull().references(() => users.id),
   meetupType: varchar("meetup_type").notNull(),
+  venueType: varchar("venue_type").notNull(),
   preferredLocation: varchar("preferred_location"),
   preferredTime: varchar("preferred_time"),
   preferredDate: varchar("preferred_date"),
@@ -220,6 +221,7 @@ export const surveyResponseSchema = z.object({
 // Meetup request schema
 export const meetupRequestSchema = z.object({
   meetupType: z.enum(['1v1', 'group']),
+  venueType: z.enum(['restaurant', 'cafe']),
   preferredLocation: z.string().optional(),
   preferredTime: z.enum(['lunch', 'dinner', 'brunch', 'late-dinner']),
   preferredDate: z.string().min(1, "Date is required"),

@@ -108,6 +108,7 @@ Changelog:
 - June 26, 2025. Updated app scope to include both restaurants and cafes. Modified UI text throughout application to reflect this broader dining scope. Added "Cafe & Coffee" option to dining preferences.
 - June 26, 2025. Fixed React hook errors and authentication issues preventing app startup. Improved meetup type icons: added UserCheck for 1-on-1, fixed spacing for 3-people icon with overlapping effect, and simplified group icon to use clean Users icon.
 - June 26, 2025. Transformed app from manual meetup creation to intelligent smart matching system. Added comprehensive first-time user survey with 5 strategic questions about conversation topics, communication style, social energy, location preferences, and activities. Created smart matching algorithm that uses survey data to pair compatible users based on preferences and personality traits rather than manual meetup joining.
+- June 26, 2025. Removed romantic/dating elements (hearts, pink colors) and replaced with professional social networking design. Added venue-based matching system - users select restaurant or cafe preference as required field, and smart matching only pairs people with same venue type preferences. Reordered form to prioritize venue selection before date/time.
 
 ## User Preferences
 

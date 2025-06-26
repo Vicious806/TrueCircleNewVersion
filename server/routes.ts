@@ -224,8 +224,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Try to find compatible matches immediately
-      // This ensures only same meetupType users get matched
-      const potentialMatches = await storage.findPotentialMatches(userId, requestData.meetupType);
+      // This ensures only same meetupType and venueType users get matched
+      const potentialMatches = await storage.findPotentialMatches(userId, requestData.meetupType, requestData.venueType);
       
       if (potentialMatches.length > 0) {
         // Create a match with compatible users of the same meetup type

@@ -328,18 +328,24 @@ export class DatabaseStorage implements IStorage {
     return request;
   }
 
-  // Matching operations - ensures only same meetup types get matched
-  async findPotentialMatches(userId: number, meetupType: string): Promise<number[]> {
-    // Find other users who requested the SAME meetup type and are still looking for matches
+  // Matching operations - ensures only same meetup types and venue types get matched
+  async findPotentialMatches(userId: number, meetupType: string, venueType?: string): Promise<number[]> {
+    // Find other users who requested the SAME meetup type AND venue type
+    const conditions = [
+      eq(meetupRequests.meetupType, meetupType), // CRITICAL: Only same meetup type
+      eq(meetupRequests.status, 'active'),
+      sql`${meetupRequests.userId} != ${userId}` // Exclude self
+    ];
+    
+    if (venueType) {
+      conditions.push(eq(meetupRequests.venueType, venueType)); // CRITICAL: Only same venue type
+    }
+
     const potentialRequests = await db
       .select()
       .from(meetupRequests)
       .leftJoin(userSurveyResponses, eq(meetupRequests.userId, userSurveyResponses.userId))
-      .where(and(
-        eq(meetupRequests.meetupType, meetupType), // CRITICAL: Only same meetup type
-        eq(meetupRequests.status, 'active'),
-        sql`${meetupRequests.userId} != ${userId}` // Exclude self
-      ))
+      .where(and(...conditions))
       .limit(10);
 
     // Get current user's survey for compatibility matching
