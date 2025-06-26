@@ -38,9 +38,17 @@ function getNextFridays(count: number) {
   
   // Find the next Friday
   const daysUntilFriday = (5 - currentDate.getDay() + 7) % 7;
-  if (daysUntilFriday === 0 && currentDate.getHours() >= 18) {
-    // If it's Friday after 6 PM, start from next Friday
-    currentDate.setDate(currentDate.getDate() + 7);
+  
+  // Skip current Friday if:
+  // 1. It's Friday after 6 PM, OR
+  // 2. It's Thursday after 8 AM
+  const shouldSkipCurrentFriday = 
+    (daysUntilFriday === 0 && currentDate.getHours() >= 18) || // Friday after 6 PM
+    (currentDate.getDay() === 4 && currentDate.getHours() >= 8); // Thursday after 8 AM
+  
+  if (shouldSkipCurrentFriday) {
+    // Start from next Friday
+    currentDate.setDate(currentDate.getDate() + (daysUntilFriday === 0 ? 7 : 7 - currentDate.getDay() + 5));
   } else {
     currentDate.setDate(currentDate.getDate() + daysUntilFriday);
   }
