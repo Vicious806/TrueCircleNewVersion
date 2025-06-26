@@ -24,14 +24,18 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table (mandatory for Replit Auth)
+// User storage table
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
+  id: serial("id").primaryKey(),
+  username: varchar("username").unique().notNull(),
+  email: varchar("email").unique().notNull(),
+  password: varchar("password").notNull(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   isAgeVerified: boolean("is_age_verified").default(false).notNull(),
+  isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+  emailVerificationToken: varchar("email_verification_token"),
   bio: text("bio"),
   interests: text("interests").array(),
   location: varchar("location"),
@@ -52,7 +56,7 @@ export const meetups = pgTable("meetups", {
   scheduledDate: timestamp("scheduled_date"),
   scheduledTime: varchar("scheduled_time"),
   status: varchar("status").default('open').notNull(), // 'open', 'full', 'completed', 'cancelled'
-  createdBy: varchar("created_by").notNull().references(() => users.id),
+  createdBy: integer("created_by").notNull().references(() => users.id),
   ageRangeMin: integer("age_range_min"),
   ageRangeMax: integer("age_range_max"),
   maxDistance: integer("max_distance"), // in miles
@@ -64,7 +68,7 @@ export const meetups = pgTable("meetups", {
 export const meetupParticipants = pgTable("meetup_participants", {
   id: serial("id").primaryKey(),
   meetupId: integer("meetup_id").notNull().references(() => meetups.id),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id),
   status: varchar("status").default('joined').notNull(), // 'joined', 'left', 'removed'
   joinedAt: timestamp("joined_at").defaultNow(),
 });
@@ -72,7 +76,7 @@ export const meetupParticipants = pgTable("meetup_participants", {
 export const chatMessages = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
   meetupId: integer("meetup_id").notNull().references(() => meetups.id),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: integer("user_id").notNull().references(() => users.id),
   message: text("message").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -117,6 +121,13 @@ export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
 
 // Schemas
 export const upsertUserSchema = createInsertSchema(users);
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  isEmailVerified: true,
+  emailVerificationToken: true,
+  createdAt: true,
+  updatedAt: true
+});
 export const insertMeetupSchema = createInsertSchema(meetups).omit({ 
   id: true, 
   currentParticipants: true,
@@ -130,6 +141,17 @@ export const insertMeetupParticipantSchema = createInsertSchema(meetupParticipan
 export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({ 
   id: true, 
   createdAt: true 
+});
+
+// Login schema
+export const loginSchema = z.object({
+  usernameOrEmail: z.string().min(1, "Username or email is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+// Email verification schema
+export const emailVerificationSchema = z.object({
+  token: z.string().min(1, "Verification token is required"),
 });
 
 // Filter schema for meetup search
@@ -146,7 +168,10 @@ export const meetupFilterSchema = z.object({
 
 // Types
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type LoginData = z.infer<typeof loginSchema>;
+export type EmailVerification = z.infer<typeof emailVerificationSchema>;
 export type InsertMeetup = z.infer<typeof insertMeetupSchema>;
 export type Meetup = typeof meetups.$inferSelect;
 export type MeetupWithCreator = Meetup & { creator: User };

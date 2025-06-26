@@ -29,10 +29,10 @@ export default function Landing() {
             </div>
 
             <Button 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = '/auth'}
               className="w-full gradient-primary text-white py-3 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
             >
-              Sign In with Replit
+              Get Started
             </Button>
 
             <div className="text-center">

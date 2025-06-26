@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { 
   insertMeetupSchema, 
   insertMeetupParticipantSchema, 
@@ -14,14 +14,13 @@ import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
-  await setupAuth(app);
+  setupAuth(app);
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      const user = req.user;
+      res.json({ ...user, password: undefined });
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
@@ -30,15 +29,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const profileData = {
-        id: userId,
-        email: req.user.claims.email,
-        ...req.body,
-      };
-      
-      const updatedUser = await storage.upsertUser(profileData);
-      res.json(updatedUser);
+      const userId = req.user.id;
+      const updatedUser = await storage.updateUser(userId, req.body);
+      res.json({ ...updatedUser, password: undefined });
     } catch (error) {
       console.error("Error updating profile:", error);
       res.status(400).json({ message: "Failed to update profile" });
@@ -48,7 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Meetup routes
   app.post('/api/meetups', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const meetupData = insertMeetupSchema.parse({
         ...req.body,
         createdBy: userId,
@@ -98,7 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/meetups/:id/join', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const meetupId = parseInt(req.params.id);
       
       // Check if meetup exists and has space
@@ -131,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete('/api/meetups/:id/leave', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const meetupId = parseInt(req.params.id);
       
       const success = await storage.leaveMeetup(meetupId, userId);
@@ -149,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/user/meetups', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       const meetups = await storage.getUserMeetups(userId);
       res.json(meetups);
     } catch (error) {

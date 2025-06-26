@@ -5,6 +5,7 @@ import {
   chatMessages,
   type User,
   type UpsertUser,
+  type InsertUser,
   type Meetup,
   type MeetupWithCreator,
   type MeetupWithParticipants,
@@ -17,13 +18,18 @@ import {
   type MeetupFilter,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, or, inArray, desc, asc } from "drizzle-orm";
+import { eq, and, gte, lte, or, inArray, desc, asc, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (mandatory for Replit Auth)
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByUsernameOrEmail(usernameOrEmail: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, updates: Partial<User>): Promise<User | undefined>;
+  verifyEmail(token: string): Promise<boolean>;
   
   // Meetup operations
   createMeetup(meetup: InsertMeetup): Promise<Meetup>;
@@ -34,9 +40,9 @@ export interface IStorage {
   
   // Meetup participant operations
   joinMeetup(participation: InsertMeetupParticipant): Promise<MeetupParticipant>;
-  leaveMeetup(meetupId: number, userId: string): Promise<boolean>;
+  leaveMeetup(meetupId: number, userId: number): Promise<boolean>;
   getMeetupParticipants(meetupId: number): Promise<(MeetupParticipant & { user: User })[]>;
-  getUserMeetups(userId: string): Promise<MeetupWithCreator[]>;
+  getUserMeetups(userId: number): Promise<MeetupWithCreator[]>;
   
   // Chat operations
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
@@ -44,25 +50,54 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations (mandatory for Replit Auth)
-  async getUser(id: string): Promise<User | undefined> {
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async getUserByUsernameOrEmail(usernameOrEmail: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(
+      or(eq(users.username, usernameOrEmail), eq(users.email, usernameOrEmail))
+    );
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async updateUser(id: number, updates: Partial<User>): Promise<User | undefined> {
     const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
+      .update(users)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async verifyEmail(token: string): Promise<boolean> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        isEmailVerified: true, 
+        emailVerificationToken: null,
+        updatedAt: new Date()
+      })
+      .where(eq(users.emailVerificationToken, token))
+      .returning();
+    return !!user;
   }
 
   // Meetup operations
@@ -100,14 +135,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMeetups(filters?: Partial<MeetupFilter>): Promise<MeetupWithCreator[]> {
-    let query = db
-      .select()
-      .from(meetups)
-      .leftJoin(users, eq(meetups.createdBy, users.id))
-      .where(eq(meetups.status, 'open'));
-
-    // Apply filters
-    const conditions = [];
+    // Build all conditions including base condition
+    const conditions = [eq(meetups.status, 'open')];
     
     if (filters?.meetupType) {
       conditions.push(eq(meetups.meetupType, filters.meetupType));
@@ -129,9 +158,11 @@ export class DatabaseStorage implements IStorage {
       conditions.push(lte(meetups.maxDistance, filters.maxDistance));
     }
 
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
+    const query = db
+      .select()
+      .from(meetups)
+      .leftJoin(users, eq(meetups.createdBy, users.id))
+      .where(and(...conditions));
 
     const results = await query.orderBy(desc(meetups.createdAt));
     
@@ -152,7 +183,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMeetup(id: number): Promise<boolean> {
     const result = await db.delete(meetups).where(eq(meetups.id, id));
-    return result.rowCount > 0;
+    return !!(result.rowCount && result.rowCount > 0);
   }
 
   // Meetup participant operations
@@ -163,7 +194,7 @@ export class DatabaseStorage implements IStorage {
     await db
       .update(meetups)
       .set({
-        currentParticipants: meetups.currentParticipants + 1,
+        currentParticipants: sql`${meetups.currentParticipants} + 1`,
         updatedAt: new Date(),
       })
       .where(eq(meetups.id, participation.meetupId));
@@ -171,7 +202,7 @@ export class DatabaseStorage implements IStorage {
     return participant;
   }
 
-  async leaveMeetup(meetupId: number, userId: string): Promise<boolean> {
+  async leaveMeetup(meetupId: number, userId: number): Promise<boolean> {
     const result = await db
       .update(meetupParticipants)
       .set({ status: 'left' })
@@ -181,18 +212,18 @@ export class DatabaseStorage implements IStorage {
         eq(meetupParticipants.status, 'joined')
       ));
 
-    if (result.rowCount > 0) {
+    if (result.rowCount && result.rowCount > 0) {
       // Update participant count
       await db
         .update(meetups)
         .set({
-          currentParticipants: meetups.currentParticipants - 1,
+          currentParticipants: sql`${meetups.currentParticipants} - 1`,
           updatedAt: new Date(),
         })
         .where(eq(meetups.id, meetupId));
     }
 
-    return result.rowCount > 0;
+    return !!(result.rowCount && result.rowCount > 0);
   }
 
   async getMeetupParticipants(meetupId: number): Promise<(MeetupParticipant & { user: User })[]> {
@@ -211,7 +242,7 @@ export class DatabaseStorage implements IStorage {
     }));
   }
 
-  async getUserMeetups(userId: string): Promise<MeetupWithCreator[]> {
+  async getUserMeetups(userId: number): Promise<MeetupWithCreator[]> {
     const participations = await db
       .select()
       .from(meetupParticipants)

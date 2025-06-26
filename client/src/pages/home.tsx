@@ -11,7 +11,7 @@ import ProfileModal from "@/components/ProfileModal";
 import type { MeetupWithCreator, User } from "@shared/schema";
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedMeetupType, setSelectedMeetupType] = useState<'1v1' | '3people' | 'group'>('1v1');
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -49,7 +49,7 @@ export default function Home() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.location.href = '/api/logout'}
+            onClick={logout}
             className="p-2 text-gray-600 hover:text-gray-900"
           >
             <Settings className="h-5 w-5" />
