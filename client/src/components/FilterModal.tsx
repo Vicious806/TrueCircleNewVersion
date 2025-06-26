@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -72,12 +72,10 @@ export default function FilterModal({ isOpen, onClose, meetupType }: FilterModal
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          description: "Please log in again.",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
+        setLocation("/auth");
         return;
       }
       
@@ -109,12 +107,10 @@ export default function FilterModal({ isOpen, onClose, meetupType }: FilterModal
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          description: "Please log in again.",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
+        setLocation("/auth");
         return;
       }
       
@@ -179,6 +175,9 @@ export default function FilterModal({ isOpen, onClose, meetupType }: FilterModal
           <DialogTitle className="text-xl font-bold text-gray-900">
             {modalTitles[meetupType]}
           </DialogTitle>
+          <DialogDescription>
+            Set your preferences to find the perfect dining companion or create your own meetup.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

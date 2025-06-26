@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,12 +98,9 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          description: "Please log in again.",
           variant: "destructive",
         });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
         return;
       }
       
@@ -141,6 +138,9 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           <DialogTitle className="text-xl font-bold text-gray-900">
             Edit Profile
           </DialogTitle>
+          <DialogDescription>
+            Update your profile information to help others connect with you.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
