@@ -83,16 +83,16 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
       ]
     },
     {
-      id: 'favoriteFood',
-      title: "What's your favorite type of cuisine?",
-      description: "Food preferences help us suggest great restaurants and conversation topics",
+      id: 'personalityType',
+      title: "How would you describe your personality?",
+      description: "Understanding personality helps create compatible connections",
       icon: Zap,
       options: [
-        { value: 'italian', label: 'Italian', description: 'Pasta, pizza, and Mediterranean flavors' },
-        { value: 'asian', label: 'Asian Cuisine', description: 'Sushi, Thai, Chinese, or Korean dishes' },
-        { value: 'mexican', label: 'Mexican & Latin', description: 'Tacos, burritos, and spicy flavors' },
-        { value: 'american', label: 'American Classics', description: 'Burgers, BBQ, and comfort food' },
-        { value: 'fusion', label: 'Fusion & International', description: 'Love trying new and creative combinations' },
+        { value: 'outgoing', label: 'Outgoing & Social', description: 'Love meeting new people and being around others' },
+        { value: 'thoughtful', label: 'Thoughtful & Deep', description: 'Enjoy meaningful conversations and reflection' },
+        { value: 'adventurous', label: 'Adventurous & Spontaneous', description: 'Always up for trying new things and experiences' },
+        { value: 'chill', label: 'Chill & Easygoing', description: 'Relaxed approach to life and go with the flow' },
+        { value: 'passionate', label: 'Passionate & Driven', description: 'Enthusiastic about goals and interests' },
       ]
     },
     {
