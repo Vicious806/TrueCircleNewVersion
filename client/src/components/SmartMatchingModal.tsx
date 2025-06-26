@@ -17,7 +17,7 @@ import type { MeetupRequestFormData } from "@shared/schema";
 interface SmartMatchingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  meetupType: '1v1' | '3people' | 'group';
+  meetupType: '1v1' | 'group';
 }
 
 const timeOptions = [
@@ -95,13 +95,11 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
 
   const modalTitles = {
     '1v1': 'Find Your Perfect 1-on-1 Match',
-    '3people': 'Join a 3-Person Group',
     'group': 'Find Your Group Match'
   };
 
   const modalDescriptions = {
     '1v1': 'Our smart matching will find someone compatible based on your survey responses and preferences.',
-    '3people': 'We\'ll create a small group with people who share similar interests and communication styles.',
     'group': 'Join a larger group of like-minded people for a fun dining experience.'
   };
 
@@ -182,7 +180,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
               className="w-full"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>1 mile</span>
+              <span>10 miles</span>
               <span>25 miles</span>
             </div>
           </div>

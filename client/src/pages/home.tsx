@@ -13,7 +13,7 @@ import type { MeetupWithCreator, User } from "@shared/schema";
 export default function Home() {
   const { user, logout } = useAuth();
   const [showMatchingModal, setShowMatchingModal] = useState(false);
-  const [selectedMeetupType, setSelectedMeetupType] = useState<'1v1' | '3people' | 'group'>('1v1');
+  const [selectedMeetupType, setSelectedMeetupType] = useState<'1v1' | 'group'>('1v1');
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const { data: userMatches = [] } = useQuery({
@@ -25,7 +25,7 @@ export default function Home() {
     ? `${userData.firstName[0]}${userData.lastName[0]}` 
     : userData?.email?.[0]?.toUpperCase() || 'U';
 
-  const handleMeetupTypeSelect = (type: '1v1' | '3people' | 'group') => {
+  const handleMeetupTypeSelect = (type: '1v1' | 'group') => {
     setSelectedMeetupType(type);
     setShowMatchingModal(true);
   };
@@ -137,39 +137,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          {/* 3 People Meetup */}
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow border-gray-100"
-            onClick={() => handleMeetupTypeSelect('3people')}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center">
-                    <div className="flex items-center -space-x-1">
-                      <UserIcon className="text-white h-5 w-5" />
-                      <UserIcon className="text-white h-5 w-5" />
-                      <UserIcon className="text-white h-5 w-5" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">3 People Match</h3>
-                    <p className="text-gray-600 text-sm">Join a small, compatible group</p>
-                    <div className="flex items-center space-x-4 mt-2">
-                      <Badge variant="secondary" className="text-xs">
-                        💬 Great vibes
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm">
-                  →
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 3+ People Meetup */}
+          {/* Group Meetup */}
           <Card 
             className="cursor-pointer hover:shadow-md transition-shadow border-gray-100"
             onClick={() => handleMeetupTypeSelect('group')}

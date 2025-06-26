@@ -219,7 +219,7 @@ export const surveyResponseSchema = z.object({
 
 // Meetup request schema
 export const meetupRequestSchema = z.object({
-  meetupType: z.enum(['1v1', '3people', 'group']),
+  meetupType: z.enum(['1v1', 'group']),
   preferredLocation: z.string().optional(),
   preferredTime: z.enum(['lunch', 'dinner', 'brunch', 'late-dinner']),
   preferredDate: z.string().min(1, "Date is required"),
@@ -239,7 +239,7 @@ export const emailVerificationSchema = z.object({
 
 // Filter schema for meetup search
 export const meetupFilterSchema = z.object({
-  meetupType: z.enum(['1v1', '3people', 'group']),
+  meetupType: z.enum(['1v1', 'group']),
   ageRangeMin: z.number().min(18).optional(),
   ageRangeMax: z.number().min(18).optional(),
   interests: z.array(z.string()).optional(),

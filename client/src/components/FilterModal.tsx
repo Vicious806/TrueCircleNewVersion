@@ -16,7 +16,7 @@ import type { MeetupFilter, MeetupWithCreator } from "@shared/schema";
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  meetupType: '1v1' | '3people' | 'group';
+  meetupType: '1v1' | 'group';
 }
 
 const interestOptions = [
@@ -131,10 +131,10 @@ export default function FilterModal({ isOpen, onClose, meetupType }: FilterModal
   };
 
   const handleCreateMeetup = () => {
-    const maxParticipants = meetupType === '1v1' ? 2 : meetupType === '3people' ? 3 : 8;
+    const maxParticipants = meetupType === '1v1' ? 2 : 8;
     
     const meetupData = {
-      title: `${meetupType === '1v1' ? '1-on-1' : meetupType === '3people' ? '3 People' : 'Group'} Meetup`,
+      title: `${meetupType === '1v1' ? '1-on-1' : 'Group'} Meetup`,
       description: `Join us for a ${restaurantType === 'any' ? 'casual' : restaurantType} dining experience!`,
       meetupType,
       maxParticipants,
