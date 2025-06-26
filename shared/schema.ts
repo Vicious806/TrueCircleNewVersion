@@ -55,6 +55,32 @@ export const userSurveyResponses = pgTable("user_survey_responses", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const meetupRequests = pgTable("meetup_requests", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  meetupType: varchar("meetup_type").notNull(),
+  preferredLocation: varchar("preferred_location"),
+  preferredTime: varchar("preferred_time"),
+  preferredDate: varchar("preferred_date"),
+  maxDistance: integer("max_distance").default(10),
+  status: varchar("status").default("active").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const matches = pgTable("matches", {
+  id: serial("id").primaryKey(),
+  participants: integer("participants").array().notNull(),
+  meetupType: varchar("meetup_type").notNull(),
+  suggestedLocation: varchar("suggested_location"),
+  suggestedTime: varchar("suggested_time"),
+  suggestedDate: varchar("suggested_date"),
+  matchScore: integer("match_score").default(0),
+  status: varchar("status").default("pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const meetups = pgTable("meetups", {
   id: serial("id").primaryKey(),
   title: varchar("title").notNull(),
@@ -99,11 +125,19 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   participations: many(meetupParticipants),
   chatMessages: many(chatMessages),
   surveyResponse: one(userSurveyResponses),
+  meetupRequests: many(meetupRequests),
 }));
 
 export const userSurveyResponsesRelations = relations(userSurveyResponses, ({ one }) => ({
   user: one(users, {
     fields: [userSurveyResponses.userId],
+    references: [users.id],
+  }),
+}));
+
+export const meetupRequestsRelations = relations(meetupRequests, ({ one }) => ({
+  user: one(users, {
+    fields: [meetupRequests.userId],
     references: [users.id],
   }),
 }));
@@ -168,6 +202,12 @@ export const insertSurveyResponseSchema = createInsertSchema(userSurveyResponses
   createdAt: true
 });
 
+export const insertMeetupRequestSchema = createInsertSchema(meetupRequests).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
 // Survey response schema with validation
 export const surveyResponseSchema = z.object({
   favoriteConversationTopic: z.enum(['travel', 'food', 'career', 'hobbies', 'current_events']),
@@ -175,6 +215,15 @@ export const surveyResponseSchema = z.object({
   communicationStyle: z.enum(['direct', 'friendly', 'thoughtful', 'energetic', 'calm']),
   socialEnergyLevel: z.enum(['introvert', 'ambivert', 'extrovert']),
   weekendActivity: z.enum(['relaxing_home', 'outdoor_adventures', 'social_events', 'creative_projects', 'exploring_city'])
+});
+
+// Meetup request schema
+export const meetupRequestSchema = z.object({
+  meetupType: z.enum(['1v1', '3people', 'group']),
+  preferredLocation: z.string().optional(),
+  preferredTime: z.enum(['lunch', 'dinner', 'brunch', 'late-dinner']),
+  preferredDate: z.string().min(1, "Date is required"),
+  maxDistance: z.number().min(1).max(50).default(10)
 });
 
 // Login schema
@@ -222,3 +271,8 @@ export type MeetupFilter = z.infer<typeof meetupFilterSchema>;
 export type InsertSurveyResponse = z.infer<typeof insertSurveyResponseSchema>;
 export type SurveyResponse = typeof userSurveyResponses.$inferSelect;
 export type SurveyFormData = z.infer<typeof surveyResponseSchema>;
+export type InsertMeetupRequest = z.infer<typeof insertMeetupRequestSchema>;
+export type MeetupRequest = typeof meetupRequests.$inferSelect;
+export type MeetupRequestFormData = z.infer<typeof meetupRequestSchema>;
+export type Match = typeof matches.$inferSelect;
+export type MatchWithUsers = Match & { users: User[] };

@@ -107,6 +107,7 @@ Changelog:
 - June 26, 2025. Replaced profile picture URL input with file upload functionality. Users can now upload image files directly from their device (PNG, JPG, etc.) with validation for file type and size (2MB limit). Images are converted to base64 data URLs for storage. Fixed server payload limit to handle image uploads.
 - June 26, 2025. Updated app scope to include both restaurants and cafes. Modified UI text throughout application to reflect this broader dining scope. Added "Cafe & Coffee" option to dining preferences.
 - June 26, 2025. Fixed React hook errors and authentication issues preventing app startup. Improved meetup type icons: added UserCheck for 1-on-1, fixed spacing for 3-people icon with overlapping effect, and simplified group icon to use clean Users icon.
+- June 26, 2025. Transformed app from manual meetup creation to intelligent smart matching system. Added comprehensive first-time user survey with 5 strategic questions about conversation topics, communication style, social energy, location preferences, and activities. Created smart matching algorithm that uses survey data to pair compatible users based on preferences and personality traits rather than manual meetup joining.
 
 ## User Preferences
 

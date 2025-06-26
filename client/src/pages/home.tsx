@@ -5,20 +5,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck } from "lucide-react";
 import { useState } from "react";
-import FilterModal from "@/components/FilterModal";
+import SmartMatchingModal from "@/components/SmartMatchingModal";
 import MeetupCard from "@/components/MeetupCard";
 import ProfileModal from "@/components/ProfileModal";
 import type { MeetupWithCreator, User } from "@shared/schema";
 
 export default function Home() {
   const { user, logout } = useAuth();
-  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [selectedMeetupType, setSelectedMeetupType] = useState<'1v1' | '3people' | 'group'>('1v1');
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  const { data: userMeetups = [] } = useQuery({
-    queryKey: ['/api/user/meetups'],
-  }) as { data: MeetupWithCreator[] };
+  const { data: userMatches = [] } = useQuery({
+    queryKey: ['/api/user/matches'],
+  }) as { data: any[] };
 
   const userData = user as User;
   const initials = userData?.firstName && userData?.lastName 
@@ -27,7 +27,7 @@ export default function Home() {
 
   const handleMeetupTypeSelect = (type: '1v1' | '3people' | 'group') => {
     setSelectedMeetupType(type);
-    setShowFilterModal(true);
+    setShowMatchingModal(true);
   };
 
   return (
@@ -106,7 +106,7 @@ export default function Home() {
 
         {/* Meetup Options */}
         <div className="space-y-4 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Choose Your Meetup Style</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Get Smart Matched</h2>
           
           {/* 1-on-1 Meetup */}
           <Card 
@@ -120,8 +120,8 @@ export default function Home() {
                     <UserCheck className="text-white h-7 w-7" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">1-on-1 Meetup</h3>
-                    <p className="text-gray-600 text-sm">Connect with one person over a meal</p>
+                    <h3 className="font-semibold text-gray-900 text-lg">1-on-1 Match</h3>
+                    <p className="text-gray-600 text-sm">Get matched with one compatible person</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
                         <Star className="w-3 h-3 mr-1" />
@@ -153,8 +153,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">3 People Meetup</h3>
-                    <p className="text-gray-600 text-sm">Small group dining experience</p>
+                    <h3 className="font-semibold text-gray-900 text-lg">3 People Match</h3>
+                    <p className="text-gray-600 text-sm">Join a small, compatible group</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
                         💬 Great vibes
@@ -181,8 +181,8 @@ export default function Home() {
                     <Users className="text-white h-7 w-7" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Group Meetup</h3>
-                    <p className="text-gray-600 text-sm">Join a lively group gathering</p>
+                    <h3 className="font-semibold text-gray-900 text-lg">Group Match</h3>
+                    <p className="text-gray-600 text-sm">Join a larger compatible group</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
                         🔥 Energetic
@@ -201,15 +201,18 @@ export default function Home() {
         {/* Recent Activity */}
         <Card className="border-gray-100">
           <CardContent className="p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Your Recent Meetups</h3>
-            {userMeetups.length === 0 ? (
+            <h3 className="font-semibold text-gray-900 mb-4">Your Match History</h3>
+            {userMatches.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-500 text-sm">No meetups yet. Join your first one above!</p>
+                <p className="text-gray-500 text-sm">No matches yet. Request your first match above!</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {userMeetups.slice(0, 3).map((meetup: MeetupWithCreator) => (
-                  <MeetupCard key={meetup.id} meetup={meetup} />
+                {userMatches.slice(0, 3).map((match: any, index: number) => (
+                  <div key={match.id || index} className="p-3 border rounded-lg">
+                    <p className="text-sm text-gray-600">Match with {match.participants?.length || 0} people</p>
+                    <p className="text-xs text-gray-500">{match.suggestedLocation}</p>
+                  </div>
                 ))}
               </div>
             )}
@@ -222,9 +225,9 @@ export default function Home() {
         onClose={() => setShowProfileModal(false)}
       />
       
-      <FilterModal
-        isOpen={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
+      <SmartMatchingModal
+        isOpen={showMatchingModal}
+        onClose={() => setShowMatchingModal(false)}
         meetupType={selectedMeetupType}
       />
     </div>
