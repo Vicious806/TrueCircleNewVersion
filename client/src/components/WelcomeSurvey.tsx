@@ -174,17 +174,21 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
             className="space-y-3"
           >
             {currentQuestion.options.map((option) => (
-              <div key={option.value} className="flex items-start space-x-3 p-4 rounded-lg border hover:bg-gray-50 cursor-pointer">
+              <Label 
+                key={option.value} 
+                htmlFor={option.value} 
+                className="flex items-start space-x-3 p-4 rounded-lg border hover:bg-gray-50 cursor-pointer transition-colors"
+              >
                 <RadioGroupItem value={option.value} id={option.value} className="mt-1" />
                 <div className="flex-1">
-                  <Label htmlFor={option.value} className="font-medium text-gray-900 cursor-pointer">
+                  <div className="font-medium text-gray-900">
                     {option.label}
-                  </Label>
+                  </div>
                   <p className="text-sm text-gray-600 mt-1">
                     {option.description}
                   </p>
                 </div>
-              </div>
+              </Label>
             ))}
           </RadioGroup>
 
