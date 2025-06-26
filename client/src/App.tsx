@@ -9,6 +9,7 @@ import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Chat from "@/pages/chat";
 import Auth from "@/pages/auth";
+import Matches from "@/pages/matches";
 import WelcomeSurvey from "@/components/WelcomeSurvey";
 import type { User } from "@shared/schema";
 
@@ -37,6 +38,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/matches" component={Matches} />
           <Route path="/chat/:id" component={Chat} />
         </>
       )}

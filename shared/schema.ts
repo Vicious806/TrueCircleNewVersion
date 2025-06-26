@@ -72,7 +72,7 @@ export const matches = pgTable("matches", {
   id: serial("id").primaryKey(),
   participants: integer("participants").array().notNull(),
   meetupType: varchar("meetup_type").notNull(),
-  suggestedLocation: varchar("suggested_location"),
+  venueType: varchar("venue_type").notNull(),
   suggestedTime: varchar("suggested_time"),
   suggestedDate: varchar("suggested_date"),
   matchScore: integer("match_score").default(0),

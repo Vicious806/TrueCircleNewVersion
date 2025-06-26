@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck } from "lucide-react";
+import { useLocation } from "wouter";
 import { useState } from "react";
 import SmartMatchingModal from "@/components/SmartMatchingModal";
 import MeetupCard from "@/components/MeetupCard";
@@ -13,6 +14,7 @@ import type { MeetupWithCreator, User } from "@shared/schema";
 
 export default function Home() {
   const { user, logout } = useAuth();
+  const [, setLocation] = useLocation();
   const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [selectedMeetupType, setSelectedMeetupType] = useState<'1v1' | 'group'>('1v1');
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -204,7 +206,7 @@ export default function Home() {
       <LocationModal
         isOpen={showLocationModal}
         onClose={() => setShowLocationModal(false)}
-        currentLocation={userData?.location}
+        currentLocation={userData?.location || undefined}
       />
     </div>
   );
