@@ -103,6 +103,7 @@ Changelog:
 - June 26, 2025. Initial setup
 - June 26, 2025. Replaced Replit Auth with custom username/email/password authentication system. Added user registration with 18+ age verification checkbox, unique username constraints, and email verification (auto-verified in development). Created two-column authentication page with login/registration forms.
 - June 26, 2025. Updated ProfileModal to only allow editing location and bio fields since names are collected during registration. Removed age verification from profile editing as it's required during signup.
+- June 26, 2025. Added profile picture icon in header that opens profile editing modal. Users can now edit username (with uniqueness validation), bio, profile picture URL, and interests. Profile picture displays in header when set.
 
 ## User Preferences
 

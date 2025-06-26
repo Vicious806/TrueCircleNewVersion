@@ -27,10 +27,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Profile update schema - only allow location, bio, and interests
+  // Profile update schema - allow username, bio, profile picture, and interests
   const profileUpdateSchema = z.object({
-    location: z.string().optional(),
+    username: z.string().min(1).optional(),
     bio: z.string().optional(),
+    profileImageUrl: z.string().url().optional().or(z.literal('')),
     interests: z.array(z.string()).optional(),
   });
 
@@ -38,10 +39,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const validatedData = profileUpdateSchema.parse(req.body);
+      
+      // Check if username is being changed and if it's unique
+      if (validatedData.username && validatedData.username !== req.user.username) {
+        const existingUser = await storage.getUserByUsername(validatedData.username);
+        if (existingUser && existingUser.id !== userId) {
+          return res.status(400).json({ message: "Username already taken" });
+        }
+      }
+      
       const updatedUser = await storage.updateUser(userId, validatedData);
       res.json({ ...updatedUser, password: undefined });
     } catch (error) {
       console.error("Error updating profile:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid profile data" });
+      }
       res.status(400).json({ message: "Failed to update profile" });
     }
   });

@@ -36,9 +36,20 @@ export default function Home() {
       <header className="bg-white shadow-sm border-b border-gray-100">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">{initials}</span>
-            </div>
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              {userData?.profileImageUrl ? (
+                <img 
+                  src={userData.profileImageUrl} 
+                  alt="Profile" 
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <span className="text-white font-semibold text-sm">{initials}</span>
+              )}
+            </button>
             <div>
               <h1 className="font-bold text-gray-900">
                 Hi, {userData?.firstName || 'there'}!

@@ -5,12 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAuth } from "@/hooks/useAuth";
-import { Music, Camera, Dumbbell, Book, Plane, Gamepad } from "lucide-react";
+import { Music, Camera, Dumbbell, Book, Plane, Gamepad, User as UserIcon } from "lucide-react";
 import type { User } from "@shared/schema";
 
 interface ProfileModalProps {
@@ -32,16 +31,18 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [location, setLocation] = useState('');
+  const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
+  const [profileImageUrl, setProfileImageUrl] = useState('');
   const [interests, setInterests] = useState<string[]>([]);
 
   // Initialize form with user data
   useEffect(() => {
     if (user) {
       const userData = user as User;
-      setLocation(userData.location || '');
+      setUsername(userData.username || '');
       setBio(userData.bio || '');
+      setProfileImageUrl(userData.profileImageUrl || '');
       setInterests(userData.interests || []);
     }
   }, [user]);
@@ -91,8 +92,9 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
   const handleSave = () => {
     const profileData = {
-      location: location.trim(),
+      username: username.trim(),
       bio: bio.trim(),
+      profileImageUrl: profileImageUrl.trim(),
       interests,
     };
 
@@ -109,15 +111,42 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Profile Picture Preview */}
+          <div className="flex justify-center">
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+              {profileImageUrl ? (
+                <img 
+                  src={profileImageUrl} 
+                  alt="Profile preview" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <UserIcon className="w-8 h-8 text-gray-400" />
+              )}
+            </div>
+          </div>
 
-          {/* Location */}
+          {/* Username */}
           <div>
-            <Label className="text-sm font-medium text-gray-700 mb-2 block">Location</Label>
+            <Label className="text-sm font-medium text-gray-700 mb-2 block">Username</Label>
             <Input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g., San Francisco, CA"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your username"
             />
+            <p className="text-xs text-gray-500 mt-1">Choose a unique username</p>
+          </div>
+
+          {/* Profile Picture */}
+          <div>
+            <Label className="text-sm font-medium text-gray-700 mb-2 block">Profile Picture URL</Label>
+            <Input
+              value={profileImageUrl}
+              onChange={(e) => setProfileImageUrl(e.target.value)}
+              placeholder="https://example.com/your-photo.jpg"
+              type="url"
+            />
+            <p className="text-xs text-gray-500 mt-1">Enter a URL to your profile picture</p>
           </div>
 
           {/* Bio */}
