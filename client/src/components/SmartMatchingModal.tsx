@@ -177,7 +177,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
               value={maxDistance}
               onValueChange={setMaxDistance}
               max={25}
-              min={1}
+              min={10}
               step={1}
               className="w-full"
             />

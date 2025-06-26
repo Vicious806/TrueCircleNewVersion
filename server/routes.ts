@@ -9,6 +9,7 @@ import {
   insertChatMessageSchema,
   meetupFilterSchema,
   surveyResponseSchema,
+  meetupRequestSchema,
   type MeetupFilter 
 } from "@shared/schema";
 import { z } from "zod";
@@ -207,6 +208,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user meetups:", error);
       res.status(500).json({ message: "Failed to fetch user meetups" });
+    }
+  });
+
+  // Smart matching routes
+  app.post('/api/matching-request', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const requestData = meetupRequestSchema.parse(req.body);
+      
+      // Create the matching request
+      const matchingRequest = await storage.createMeetupRequest({
+        ...requestData,
+        userId,
+      });
+      
+      // Try to find compatible matches immediately
+      // This ensures only same meetupType users get matched
+      const potentialMatches = await storage.findPotentialMatches(userId, requestData.meetupType);
+      
+      if (potentialMatches.length > 0) {
+        // Create a match with compatible users of the same meetup type
+        const participants = [userId, ...potentialMatches.slice(0, getMaxParticipants(requestData.meetupType) - 1)];
+        
+        const match = await storage.createMatch({
+          participants,
+          meetupType: requestData.meetupType, // Ensures same type matching
+          suggestedLocation: requestData.preferredLocation,
+          suggestedTime: requestData.preferredTime,
+          suggestedDate: requestData.preferredDate,
+          matchScore: 85, // Based on compatibility algorithm
+        });
+        
+        res.json({ matchingRequest, match });
+      } else {
+        res.json({ matchingRequest, message: "Request submitted, looking for compatible matches..." });
+      }
+    } catch (error) {
+      console.error("Error creating matching request:", error);
+      res.status(500).json({ message: "Failed to create matching request" });
+    }
+  });
+  
+  function getMaxParticipants(meetupType: string): number {
+    switch (meetupType) {
+      case '1v1': return 2;
+      case '3people': return 3;
+      case 'group': return 8;
+      default: return 2;
+    }
+  }
+  
+  app.get('/api/user/matches', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const matches = await storage.getUserMatches(userId);
+      res.json(matches);
+    } catch (error) {
+      console.error("Error fetching user matches:", error);
+      res.status(500).json({ message: "Failed to fetch matches" });
     }
   });
 

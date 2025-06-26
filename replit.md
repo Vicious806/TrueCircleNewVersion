@@ -113,3 +113,5 @@ Changelog:
 
 Preferred communication style: Simple, everyday language.
 App scope: Meetups are for both restaurants and cafes (not just restaurants).
+Minimum distance setting: 10 miles minimum for all smart matching requests.
+Smart matching requirement: Only match users with same meetup type (1v1 with 1v1, 3-people with 3-people, group with group).

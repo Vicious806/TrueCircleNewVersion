@@ -4,6 +4,8 @@ import {
   meetupParticipants,
   chatMessages,
   userSurveyResponses,
+  meetupRequests,
+  matches,
   type User,
   type UpsertUser,
   type InsertUser,
@@ -19,6 +21,10 @@ import {
   type MeetupFilter,
   type InsertSurveyResponse,
   type SurveyResponse,
+  type MeetupRequest,
+  type InsertMeetupRequest,
+  type Match,
+  type MatchWithUsers,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, inArray, desc, asc, sql } from "drizzle-orm";
@@ -54,6 +60,14 @@ export interface IStorage {
   // Survey operations
   createSurveyResponse(response: InsertSurveyResponse): Promise<SurveyResponse>;
   getSurveyResponse(userId: number): Promise<SurveyResponse | undefined>;
+  
+  // Meetup request operations
+  createMeetupRequest(request: InsertMeetupRequest): Promise<MeetupRequest>;
+  
+  // Matching operations
+  findPotentialMatches(userId: number, meetupType: string): Promise<number[]>;
+  createMatch(match: any): Promise<Match>;
+  getUserMatches(userId: number): Promise<MatchWithUsers[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -306,6 +320,123 @@ export class DatabaseStorage implements IStorage {
       .from(userSurveyResponses)
       .where(eq(userSurveyResponses.userId, userId));
     return response;
+  }
+
+  // Meetup request operations
+  async createMeetupRequest(requestData: InsertMeetupRequest): Promise<MeetupRequest> {
+    const [request] = await db.insert(meetupRequests).values(requestData).returning();
+    return request;
+  }
+
+  // Matching operations - ensures only same meetup types get matched
+  async findPotentialMatches(userId: number, meetupType: string): Promise<number[]> {
+    // Find other users who requested the SAME meetup type and are still looking for matches
+    const potentialRequests = await db
+      .select()
+      .from(meetupRequests)
+      .leftJoin(userSurveyResponses, eq(meetupRequests.userId, userSurveyResponses.userId))
+      .where(and(
+        eq(meetupRequests.meetupType, meetupType), // CRITICAL: Only same meetup type
+        eq(meetupRequests.status, 'active'),
+        sql`${meetupRequests.userId} != ${userId}` // Exclude self
+      ))
+      .limit(10);
+
+    // Get current user's survey for compatibility matching
+    const currentUserSurvey = await this.getSurveyResponse(userId);
+    if (!currentUserSurvey) return [];
+
+    // Calculate compatibility scores and return user IDs
+    const compatibleUsers = potentialRequests
+      .filter(result => result.user_survey_responses)
+      .map(result => ({
+        userId: result.meetup_requests.userId,
+        score: this.calculateCompatibilityScore(currentUserSurvey, result.user_survey_responses!)
+      }))
+      .filter(user => user.score >= 60) // Minimum compatibility threshold
+      .sort((a, b) => b.score - a.score)
+      .map(user => user.userId);
+
+    return compatibleUsers;
+  }
+
+  private calculateCompatibilityScore(user1: SurveyResponse, user2: SurveyResponse): number {
+    let score = 0;
+    
+    // Same conversation topic preference +20
+    if (user1.favoriteConversationTopic === user2.favoriteConversationTopic) score += 20;
+    
+    // Same music genre +20
+    if (user1.favoriteMusic === user2.favoriteMusic) score += 20;
+    
+    // Same show preference +20
+    if (user1.favoriteShow === user2.favoriteShow) score += 20;
+    
+    // Compatible personality types +20
+    if (this.arePersonalitiesCompatible(user1.personalityType, user2.personalityType)) score += 20;
+    
+    // Same hobbies +20
+    if (user1.hobbies === user2.hobbies) score += 20;
+    
+    return score;
+  }
+
+  private arePersonalitiesCompatible(type1: string | null, type2: string | null): boolean {
+    if (!type1 || !type2) return false;
+    
+    // Compatible personality combinations
+    const compatiblePairs = [
+      ['outgoing', 'adventurous'],
+      ['thoughtful', 'passionate'],
+      ['chill', 'thoughtful'],
+      ['adventurous', 'passionate'],
+      ['outgoing', 'passionate']
+    ];
+    
+    return type1 === type2 || 
+           compatiblePairs.some(pair => 
+             (pair[0] === type1 && pair[1] === type2) || 
+             (pair[0] === type2 && pair[1] === type1)
+           );
+  }
+
+  async createMatch(matchData: any): Promise<Match> {
+    const [match] = await db.insert(matches).values(matchData).returning();
+    
+    // Mark all participants' requests as matched
+    await db
+      .update(meetupRequests)
+      .set({ status: 'matched' })
+      .where(and(
+        inArray(meetupRequests.userId, matchData.participants),
+        eq(meetupRequests.meetupType, matchData.meetupType) // Ensure same type
+      ));
+    
+    return match;
+  }
+
+  async getUserMatches(userId: number): Promise<MatchWithUsers[]> {
+    const userMatches = await db
+      .select()
+      .from(matches)
+      .where(sql`${userId} = ANY(${matches.participants})`)
+      .orderBy(desc(matches.createdAt));
+
+    const matchesWithUsers = await Promise.all(
+      userMatches.map(async (match) => {
+        const participantUsers = await db
+          .select()
+          .from(users)
+          .where(inArray(users.id, match.participants));
+        
+        return {
+          ...match,
+          users: participantUsers
+        };
+      })
+    );
+
+    return matchesWithUsers;
   }
 }
 
