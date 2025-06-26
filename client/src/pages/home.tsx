@@ -36,10 +36,18 @@ export default function Home() {
       <header className="bg-white shadow-sm border-b border-gray-100">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            <div>
+              <h1 className="font-bold text-gray-900">
+                Hi, {userData?.firstName || 'there'}!
+              </h1>
+              <p className="text-sm text-gray-500">Ready to make new friends?</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
             <button
               onClick={() => setShowProfileModal(true)}
-              className="relative w-10 h-10 gradient-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer group"
-              title="Click to edit profile"
+              className="relative w-8 h-8 gradient-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer group"
+              title="Edit profile"
             >
               {userData?.profileImageUrl ? (
                 <img 
@@ -48,27 +56,19 @@ export default function Home() {
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <span className="text-white font-semibold text-sm">{initials}</span>
+                <span className="text-white font-semibold text-xs">{initials}</span>
               )}
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
-                <UserIcon className="w-2.5 h-2.5 text-white" />
-              </div>
             </button>
-            <div>
-              <h1 className="font-bold text-gray-900">
-                Hi, {userData?.firstName || 'there'}!
-              </h1>
-              <p className="text-sm text-gray-500">Ready to make new friends?</p>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={logout}
+              className="p-2 text-gray-600 hover:text-gray-900"
+              title="Logout"
+            >
+              <Settings className="h-5 w-5" />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={logout}
-            className="p-2 text-gray-600 hover:text-gray-900"
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
         </div>
       </header>
 
