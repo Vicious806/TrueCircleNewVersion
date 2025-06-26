@@ -88,6 +88,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Match details update endpoint
+  app.patch('/api/matches/:id/details', isAuthenticated, async (req: any, res) => {
+    try {
+      const matchId = parseInt(req.params.id);
+      const userId = req.user.id;
+      const { location, date, time } = req.body;
+
+      // Verify user is part of this match
+      const match = await storage.getUserMatches(userId);
+      const userMatch = match.find(m => m.id === matchId);
+      
+      if (!userMatch) {
+        return res.status(403).json({ message: "Not authorized to edit this match" });
+      }
+
+      // Update match details
+      const updates: any = {};
+      if (location !== undefined) updates.suggestedLocation = location;
+      if (date !== undefined) updates.suggestedDate = date;
+      if (time !== undefined) updates.suggestedTime = time;
+
+      const updatedMatch = await storage.updateMatch(matchId, updates);
+      
+      if (!updatedMatch) {
+        return res.status(404).json({ message: "Match not found" });
+      }
+
+      res.json(updatedMatch);
+    } catch (error) {
+      console.error("Error updating match details:", error);
+      res.status(500).json({ message: "Failed to update match details" });
+    }
+  });
+
   // Survey routes
   app.post('/api/survey', isAuthenticated, async (req: any, res) => {
     try {

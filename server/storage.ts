@@ -68,6 +68,7 @@ export interface IStorage {
   findPotentialMatches(userId: number, meetupType: string): Promise<number[]>;
   createMatch(match: any): Promise<Match>;
   getUserMatches(userId: number): Promise<MatchWithUsers[]>;
+  updateMatch(id: number, updates: Partial<Match>): Promise<Match | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -443,6 +444,19 @@ export class DatabaseStorage implements IStorage {
     );
 
     return matchesWithUsers;
+  }
+
+  async updateMatch(id: number, updates: Partial<Match>): Promise<Match | undefined> {
+    const [updatedMatch] = await db
+      .update(matches)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(matches.id, id))
+      .returning();
+    
+    return updatedMatch;
   }
 }
 

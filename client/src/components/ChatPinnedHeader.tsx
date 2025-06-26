@@ -1,0 +1,191 @@
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Calendar, Clock, Edit, Check, X, Coffee, Utensils } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+interface ChatPinnedHeaderProps {
+  venueType?: string;
+  meetupType?: string;
+  participantCount?: number;
+}
+
+export default function ChatPinnedHeader({ 
+  venueType = 'restaurant',
+  meetupType = '1v1',
+  participantCount = 2 
+}: ChatPinnedHeaderProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [location, setLocation] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    if (!location.trim()) {
+      toast({
+        title: "Location Required",
+        description: "Please enter a location for your meetup.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsEditing(false);
+    toast({
+      title: "Details Saved",
+      description: "Your meetup details have been updated.",
+    });
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
+
+  const getVenueIcon = () => {
+    return venueType === 'restaurant' ? <Utensils className="w-4 h-4" /> : <Coffee className="w-4 h-4" />;
+  };
+
+  const getVenueLabel = () => {
+    return venueType === 'restaurant' ? 'Restaurant' : 'Cafe';
+  };
+
+  const getMeetupTypeLabel = () => {
+    return meetupType === '1v1' ? '1-on-1' : 'Group';
+  };
+
+  return (
+    <Card className="mx-4 mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 sticky top-0 z-10">
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          {/* Header with venue type and edit button */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary" className="flex items-center space-x-1">
+                {getVenueIcon()}
+                <span>{getVenueLabel()} {getMeetupTypeLabel()}</span>
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {participantCount} people
+              </Badge>
+            </div>
+            {!isEditing && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setIsEditing(true)}
+                className="text-blue-600 hover:text-blue-700"
+              >
+                <Edit className="w-4 h-4 mr-1" />
+                Set Details
+              </Button>
+            )}
+            {isEditing && (
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleCancel}
+                  className="text-gray-600 hover:text-gray-700"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+                <Button 
+                  size="sm"
+                  onClick={handleSave}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Check className="w-4 h-4 mr-1" />
+                  Save
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Meetup details grid */}
+          <div className="grid grid-cols-1 gap-3">
+            {/* Location */}
+            <div className="flex items-center space-x-3">
+              <MapPin className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-xs font-medium text-gray-700 mb-1">Location</div>
+                {isEditing ? (
+                  <Input
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder={`Enter ${getVenueLabel().toLowerCase()} name or address`}
+                    className="h-8 text-sm"
+                  />
+                ) : (
+                  <div className="text-sm text-gray-900">
+                    {location || `${getVenueLabel()} to be decided`}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Date and Time in same row */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Date */}
+              <div className="flex items-center space-x-3">
+                <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <div className="flex-1">
+                  <div className="text-xs font-medium text-gray-700 mb-1">Date</div>
+                  {isEditing ? (
+                    <Input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                  ) : (
+                    <div className="text-sm text-gray-900">
+                      {date ? new Date(date).toLocaleDateString('en-US', { 
+                        weekday: 'short', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      }) : 'Date TBD'}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Time */}
+              <div className="flex items-center space-x-3">
+                <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <div className="flex-1">
+                  <div className="text-xs font-medium text-gray-700 mb-1">Time</div>
+                  {isEditing ? (
+                    <Input
+                      type="time"
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      className="h-8 text-sm"
+                    />
+                  ) : (
+                    <div className="text-sm text-gray-900">
+                      {time ? new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      }) : 'Time TBD'}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Helper text */}
+          {!location && !date && !time && !isEditing && (
+            <div className="text-xs text-gray-600 bg-white/50 rounded-lg p-2 text-center">
+              Coordinate your meetup details with the group
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

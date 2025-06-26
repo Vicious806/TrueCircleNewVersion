@@ -10,11 +10,12 @@ import { ArrowLeft, Send, Info, Paperclip, Smile } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { Link } from "wouter";
+import ChatPinnedHeader from "@/components/ChatPinnedHeader";
 import type { ChatMessageWithUser, MeetupWithParticipants } from "@shared/schema";
 
 export default function Chat() {
   const [, params] = useRoute('/chat/:id');
-  const meetupId = parseInt(params?.id || '0');
+  const matchId = parseInt(params?.id || '0');
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -23,24 +24,24 @@ export default function Chat() {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: meetup } = useQuery({
-    queryKey: ['/api/meetups', meetupId],
+  const { data: match } = useQuery({
+    queryKey: ['/api/matches', matchId],
     queryFn: async () => {
-      const response = await fetch(`/api/meetups/${meetupId}`);
-      if (!response.ok) throw new Error('Failed to fetch meetup');
-      return response.json() as Promise<MeetupWithParticipants>;
+      const response = await fetch(`/api/matches/${matchId}`);
+      if (!response.ok) throw new Error('Failed to fetch match');
+      return response.json();
     },
-    enabled: !!meetupId,
+    enabled: !!matchId,
   });
 
   const { data: messages = [], isLoading } = useQuery({
-    queryKey: ['/api/meetups', meetupId, 'messages'],
+    queryKey: ['/api/matches', matchId, 'messages'],
     queryFn: async () => {
-      const response = await fetch(`/api/meetups/${meetupId}/messages`);
+      const response = await fetch(`/api/matches/${matchId}/messages`);
       if (!response.ok) throw new Error('Failed to fetch messages');
       return response.json() as Promise<ChatMessageWithUser[]>;
     },
-    enabled: !!meetupId,
+    enabled: !!matchId,
   });
 
   // WebSocket setup
@@ -169,6 +170,13 @@ export default function Chat() {
           ))}
         </div>
       </div>
+
+      {/* Pinned Meetup Details Header */}
+      <ChatPinnedHeader
+        venueType="restaurant"
+        meetupType="group"
+        participantCount={3}
+      />
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
