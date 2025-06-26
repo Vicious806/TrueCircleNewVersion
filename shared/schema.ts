@@ -35,12 +35,24 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   isAgeVerified: boolean("is_age_verified").default(false).notNull(),
   isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+  hasTakenSurvey: boolean("has_taken_survey").default(false).notNull(),
   emailVerificationToken: varchar("email_verification_token"),
   bio: text("bio"),
   interests: text("interests").array(),
   location: varchar("location"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const userSurveyResponses = pgTable("user_survey_responses", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  favoriteConversationTopic: varchar("favorite_conversation_topic"),
+  idealFirstMeetLocation: varchar("ideal_first_meet_location"),
+  communicationStyle: varchar("communication_style"),
+  socialEnergyLevel: varchar("social_energy_level"),
+  weekendActivity: varchar("weekend_activity"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const meetups = pgTable("meetups", {
@@ -82,10 +94,18 @@ export const chatMessages = pgTable("chat_messages", {
 });
 
 // Relations
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   createdMeetups: many(meetups),
   participations: many(meetupParticipants),
   chatMessages: many(chatMessages),
+  surveyResponse: one(userSurveyResponses),
+}));
+
+export const userSurveyResponsesRelations = relations(userSurveyResponses, ({ one }) => ({
+  user: one(users, {
+    fields: [userSurveyResponses.userId],
+    references: [users.id],
+  }),
 }));
 
 export const meetupsRelations = relations(meetups, ({ one, many }) => ({
@@ -143,6 +163,20 @@ export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
   createdAt: true 
 });
 
+export const insertSurveyResponseSchema = createInsertSchema(userSurveyResponses).omit({
+  id: true,
+  createdAt: true
+});
+
+// Survey response schema with validation
+export const surveyResponseSchema = z.object({
+  favoriteConversationTopic: z.enum(['travel', 'food', 'career', 'hobbies', 'current_events']),
+  idealFirstMeetLocation: z.enum(['coffee_shop', 'casual_restaurant', 'outdoor_space', 'activity_venue', 'fine_dining']),
+  communicationStyle: z.enum(['direct', 'friendly', 'thoughtful', 'energetic', 'calm']),
+  socialEnergyLevel: z.enum(['introvert', 'ambivert', 'extrovert']),
+  weekendActivity: z.enum(['relaxing_home', 'outdoor_adventures', 'social_events', 'creative_projects', 'exploring_city'])
+});
+
 // Login schema
 export const loginSchema = z.object({
   usernameOrEmail: z.string().min(1, "Username or email is required"),
@@ -185,3 +219,6 @@ export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type ChatMessageWithUser = ChatMessage & { user: User };
 export type MeetupFilter = z.infer<typeof meetupFilterSchema>;
+export type InsertSurveyResponse = z.infer<typeof insertSurveyResponseSchema>;
+export type SurveyResponse = typeof userSurveyResponses.$inferSelect;
+export type SurveyFormData = z.infer<typeof surveyResponseSchema>;

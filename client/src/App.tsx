@@ -9,12 +9,22 @@ import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import Chat from "@/pages/chat";
 import Auth from "@/pages/auth";
+import WelcomeSurvey from "@/components/WelcomeSurvey";
+import type { User } from "@shared/schema";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+
+  // Check if authenticated user needs to take the survey
+  if (isAuthenticated && user) {
+    const userData = user as User;
+    if (!userData.hasTakenSurvey) {
+      return <WelcomeSurvey onComplete={() => window.location.reload()} />;
+    }
   }
 
   return (

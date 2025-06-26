@@ -8,6 +8,7 @@ import {
   insertMeetupParticipantSchema, 
   insertChatMessageSchema,
   meetupFilterSchema,
+  surveyResponseSchema,
   type MeetupFilter 
 } from "@shared/schema";
 import { z } from "zod";
@@ -59,6 +60,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid profile data" });
       }
       res.status(400).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // Survey routes
+  app.post('/api/survey', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const surveyData = surveyResponseSchema.parse(req.body);
+      
+      const response = await storage.createSurveyResponse({
+        userId,
+        ...surveyData,
+      });
+      
+      res.json(response);
+    } catch (error) {
+      console.error("Error saving survey response:", error);
+      res.status(500).json({ message: "Failed to save survey response" });
+    }
+  });
+
+  app.get('/api/survey/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const response = await storage.getSurveyResponse(userId);
+      
+      if (!response) {
+        return res.status(404).json({ message: "Survey response not found" });
+      }
+      
+      res.json(response);
+    } catch (error) {
+      console.error("Error fetching survey response:", error);
+      res.status(500).json({ message: "Failed to fetch survey response" });
     }
   });
 

@@ -3,6 +3,7 @@ import {
   meetups,
   meetupParticipants,
   chatMessages,
+  userSurveyResponses,
   type User,
   type UpsertUser,
   type InsertUser,
@@ -16,6 +17,8 @@ import {
   type ChatMessage,
   type ChatMessageWithUser,
   type MeetupFilter,
+  type InsertSurveyResponse,
+  type SurveyResponse,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, inArray, desc, asc, sql } from "drizzle-orm";
@@ -47,6 +50,10 @@ export interface IStorage {
   // Chat operations
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   getChatMessages(meetupId: number): Promise<ChatMessageWithUser[]>;
+  
+  // Survey operations
+  createSurveyResponse(response: InsertSurveyResponse): Promise<SurveyResponse>;
+  getSurveyResponse(userId: number): Promise<SurveyResponse | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -278,6 +285,27 @@ export class DatabaseStorage implements IStorage {
       ...result.chat_messages,
       user: result.users!,
     }));
+  }
+
+  // Survey operations
+  async createSurveyResponse(responseData: InsertSurveyResponse): Promise<SurveyResponse> {
+    const [response] = await db.insert(userSurveyResponses).values(responseData).returning();
+    
+    // Mark user as having taken the survey
+    await db
+      .update(users)
+      .set({ hasTakenSurvey: true, updatedAt: new Date() })
+      .where(eq(users.id, responseData.userId));
+    
+    return response;
+  }
+
+  async getSurveyResponse(userId: number): Promise<SurveyResponse | undefined> {
+    const [response] = await db
+      .select()
+      .from(userSurveyResponses)
+      .where(eq(userSurveyResponses.userId, userId));
+    return response;
   }
 }
 
