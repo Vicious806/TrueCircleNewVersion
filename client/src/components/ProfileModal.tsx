@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -32,23 +32,17 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [location, setLocation] = useState('');
   const [bio, setBio] = useState('');
   const [interests, setInterests] = useState<string[]>([]);
-  const [isAgeVerified, setIsAgeVerified] = useState(false);
 
   // Initialize form with user data
   useEffect(() => {
     if (user) {
       const userData = user as User;
-      setFirstName(userData.firstName || '');
-      setLastName(userData.lastName || '');
       setLocation(userData.location || '');
       setBio(userData.bio || '');
       setInterests(userData.interests || []);
-      setIsAgeVerified(userData.isAgeVerified || false);
     }
   }, [user]);
 
@@ -57,7 +51,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       return apiRequest('PUT', '/api/profile', profileData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       
       toast({
         title: "Profile Updated!",
@@ -96,22 +90,10 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   };
 
   const handleSave = () => {
-    if (!isAgeVerified) {
-      toast({
-        title: "Age Verification Required",
-        description: "You must confirm you are 18+ to use this platform.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const profileData = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
       location: location.trim(),
       bio: bio.trim(),
       interests,
-      isAgeVerified,
     };
 
     updateProfileMutation.mutate(profileData);
@@ -127,42 +109,6 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Age Verification */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="age-verification"
-                checked={isAgeVerified}
-                onCheckedChange={(checked) => setIsAgeVerified(!!checked)}
-              />
-              <Label htmlFor="age-verification" className="text-sm font-medium text-gray-700">
-                I confirm that I am 18 years or older
-              </Label>
-            </div>
-            <p className="text-xs text-gray-600 mt-2">
-              This platform is exclusively for adults. Age verification is required.
-            </p>
-          </div>
-
-          {/* Basic Info */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">First Name</Label>
-              <Input
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="Enter first name"
-              />
-            </div>
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">Last Name</Label>
-              <Input
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Enter last name"
-              />
-            </div>
-          </div>
 
           {/* Location */}
           <div>
@@ -226,7 +172,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           </Button>
           <Button 
             onClick={handleSave}
-            disabled={updateProfileMutation.isPending || !isAgeVerified}
+            disabled={updateProfileMutation.isPending}
             className="flex-1 gradient-primary text-white font-semibold"
           >
             {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}

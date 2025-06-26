@@ -102,6 +102,7 @@ The application is configured for Replit's autoscale deployment with:
 Changelog:
 - June 26, 2025. Initial setup
 - June 26, 2025. Replaced Replit Auth with custom username/email/password authentication system. Added user registration with 18+ age verification checkbox, unique username constraints, and email verification (auto-verified in development). Created two-column authentication page with login/registration forms.
+- June 26, 2025. Updated ProfileModal to only allow editing location and bio fields since names are collected during registration. Removed age verification from profile editing as it's required during signup.
 
 ## User Preferences
 

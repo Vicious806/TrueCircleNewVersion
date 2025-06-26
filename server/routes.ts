@@ -27,10 +27,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Profile update schema - only allow location, bio, and interests
+  const profileUpdateSchema = z.object({
+    location: z.string().optional(),
+    bio: z.string().optional(),
+    interests: z.array(z.string()).optional(),
+  });
+
   app.put('/api/profile', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
-      const updatedUser = await storage.updateUser(userId, req.body);
+      const validatedData = profileUpdateSchema.parse(req.body);
+      const updatedUser = await storage.updateUser(userId, validatedData);
       res.json({ ...updatedUser, password: undefined });
     } catch (error) {
       console.error("Error updating profile:", error);
