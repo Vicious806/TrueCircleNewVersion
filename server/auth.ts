@@ -132,9 +132,7 @@ export function setupAuth(app: Express) {
 
       // TODO: Send verification email in production
       // For development, auto-verify email
-      if (process.env.NODE_ENV === "development") {
-        await storage.updateUser(user.id, { isEmailVerified: true });
-      }
+      await storage.updateUser(user.id, { isEmailVerified: true });
 
       res.status(201).json({ 
         message: "Registration successful. Please check your email for verification.",

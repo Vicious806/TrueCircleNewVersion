@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 
 const loginSchema = z.object({
@@ -62,7 +62,9 @@ export default function Auth() {
       const response = await apiRequest("POST", "/api/login", data);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Update the user cache with the logged-in user data
+      queryClient.setQueryData(["/api/user"], data.user);
       toast({
         title: "Welcome back!",
         description: "You've successfully logged in.",
@@ -83,12 +85,32 @@ export default function Auth() {
       const response = await apiRequest("POST", "/api/register", data);
       return response.json();
     },
-    onSuccess: () => {
-      toast({
-        title: "Registration successful!",
-        description: "Welcome to FriendMeet! You can now start creating and joining meetups.",
-      });
-      setLocation("/");
+    onSuccess: async () => {
+      // After registration, log the user in automatically
+      const loginData = {
+        usernameOrEmail: registerForm.getValues("username"),
+        password: registerForm.getValues("password"),
+      };
+      
+      try {
+        const loginResponse = await apiRequest("POST", "/api/login", loginData);
+        const loginResult = await loginResponse.json();
+        
+        // Update the user cache with the logged-in user data
+        queryClient.setQueryData(["/api/user"], loginResult.user);
+        
+        toast({
+          title: "Welcome to FriendMeet!",
+          description: "Your account has been created and you're now logged in.",
+        });
+        setLocation("/");
+      } catch (error) {
+        toast({
+          title: "Registration successful!",
+          description: "Please log in with your new credentials.",
+        });
+        setActiveTab("login");
+      }
     },
     onError: (error: Error) => {
       toast({
