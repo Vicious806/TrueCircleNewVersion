@@ -116,7 +116,7 @@ export default function Home() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 gradient-primary rounded-2xl flex items-center justify-center">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
                     <UserCheck className="text-white h-7 w-7" />
                   </div>
                   <div>
@@ -177,7 +177,7 @@ export default function Home() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 gradient-accent rounded-2xl flex items-center justify-center">
+                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
                     <Users className="text-white h-7 w-7" />
                   </div>
                   <div>
