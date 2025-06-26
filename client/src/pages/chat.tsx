@@ -2,10 +2,12 @@ import { useEffect, useState, useRef } from "react";
 import { useRoute } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ArrowLeft, Send, Info, Paperclip, Smile } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -191,42 +193,109 @@ export default function Chat() {
             </p>
           </div>
         ) : (
-          messages.map((msg) => {
-            const isOwnMessage = msg.user.id === user?.id;
+          messages.map((msg, index) => {
             const initials = getInitials(msg.user.firstName, msg.user.lastName);
+            const showDateSeparator = index === 0 || 
+              new Date(msg.createdAt).toDateString() !== new Date(messages[index - 1].createdAt).toDateString();
 
             return (
-              <div
-                key={msg.id}
-                className={`flex items-start space-x-3 ${isOwnMessage ? 'flex-row-reverse space-x-reverse' : ''}`}
-              >
-                {!isOwnMessage && (
-                  <div className="w-8 h-8 bg-gradient-to-r from-secondary to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs font-semibold">{initials}</span>
+              <div key={msg.id}>
+                {/* Date Separator */}
+                {showDateSeparator && (
+                  <div className="flex items-center justify-center my-4">
+                    <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
+                      {new Date(msg.createdAt).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </div>
                   </div>
                 )}
-                
-                <div className={`flex-1 max-w-xs ${isOwnMessage ? 'text-right' : ''}`}>
-                  {!isOwnMessage && (
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-medium text-gray-900 text-sm">{msg.user.firstName}</span>
-                      <span className="text-xs text-gray-500">{formatTime(msg.createdAt)}</span>
-                    </div>
-                  )}
-                  
-                  <div
-                    className={`rounded-2xl p-3 ${
-                      isOwnMessage
-                        ? 'gradient-primary text-white rounded-br-md'
-                        : 'bg-gray-100 text-gray-900 rounded-tl-md'
-                    }`}
-                  >
-                    <p className="text-sm">{msg.message}</p>
+
+                {/* Discord-style Message */}
+                <div className="group flex items-start space-x-3 px-4 py-1 hover:bg-gray-50 rounded">
+                  {/* Profile Picture */}
+                  <div className="flex-shrink-0">
+                    <Avatar className="w-10 h-10">
+                      <AvatarImage src={msg.user.profileImageUrl || undefined} />
+                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-semibold">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
-                  
-                  {isOwnMessage && (
-                    <div className="text-xs text-gray-500 mt-1">{formatTime(msg.createdAt)}</div>
-                  )}
+
+                  {/* Message Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2">
+                      {/* Username with Profile Popup */}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="font-semibold text-gray-900 hover:underline text-sm cursor-pointer">
+                            {msg.user.firstName} {msg.user.lastName}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80 p-0" side="right" align="start">
+                          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-16 rounded-t-lg"></div>
+                          <div className="p-4 -mt-8">
+                            <div className="flex items-start space-x-3">
+                              <Avatar className="w-16 h-16 border-4 border-white">
+                                <AvatarImage src={msg.user.profileImageUrl || undefined} />
+                                <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-lg font-semibold">
+                                  {initials}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 pt-2">
+                                <h3 className="font-bold text-lg text-gray-900">
+                                  {msg.user.firstName} {msg.user.lastName}
+                                </h3>
+                                <p className="text-gray-600 text-sm">@{msg.user.username}</p>
+                              </div>
+                            </div>
+                            
+                            {msg.user.bio && (
+                              <div className="mt-3">
+                                <h4 className="font-semibold text-sm text-gray-700 mb-1">About</h4>
+                                <p className="text-gray-600 text-sm">{msg.user.bio}</p>
+                              </div>
+                            )}
+                            
+                            <div className="mt-3">
+                              <h4 className="font-semibold text-sm text-gray-700 mb-1">Location</h4>
+                              <p className="text-gray-600 text-sm">{msg.user.location || 'Not specified'}</p>
+                            </div>
+                            
+                            <div className="mt-3">
+                              <h4 className="font-semibold text-sm text-gray-700 mb-1">Joined</h4>
+                              <p className="text-gray-600 text-sm">
+                                {new Date(msg.user.createdAt).toLocaleDateString('en-US', {
+                                  month: 'long',
+                                  year: 'numeric'
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Timestamp */}
+                      <span className="text-xs text-gray-500">
+                        {new Date(msg.createdAt).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
+                      </span>
+                    </div>
+
+                    {/* Message Text */}
+                    <div className="mt-1">
+                      <p className="text-gray-900 text-sm leading-relaxed break-words">
+                        {msg.message}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             );
