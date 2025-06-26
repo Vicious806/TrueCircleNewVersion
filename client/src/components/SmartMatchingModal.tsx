@@ -93,7 +93,6 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
       venueType: venueType as any,
       preferredDate,
       preferredTime: preferredTime as any,
-      preferredLocation: preferredLocation || undefined,
       maxDistance: maxDistance[0],
     };
 
@@ -185,21 +184,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
             </Select>
           </div>
 
-          {/* Location Preference */}
-          <div>
-            <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">
-              <MapPin className="w-4 h-4 mr-2" />
-              Preferred Area (Optional)
-            </Label>
-            <Input 
-              placeholder="e.g., Downtown, Brooklyn, specific restaurant..."
-              value={preferredLocation}
-              onChange={(e) => setPreferredLocation(e.target.value)}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Leave blank to let us suggest great places for you
-            </p>
-          </div>
+
 
           {/* Distance */}
           <div>

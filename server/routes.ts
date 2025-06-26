@@ -234,7 +234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const match = await storage.createMatch({
           participants,
           meetupType: requestData.meetupType, // Ensures same type matching
-          suggestedLocation: requestData.preferredLocation,
+          venueType: requestData.venueType,
           suggestedTime: requestData.preferredTime,
           suggestedDate: requestData.preferredDate,
           matchScore: 85, // Based on compatibility algorithm

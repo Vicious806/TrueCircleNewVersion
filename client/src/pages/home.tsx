@@ -78,12 +78,12 @@ export default function Home() {
       {/* Main Content */}
       <main className="max-w-lg mx-auto px-4 py-6">
         {/* Location Banner */}
-        <Card className="mb-6 bg-gradient-to-r from-amber-50 to-amber-25 border-amber-200">
+        <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                  <MapPin className="text-amber-600 h-5 w-5" />
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <MapPin className="text-blue-600 h-5 w-5" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">Current Location</h3>
@@ -95,7 +95,7 @@ export default function Home() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-amber-600 hover:text-amber-700"
+                className="text-blue-600 hover:text-blue-700"
                 onClick={() => setShowProfileModal(true)}
               >
                 Edit
@@ -116,7 +116,7 @@ export default function Home() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
                     <UserCheck className="text-white h-7 w-7" />
                   </div>
                   <div>
@@ -145,7 +145,7 @@ export default function Home() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center">
                     <Users className="text-white h-7 w-7" />
                   </div>
                   <div>

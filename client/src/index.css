@@ -13,12 +13,12 @@
   --card-foreground: hsl(20, 14.3%, 4.1%);
   --border: hsl(20, 5.9%, 90%);
   --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(248, 83%, 63%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(329, 83%, 61%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(36, 98%, 48%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
+  --primary: hsl(221, 83%, 53%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(220, 14%, 96%);
+  --secondary-foreground: hsl(221, 39%, 11%);
+  --accent: hsl(217, 91%, 60%);
+  --accent-foreground: hsl(221, 39%, 11%);
   --success: hsl(158, 64%, 52%);
   --success-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 84.2%, 60.2%);
@@ -38,12 +38,12 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 3.7%, 15.9%);
   --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(248, 83%, 63%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(329, 83%, 61%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(36, 98%, 48%);
-  --accent-foreground: hsl(0, 0%, 98%);
+  --primary: hsl(221, 83%, 53%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(220, 14%, 96%);
+  --secondary-foreground: hsl(221, 39%, 11%);
+  --accent: hsl(217, 91%, 60%);
+  --accent-foreground: hsl(221, 39%, 11%);
   --success: hsl(158, 64%, 52%);
   --success-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 62.8%, 30.6%);
@@ -65,11 +65,11 @@
 
 @layer components {
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
   }
   
   .gradient-accent {
-    background: linear-gradient(135deg, hsl(var(--accent)), hsl(36, 98%, 38%));
+    background: linear-gradient(135deg, hsl(var(--accent)), hsl(217, 91%, 50%));
   }
   
   .gradient-success {
