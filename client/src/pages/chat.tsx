@@ -48,7 +48,7 @@ export default function Chat() {
 
   // WebSocket setup
   useEffect(() => {
-    if (!meetupId) return;
+    if (!matchId) return;
 
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}/ws`;
@@ -58,7 +58,7 @@ export default function Chat() {
       console.log('WebSocket connected');
       ws.send(JSON.stringify({
         type: 'join_room',
-        meetupId,
+        matchId,
       }));
       setSocket(ws);
     };
@@ -68,7 +68,7 @@ export default function Chat() {
       
       if (data.type === 'new_message' || data.type === 'message_sent') {
         queryClient.invalidateQueries({ 
-          queryKey: ['/api/meetups', meetupId, 'messages'] 
+          queryKey: ['/api/matches', matchId, 'messages'] 
         });
       }
     };
@@ -85,7 +85,7 @@ export default function Chat() {
     return () => {
       ws.close();
     };
-  }, [meetupId, queryClient]);
+  }, [matchId, queryClient]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function Chat() {
 
     socket.send(JSON.stringify({
       type: 'chat_message',
-      meetupId,
+      matchId,
       userId: user.id,
       message: message.trim(),
     }));
@@ -127,7 +127,7 @@ export default function Chat() {
     return firstName?.[0] || lastName?.[0] || '?';
   };
 
-  if (!meetup) {
+  if (!match) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p>Loading...</p>
@@ -140,15 +140,15 @@ export default function Chat() {
       {/* Chat Header */}
       <header className="bg-white shadow-sm border-b border-gray-100 p-4">
         <div className="flex items-center space-x-3">
-          <Link href="/">
+          <Link href="/matches">
             <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100 rounded-full">
               <ArrowLeft className="h-5 w-5 text-gray-600" />
             </Button>
           </Link>
           <div className="flex-1">
-            <h2 className="font-semibold text-gray-900">{meetup.title}</h2>
+            <h2 className="font-semibold text-gray-900">Group Chat</h2>
             <p className="text-sm text-gray-600">
-              {meetup.participants.length} participants • {meetup.scheduledDate || 'Date TBD'}
+              {match.users.length} participants • Anonymous chat
             </p>
           </div>
           <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100 rounded-full">
@@ -157,17 +157,17 @@ export default function Chat() {
         </div>
       </header>
 
-      {/* Participants Bar */}
+      {/* Anonymous Participants Bar */}
       <div className="bg-gray-50 px-4 py-2 border-b border-gray-100">
         <div className="flex items-center space-x-2">
-          {meetup.participants.map((participant) => (
-            <div key={participant.user.id} className="flex items-center space-x-1">
-              <div className="w-6 h-6 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
+          {match.users.map((matchUser: any, index: number) => (
+            <div key={matchUser.id} className="flex items-center space-x-1">
+              <div className="w-6 h-6 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-xs font-semibold">
-                  {getInitials(participant.user.firstName, participant.user.lastName)}
+                  A{index + 1}
                 </span>
               </div>
-              <span className="text-xs text-gray-600">{participant.user.firstName}</span>
+              <span className="text-xs text-gray-600">Anonymous {index + 1}</span>
             </div>
           ))}
         </div>
@@ -193,113 +193,83 @@ export default function Chat() {
             </p>
           </div>
         ) : (
-          messages.map((msg, index) => {
-            const initials = getInitials(msg.user.firstName, msg.user.lastName);
-            const showDateSeparator = index === 0 || 
-              new Date(msg.createdAt).toDateString() !== new Date(messages[index - 1].createdAt).toDateString();
+          (() => {
+            // Create anonymous mapping for users
+            const userAnonymousMap = new Map<number, number>();
+            let anonymousCounter = 1;
+            
+            // First pass: assign anonymous numbers
+            messages.forEach(msg => {
+              if (!userAnonymousMap.has(msg.user.id)) {
+                userAnonymousMap.set(msg.user.id, anonymousCounter++);
+              }
+            });
 
-            return (
-              <div key={msg.id}>
-                {/* Date Separator */}
-                {showDateSeparator && (
-                  <div className="flex items-center justify-center my-4">
-                    <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
-                      {new Date(msg.createdAt).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </div>
-                  </div>
-                )}
+            return messages.map((msg, index) => {
+              const anonymousNumber = userAnonymousMap.get(msg.user.id);
+              const anonymousName = `Anonymous ${anonymousNumber}`;
+              const anonymousInitials = `A${anonymousNumber}`;
+              
+              const showDateSeparator = index === 0 || 
+                new Date(msg.createdAt || '').toDateString() !== new Date(messages[index - 1].createdAt || '').toDateString();
 
-                {/* Discord-style Message */}
-                <div className="group flex items-start space-x-3 px-4 py-1 hover:bg-gray-50 rounded">
-                  {/* Profile Picture */}
-                  <div className="flex-shrink-0">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={msg.user.profileImageUrl || undefined} />
-                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm font-semibold">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-
-                  {/* Message Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2">
-                      {/* Username with Profile Popup */}
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="font-semibold text-gray-900 hover:underline text-sm cursor-pointer">
-                            {msg.user.firstName} {msg.user.lastName}
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80 p-0" side="right" align="start">
-                          <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-16 rounded-t-lg"></div>
-                          <div className="p-4 -mt-8">
-                            <div className="flex items-start space-x-3">
-                              <Avatar className="w-16 h-16 border-4 border-white">
-                                <AvatarImage src={msg.user.profileImageUrl || undefined} />
-                                <AvatarFallback className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-lg font-semibold">
-                                  {initials}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 pt-2">
-                                <h3 className="font-bold text-lg text-gray-900">
-                                  {msg.user.firstName} {msg.user.lastName}
-                                </h3>
-                                <p className="text-gray-600 text-sm">@{msg.user.username}</p>
-                              </div>
-                            </div>
-                            
-                            {msg.user.bio && (
-                              <div className="mt-3">
-                                <h4 className="font-semibold text-sm text-gray-700 mb-1">About</h4>
-                                <p className="text-gray-600 text-sm">{msg.user.bio}</p>
-                              </div>
-                            )}
-                            
-                            <div className="mt-3">
-                              <h4 className="font-semibold text-sm text-gray-700 mb-1">Location</h4>
-                              <p className="text-gray-600 text-sm">{msg.user.location || 'Not specified'}</p>
-                            </div>
-                            
-                            <div className="mt-3">
-                              <h4 className="font-semibold text-sm text-gray-700 mb-1">Joined</h4>
-                              <p className="text-gray-600 text-sm">
-                                {new Date(msg.user.createdAt).toLocaleDateString('en-US', {
-                                  month: 'long',
-                                  year: 'numeric'
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-
-                      {/* Timestamp */}
-                      <span className="text-xs text-gray-500">
-                        {new Date(msg.createdAt).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true
+              return (
+                <div key={msg.id}>
+                  {/* Date Separator */}
+                  {showDateSeparator && (
+                    <div className="flex items-center justify-center my-4">
+                      <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full">
+                        {new Date(msg.createdAt || '').toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
                         })}
-                      </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Discord-style Anonymous Message */}
+                  <div className="group flex items-start space-x-3 px-4 py-1 hover:bg-gray-50 rounded">
+                    {/* Anonymous Avatar */}
+                    <div className="flex-shrink-0">
+                      <Avatar className="w-10 h-10">
+                        <AvatarFallback className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-sm font-semibold">
+                          {anonymousInitials}
+                        </AvatarFallback>
+                      </Avatar>
                     </div>
 
-                    {/* Message Text */}
-                    <div className="mt-1">
-                      <p className="text-gray-900 text-sm leading-relaxed break-words">
-                        {msg.message}
-                      </p>
+                    {/* Message Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2">
+                        {/* Anonymous Username */}
+                        <span className="font-semibold text-gray-900 text-sm">
+                          {anonymousName}
+                        </span>
+
+                        {/* Timestamp */}
+                        <span className="text-xs text-gray-500">
+                          {new Date(msg.createdAt || '').toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })}
+                        </span>
+                      </div>
+
+                      {/* Message Text */}
+                      <div className="mt-1">
+                        <p className="text-gray-900 text-sm leading-relaxed break-words">
+                          {msg.message}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            });
+          })()
         )}
         <div ref={messagesEndRef} />
       </div>
