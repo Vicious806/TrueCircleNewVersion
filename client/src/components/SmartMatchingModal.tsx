@@ -21,16 +21,49 @@ interface SmartMatchingModalProps {
 }
 
 const timeOptions = [
-  { value: 'lunch', label: 'Lunch (12-2 PM)', icon: '🍽️' },
-  { value: 'dinner', label: 'Dinner (6-8 PM)', icon: '🌆' },
-  { value: 'brunch', label: 'Brunch (10-12 PM)', icon: '🥐' },
-  { value: 'late-dinner', label: 'Late Dinner (8-10 PM)', icon: '🌙' },
+  { value: '1pm', label: '1:00 PM', icon: '🍽️' },
+  { value: '5:30pm', label: '5:30 PM', icon: '🌆' },
 ];
 
 const venueOptions = [
   { value: 'restaurant', label: 'Restaurant', description: 'Full meals and dining experience', icon: Utensils },
   { value: 'cafe', label: 'Cafe', description: 'Coffee, light meals, and casual atmosphere', icon: Coffee },
 ];
+
+// Helper function to get the next few Fridays
+function getNextFridays(count: number) {
+  const fridays = [];
+  const today = new Date();
+  let currentDate = new Date(today);
+  
+  // Find the next Friday
+  const daysUntilFriday = (5 - currentDate.getDay() + 7) % 7;
+  if (daysUntilFriday === 0 && currentDate.getHours() >= 18) {
+    // If it's Friday after 6 PM, start from next Friday
+    currentDate.setDate(currentDate.getDate() + 7);
+  } else {
+    currentDate.setDate(currentDate.getDate() + daysUntilFriday);
+  }
+  
+  for (let i = 0; i < count; i++) {
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const formatted = currentDate.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+    
+    fridays.push({
+      value: dateStr,
+      label: formatted
+    });
+    
+    // Move to next Friday
+    currentDate.setDate(currentDate.getDate() + 7);
+  }
+  
+  return fridays;
+}
 
 export default function SmartMatchingModal({ isOpen, onClose, meetupType }: SmartMatchingModalProps) {
   const [, setLocation] = useLocation();
@@ -154,19 +187,24 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
             </div>
           </div>
 
-          {/* Date Selection */}
+          {/* Date Selection - Only Fridays */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">
               <Clock className="w-4 h-4 mr-2" />
-              When would you like to meet?
+              Which Friday would you like to meet?
             </Label>
-            <Input 
-              type="date" 
-              value={preferredDate}
-              onChange={(e) => setPreferredDate(e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
-              className="mb-3"
-            />
+            <Select value={preferredDate} onValueChange={setPreferredDate}>
+              <SelectTrigger className="mb-3">
+                <SelectValue placeholder="Select a Friday" />
+              </SelectTrigger>
+              <SelectContent>
+                {getNextFridays(4).map((friday: { value: string; label: string }) => (
+                  <SelectItem key={friday.value} value={friday.value}>
+                    {friday.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select value={preferredTime} onValueChange={setPreferredTime}>
               <SelectTrigger>
                 <SelectValue placeholder="Select preferred time" />
