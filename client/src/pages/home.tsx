@@ -124,10 +124,6 @@ export default function Home() {
                     <p className="text-gray-600 text-sm">Connect with one person over a meal</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
-                        <Clock className="w-3 h-3 mr-1" />
-                        1-2 hours
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
                         <Star className="w-3 h-3 mr-1" />
                         Popular
                       </Badge>
@@ -157,10 +153,6 @@ export default function Home() {
                     <p className="text-gray-600 text-sm">Small group dining experience</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
-                        <Clock className="w-3 h-3 mr-1" />
-                        1.5-2.5 hours
-                      </Badge>
-                      <Badge variant="secondary" className="text-xs">
                         💬 Great vibes
                       </Badge>
                     </div>
@@ -188,10 +180,6 @@ export default function Home() {
                     <h3 className="font-semibold text-gray-900 text-lg">Group Meetup</h3>
                     <p className="text-gray-600 text-sm">Join a lively group gathering</p>
                     <div className="flex items-center space-x-4 mt-2">
-                      <Badge variant="secondary" className="text-xs">
-                        <Clock className="w-3 h-3 mr-1" />
-                        2-3 hours
-                      </Badge>
                       <Badge variant="secondary" className="text-xs">
                         🔥 Energetic
                       </Badge>
