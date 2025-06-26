@@ -31,7 +31,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const profileUpdateSchema = z.object({
     username: z.string().min(1).optional(),
     bio: z.string().optional(),
-    profileImageUrl: z.string().url().optional().or(z.literal('')),
+    profileImageUrl: z.string().optional().or(z.literal('')), // Allow base64 data URLs or empty string
     interests: z.array(z.string()).optional(),
   });
 

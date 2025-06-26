@@ -47,6 +47,39 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     }
   }, [user]);
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Check if file is an image
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file (PNG, JPG, etc.)",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Convert to base64 data URL for preview and storage
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setProfileImageUrl(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const updateProfileMutation = useMutation({
     mutationFn: async (profileData: any) => {
       return apiRequest('PUT', '/api/profile', profileData);
@@ -137,16 +170,37 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
             <p className="text-xs text-gray-500 mt-1">Choose a unique username</p>
           </div>
 
-          {/* Profile Picture */}
+          {/* Profile Picture Upload */}
           <div>
-            <Label className="text-sm font-medium text-gray-700 mb-2 block">Profile Picture URL</Label>
-            <Input
-              value={profileImageUrl}
-              onChange={(e) => setProfileImageUrl(e.target.value)}
-              placeholder="https://example.com/your-photo.jpg"
-              type="url"
-            />
-            <p className="text-xs text-gray-500 mt-1">Enter a URL to your profile picture</p>
+            <Label className="text-sm font-medium text-gray-700 mb-2 block">Profile Picture</Label>
+            <div className="flex items-center space-x-3">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="profile-picture-upload"
+              />
+              <label
+                htmlFor="profile-picture-upload"
+                className="cursor-pointer flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <Camera className="w-4 h-4 text-gray-600" />
+                <span className="text-sm text-gray-700">Choose Image</span>
+              </label>
+              {profileImageUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setProfileImageUrl('')}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  Remove
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Upload an image file (PNG, JPG, etc.) - Max 5MB</p>
           </div>
 
           {/* Bio */}
