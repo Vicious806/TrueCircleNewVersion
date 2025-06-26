@@ -3,24 +3,27 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Settings, Clock, Star, Users, User, UserPlus } from "lucide-react";
+import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus } from "lucide-react";
 import { useState } from "react";
 import FilterModal from "@/components/FilterModal";
 import MeetupCard from "@/components/MeetupCard";
-import type { MeetupWithCreator } from "@shared/schema";
+import ProfileModal from "@/components/ProfileModal";
+import type { MeetupWithCreator, User } from "@shared/schema";
 
 export default function Home() {
   const { user } = useAuth();
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedMeetupType, setSelectedMeetupType] = useState<'1v1' | '3people' | 'group'>('1v1');
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const { data: userMeetups = [] } = useQuery({
     queryKey: ['/api/user/meetups'],
-  });
+  }) as { data: MeetupWithCreator[] };
 
-  const initials = user?.firstName && user?.lastName 
-    ? `${user.firstName[0]}${user.lastName[0]}` 
-    : user?.email?.[0]?.toUpperCase() || 'U';
+  const userData = user as User;
+  const initials = userData?.firstName && userData?.lastName 
+    ? `${userData.firstName[0]}${userData.lastName[0]}` 
+    : userData?.email?.[0]?.toUpperCase() || 'U';
 
   const handleMeetupTypeSelect = (type: '1v1' | '3people' | 'group') => {
     setSelectedMeetupType(type);
@@ -38,7 +41,7 @@ export default function Home() {
             </div>
             <div>
               <h1 className="font-bold text-gray-900">
-                Hi, {user?.firstName || 'there'}!
+                Hi, {userData?.firstName || 'there'}!
               </h1>
               <p className="text-sm text-gray-500">Ready to make new friends?</p>
             </div>
@@ -67,11 +70,16 @@ export default function Home() {
                 <div>
                   <h3 className="font-semibold text-gray-900">Current Location</h3>
                   <p className="text-sm text-gray-600">
-                    {user?.location || 'Set your location'}
+                    {userData?.location || 'Set your location'}
                   </p>
                 </div>
               </div>
-              <Button variant="ghost" size="sm" className="text-amber-600 hover:text-amber-700">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-amber-600 hover:text-amber-700"
+                onClick={() => setShowProfileModal(true)}
+              >
                 Edit
               </Button>
             </div>
@@ -91,7 +99,7 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-14 h-14 gradient-primary rounded-2xl flex items-center justify-center">
-                    <User className="text-white h-6 w-6" />
+                    <UserIcon className="text-white h-6 w-6" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 text-lg">1-on-1 Meetup</h3>
@@ -199,6 +207,11 @@ export default function Home() {
         </Card>
       </main>
 
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      />
+      
       <FilterModal
         isOpen={showFilterModal}
         onClose={() => setShowFilterModal(false)}

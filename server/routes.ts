@@ -28,6 +28,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const profileData = {
+        id: userId,
+        email: req.user.claims.email,
+        ...req.body,
+      };
+      
+      const updatedUser = await storage.upsertUser(profileData);
+      res.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      res.status(400).json({ message: "Failed to update profile" });
+    }
+  });
+
   // Meetup routes
   app.post('/api/meetups', isAuthenticated, async (req: any, res) => {
     try {
