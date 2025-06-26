@@ -38,7 +38,8 @@ export default function Home() {
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setShowProfileModal(true)}
-              className="w-10 h-10 gradient-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer"
+              className="relative w-10 h-10 gradient-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer group"
+              title="Click to edit profile"
             >
               {userData?.profileImageUrl ? (
                 <img 
@@ -49,6 +50,9 @@ export default function Home() {
               ) : (
                 <span className="text-white font-semibold text-sm">{initials}</span>
               )}
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
+                <UserIcon className="w-2.5 h-2.5 text-white" />
+              </div>
             </button>
             <div>
               <h1 className="font-bold text-gray-900">
