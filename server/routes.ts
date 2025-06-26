@@ -269,6 +269,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test data endpoint for development
+  app.post('/api/test/populate-users', async (req, res) => {
+    try {
+      // Create test users with survey responses for matching
+      const testUsers = [
+        {
+          username: 'foodie_sarah',
+          email: 'sarah@test.com',
+          firstName: 'Sarah',
+          lastName: 'Chen',
+          bio: 'Food enthusiast who loves trying new restaurants and meeting new people!',
+          location: 'Downtown Seattle',
+          profileImageUrl: null,
+          interests: ['Italian Food', 'Wine Tasting', 'Travel'],
+          password: 'test123',
+          isAgeVerified: true,
+          isEmailVerified: true
+        },
+        {
+          username: 'coffee_mike',
+          email: 'mike@test.com',
+          firstName: 'Mike',
+          lastName: 'Johnson',
+          bio: 'Coffee connoisseur and startup enthusiast. Always up for good conversation!',
+          location: 'Capitol Hill, Seattle',
+          profileImageUrl: null,
+          interests: ['Coffee', 'Technology', 'Reading'],
+          password: 'test123',
+          isAgeVerified: true,
+          isEmailVerified: true
+        },
+        {
+          username: 'chef_alex',
+          email: 'alex@test.com',
+          firstName: 'Alex',
+          lastName: 'Rivera',
+          bio: 'Professional chef who loves exploring culinary scenes and sharing food experiences.',
+          location: 'Bellevue, WA',
+          profileImageUrl: null,
+          interests: ['Cooking', 'Fine Dining', 'Food Photography'],
+          password: 'test123',
+          isAgeVerified: true,
+          isEmailVerified: true
+        }
+      ];
+
+      // Create users and their survey responses
+      for (const userData of testUsers) {
+        try {
+          const user = await storage.createUser(userData);
+          
+          // Create survey responses for matching
+          await storage.createSurveyResponse({
+            userId: user.id,
+            favoriteConversationTopic: userData.username.includes('foodie') ? 'Food & Culture' : 
+                               userData.username.includes('coffee') ? 'Business & Tech' : 'Arts & Lifestyle',
+            hobbies: userData.username.includes('chef') ? 'Fine Dining' : 'Casual Dining',
+            favoriteMusic: 'Various',
+            favoriteShow: 'Food Network',
+            personalityType: userData.username.includes('mike') ? 'Introvert' : 'Extrovert'
+          });
+        } catch (error) {
+          // User might already exist, skip
+          console.log(`User ${userData.username} already exists`);
+        }
+      }
+
+      res.json({ message: 'Test users created successfully' });
+    } catch (error) {
+      console.error('Error creating test users:', error);
+      res.status(500).json({ message: 'Failed to create test users' });
+    }
+  });
+
   // Smart matching routes
   app.post('/api/matching-request', isAuthenticated, async (req: any, res) => {
     try {

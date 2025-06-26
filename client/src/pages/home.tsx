@@ -1,15 +1,17 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck } from "lucide-react";
+import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck, TestTube } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import SmartMatchingModal from "@/components/SmartMatchingModal";
 import MeetupCard from "@/components/MeetupCard";
 import ProfileModal from "@/components/ProfileModal";
 import LocationModal from "@/components/LocationModal";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { MeetupWithCreator, User } from "@shared/schema";
 
 export default function Home() {
@@ -28,6 +30,27 @@ export default function Home() {
   const initials = userData?.firstName && userData?.lastName 
     ? `${userData.firstName[0]}${userData.lastName[0]}` 
     : userData?.email?.[0]?.toUpperCase() || 'U';
+
+  const { toast } = useToast();
+
+  const populateTestUsers = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('/api/test/populate-users', 'POST');
+    },
+    onSuccess: () => {
+      toast({
+        title: "Test Users Added",
+        description: "Sample users have been created. You can now test the matching system!",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleMeetupTypeSelect = (type: '1v1' | 'group') => {
     setSelectedMeetupType(type);
@@ -103,6 +126,34 @@ export default function Home() {
                 onClick={() => setShowLocationModal(true)}
               >
                 Edit
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Test Data Button (Development Only) */}
+        <Card className="mb-6 bg-gradient-to-r from-orange-50 to-yellow-50 border-orange-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                  <TestTube className="text-orange-600 h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Test Mode</h3>
+                  <p className="text-sm text-gray-600">
+                    Add sample users to test matching
+                  </p>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-orange-600 hover:text-orange-700 border-orange-200"
+                onClick={() => populateTestUsers.mutate()}
+                disabled={populateTestUsers.isPending}
+              >
+                {populateTestUsers.isPending ? 'Adding...' : 'Add Test Users'}
               </Button>
             </div>
           </CardContent>
