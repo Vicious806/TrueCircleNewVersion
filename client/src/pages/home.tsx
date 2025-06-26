@@ -43,10 +43,10 @@ export default function Home() {
               <p className="text-sm text-gray-500">Ready to make new friends?</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <button
               onClick={() => setShowProfileModal(true)}
-              className="relative w-8 h-8 gradient-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer group"
+              className="relative w-10 h-10 gradient-primary rounded-full flex items-center justify-center hover:opacity-90 transition-opacity cursor-pointer border-2 border-white shadow-sm"
               title="Edit profile"
             >
               {userData?.profileImageUrl ? (
@@ -56,17 +56,16 @@ export default function Home() {
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
-                <span className="text-white font-semibold text-xs">{initials}</span>
+                <span className="text-white font-semibold text-sm">{initials}</span>
               )}
             </button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={logout}
-              className="p-2 text-gray-600 hover:text-gray-900"
-              title="Logout"
+              className="text-gray-600 hover:text-gray-900 hover:bg-gray-50"
             >
-              <Settings className="h-5 w-5" />
+              Log out
             </Button>
           </div>
         </div>
