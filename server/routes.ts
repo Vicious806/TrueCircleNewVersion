@@ -377,16 +377,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const potentialMatches = await storage.findPotentialMatches(userId, requestData.meetupType, requestData.venueType);
       
       if (potentialMatches.length > 0) {
-        // Create a match with compatible users of the same meetup type
-        const participants = [userId, ...potentialMatches.slice(0, getMaxParticipants(requestData.meetupType) - 1)];
+        // Only match with ONE person at a time (1v1 matching)
+        const participants = [userId, potentialMatches[0]]; // Just current user + one match
         
         const match = await storage.createMatch({
           participants,
-          meetupType: requestData.meetupType, // Ensures same type matching
+          meetupType: requestData.meetupType,
           venueType: requestData.venueType,
           suggestedTime: requestData.preferredTime,
           suggestedDate: requestData.preferredDate,
-          matchScore: 85, // Based on compatibility algorithm
+          matchScore: 75, // Simple matching score
         });
         
         res.json({ matchingRequest, match });

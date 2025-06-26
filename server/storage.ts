@@ -331,7 +331,11 @@ export class DatabaseStorage implements IStorage {
 
   // Matching operations - ensures only same meetup types and venue types get matched
   async findPotentialMatches(userId: number, meetupType: string, venueType?: string): Promise<number[]> {
-    // Simple and fast: just find users with same meetup type and venue type
+    // Get current user's survey
+    const currentUserSurvey = await this.getSurveyResponse(userId);
+    if (!currentUserSurvey) return [];
+
+    // Find users with same meetup type, venue type, AND at least one shared survey answer
     const conditions = [
       eq(meetupRequests.meetupType, meetupType), // CRITICAL: Only same meetup type
       eq(meetupRequests.status, 'active'),
@@ -343,12 +347,33 @@ export class DatabaseStorage implements IStorage {
     }
 
     const potentialRequests = await db
-      .select({ userId: meetupRequests.userId })
+      .select({ 
+        userId: meetupRequests.userId,
+        favoriteConversationTopic: userSurveyResponses.favoriteConversationTopic,
+        favoriteMusic: userSurveyResponses.favoriteMusic,
+        favoriteShow: userSurveyResponses.favoriteShow,
+        personalityType: userSurveyResponses.personalityType,
+        hobbies: userSurveyResponses.hobbies
+      })
       .from(meetupRequests)
+      .leftJoin(userSurveyResponses, eq(meetupRequests.userId, userSurveyResponses.userId))
       .where(and(...conditions))
-      .limit(5); // Reduced limit for faster processing
+      .limit(10);
 
-    return potentialRequests.map(req => req.userId);
+    // Filter for users who share at least ONE survey answer
+    const compatibleUsers = potentialRequests.filter(req => {
+      if (!req.favoriteConversationTopic) return false; // Must have survey
+      
+      return (
+        req.favoriteConversationTopic === currentUserSurvey.favoriteConversationTopic ||
+        req.favoriteMusic === currentUserSurvey.favoriteMusic ||
+        req.favoriteShow === currentUserSurvey.favoriteShow ||
+        req.personalityType === currentUserSurvey.personalityType ||
+        req.hobbies === currentUserSurvey.hobbies
+      );
+    });
+
+    return compatibleUsers.map(user => user.userId);
   }
 
   private calculateCompatibilityScore(user1: SurveyResponse, user2: SurveyResponse): number {
