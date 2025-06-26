@@ -241,7 +241,7 @@ export default function FilterModal({ isOpen, onClose, meetupType }: FilterModal
 
           {/* Restaurant Type */}
           <div>
-            <Label className="text-sm font-medium text-gray-700 mb-3 block">Restaurant Preference</Label>
+            <Label className="text-sm font-medium text-gray-700 mb-3 block">Dining Preference</Label>
             <RadioGroup value={restaurantType} onValueChange={setRestaurantType}>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="casual" id="casual" />
@@ -254,6 +254,10 @@ export default function FilterModal({ isOpen, onClose, meetupType }: FilterModal
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="fast" id="fast" />
                 <Label htmlFor="fast">Fast Casual</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="cafe" id="cafe" />
+                <Label htmlFor="cafe">Cafe & Coffee</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="any" id="any" />

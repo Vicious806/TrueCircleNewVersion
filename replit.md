@@ -2,7 +2,7 @@
 
 ## Overview
 
-FriendMeet is a social dining platform that connects food lovers to make new friends over meals. The application allows users to create and join meetups of different sizes (1-on-1, 3 people, or group), chat with participants, and coordinate dining experiences at restaurants.
+FriendMeet is a social dining platform that connects food lovers to make new friends over meals. The application allows users to create and join meetups of different sizes (1-on-1, 3 people, or group), chat with participants, and coordinate dining experiences at restaurants and cafes.
 
 ## System Architecture
 
@@ -25,7 +25,7 @@ The application is configured for Replit's autoscale deployment with:
 
 ### Database Schema
 - **Users Table**: Stores user profiles with Replit Auth integration, including profile images, bio, interests, and location
-- **Meetups Table**: Contains meetup details including type (1v1/3people/group), restaurant information, scheduling, and participant limits
+- **Meetups Table**: Contains meetup details including type (1v1/3people/group), restaurant/cafe information, scheduling, and participant limits
 - **Meetup Participants**: Junction table managing user participation in meetups
 - **Chat Messages**: Real-time messaging system for meetup coordination
 - **Sessions**: Secure session storage for authentication
@@ -47,7 +47,7 @@ The application is configured for Replit's autoscale deployment with:
 
 1. **User Authentication**: Users sign in via Replit Auth, creating or updating their profile in PostgreSQL
 2. **Meetup Discovery**: Users browse available meetups with filtering by type, interests, location, and schedule
-3. **Meetup Creation**: Authenticated users create new meetups with details like restaurant preferences and participant limits
+3. **Meetup Creation**: Authenticated users create new meetups with details like restaurant/cafe preferences and participant limits
 4. **Participation Management**: Users can join/leave meetups with automatic participant count updates
 5. **Real-time Chat**: WebSocket connections enable live messaging between meetup participants
 6. **Data Persistence**: All user actions are persisted to PostgreSQL with optimistic UI updates
@@ -104,8 +104,10 @@ Changelog:
 - June 26, 2025. Replaced Replit Auth with custom username/email/password authentication system. Added user registration with 18+ age verification checkbox, unique username constraints, and email verification (auto-verified in development). Created two-column authentication page with login/registration forms.
 - June 26, 2025. Updated ProfileModal to only allow editing location and bio fields since names are collected during registration. Removed age verification from profile editing as it's required during signup.
 - June 26, 2025. Added profile picture icon in header that opens profile editing modal. Users can now edit username (with uniqueness validation), bio, profile picture URL, and interests. Profile picture displays in header when set.
-- June 26, 2025. Replaced profile picture URL input with file upload functionality. Users can now upload image files directly from their device (PNG, JPG, etc.) with validation for file type and size (5MB limit). Images are converted to base64 data URLs for storage.
+- June 26, 2025. Replaced profile picture URL input with file upload functionality. Users can now upload image files directly from their device (PNG, JPG, etc.) with validation for file type and size (2MB limit). Images are converted to base64 data URLs for storage. Fixed server payload limit to handle image uploads.
+- June 26, 2025. Updated app scope to include both restaurants and cafes. Modified UI text throughout application to reflect this broader dining scope. Added "Cafe & Coffee" option to dining preferences.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+App scope: Meetups are for both restaurants and cafes (not just restaurants).

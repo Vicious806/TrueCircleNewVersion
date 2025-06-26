@@ -306,7 +306,7 @@ export default function Auth() {
         <div className="text-center text-white max-w-md">
           <h1 className="text-4xl font-bold mb-6">Make Friends Over Food</h1>
           <p className="text-xl mb-8 opacity-90">
-            Connect with like-minded people in your area and discover amazing restaurants together
+            Connect with like-minded people in your area and discover amazing restaurants and cafes together
           </p>
           <div className="space-y-4 text-left">
             <div className="flex items-center space-x-3">
@@ -319,7 +319,7 @@ export default function Auth() {
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-white rounded-full"></div>
-              <span>Discover new restaurants and cuisines</span>
+              <span>Discover new restaurants, cafes and cuisines</span>
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-white rounded-full"></div>
