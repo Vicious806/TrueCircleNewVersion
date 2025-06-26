@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2 } from "lucide-react";
+import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck } from "lucide-react";
 import { useState } from "react";
 import FilterModal from "@/components/FilterModal";
 import MeetupCard from "@/components/MeetupCard";
@@ -117,7 +117,7 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-14 h-14 gradient-primary rounded-2xl flex items-center justify-center">
-                    <Users2 className="text-white h-6 w-6" />
+                    <UserCheck className="text-white h-7 w-7" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 text-lg">1-on-1 Meetup</h3>
@@ -146,10 +146,10 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-14 h-14 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl flex items-center justify-center">
-                    <div className="flex items-center space-x-0.5">
-                      <UserIcon className="text-white h-4 w-4" />
-                      <UserIcon className="text-white h-4 w-4" />
-                      <UserIcon className="text-white h-4 w-4" />
+                    <div className="flex items-center -space-x-1">
+                      <UserIcon className="text-white h-5 w-5" />
+                      <UserIcon className="text-white h-5 w-5" />
+                      <UserIcon className="text-white h-5 w-5" />
                     </div>
                   </div>
                   <div>
@@ -178,14 +178,7 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-14 h-14 gradient-accent rounded-2xl flex items-center justify-center">
-                    <div className="grid grid-cols-2 gap-0.5">
-                      <UserIcon className="text-white h-3 w-3" />
-                      <UserIcon className="text-white h-3 w-3" />
-                      <UserIcon className="text-white h-3 w-3" />
-                      <UserIcon className="text-white h-3 w-3" />
-                      <UserIcon className="text-white h-3 w-3" />
-                      <UserIcon className="text-white h-3 w-3" />
-                    </div>
+                    <Users className="text-white h-7 w-7" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 text-lg">Group Meetup</h3>
