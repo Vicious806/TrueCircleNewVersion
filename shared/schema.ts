@@ -48,10 +48,10 @@ export const userSurveyResponses = pgTable("user_survey_responses", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
   favoriteConversationTopic: varchar("favorite_conversation_topic"),
-  idealFirstMeetLocation: varchar("ideal_first_meet_location"),
-  communicationStyle: varchar("communication_style"),
-  socialEnergyLevel: varchar("social_energy_level"),
-  weekendActivity: varchar("weekend_activity"),
+  favoriteMusic: varchar("favorite_music"),
+  favoriteShow: varchar("favorite_show"),
+  personalityType: varchar("personality_type"),
+  hobbies: varchar("hobbies"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -211,10 +211,10 @@ export const insertMeetupRequestSchema = createInsertSchema(meetupRequests).omit
 // Survey response schema with validation
 export const surveyResponseSchema = z.object({
   favoriteConversationTopic: z.enum(['travel', 'food', 'career', 'hobbies', 'current_events']),
-  idealFirstMeetLocation: z.enum(['coffee_shop', 'casual_restaurant', 'outdoor_space', 'activity_venue', 'fine_dining']),
-  communicationStyle: z.enum(['direct', 'friendly', 'thoughtful', 'energetic', 'calm']),
-  socialEnergyLevel: z.enum(['introvert', 'ambivert', 'extrovert']),
-  weekendActivity: z.enum(['relaxing_home', 'outdoor_adventures', 'social_events', 'creative_projects', 'exploring_city'])
+  favoriteMusic: z.enum(['pop', 'rock', 'hiphop', 'electronic', 'indie']),
+  favoriteShow: z.enum(['comedy', 'drama', 'scifi', 'reality', 'documentary']),
+  personalityType: z.enum(['outgoing', 'thoughtful', 'adventurous', 'chill', 'passionate']),
+  hobbies: z.enum(['fitness', 'creative', 'tech', 'nature', 'learning'])
 });
 
 // Meetup request schema
