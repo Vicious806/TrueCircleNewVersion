@@ -48,7 +48,8 @@ export default function Home() {
               variant="outline" 
               size="sm"
               onClick={() => setShowProfileModal(true)}
-              className="flex items-center space-x-2 px-3 py-2"
+              className="p-2"
+              title="Edit profile"
             >
               <div className="w-6 h-6 gradient-primary rounded-full flex items-center justify-center">
                 {userData?.profileImageUrl ? (
@@ -61,7 +62,6 @@ export default function Home() {
                   <span className="text-white font-bold text-xs">{initials}</span>
                 )}
               </div>
-              <span className="text-sm">Profile</span>
             </Button>
             <Button
               variant="outline"
