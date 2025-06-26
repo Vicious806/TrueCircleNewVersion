@@ -281,11 +281,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lastName: 'Chen',
           bio: 'Food enthusiast who loves trying new restaurants and meeting new people!',
           location: 'Downtown Seattle',
-          profileImageUrl: null,
           interests: ['Italian Food', 'Wine Tasting', 'Travel'],
           password: 'test123',
           isAgeVerified: true,
-          isEmailVerified: true
+          isEmailVerified: true,
+          hasTakenSurvey: true
         },
         {
           username: 'coffee_mike',
@@ -294,11 +294,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lastName: 'Johnson',
           bio: 'Coffee connoisseur and startup enthusiast. Always up for good conversation!',
           location: 'Capitol Hill, Seattle',
-          profileImageUrl: null,
           interests: ['Coffee', 'Technology', 'Reading'],
           password: 'test123',
           isAgeVerified: true,
-          isEmailVerified: true
+          isEmailVerified: true,
+          hasTakenSurvey: true
         },
         {
           username: 'chef_alex',
@@ -307,17 +307,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           lastName: 'Rivera',
           bio: 'Professional chef who loves exploring culinary scenes and sharing food experiences.',
           location: 'Bellevue, WA',
-          profileImageUrl: null,
           interests: ['Cooking', 'Fine Dining', 'Food Photography'],
           password: 'test123',
           isAgeVerified: true,
-          isEmailVerified: true
+          isEmailVerified: true,
+          hasTakenSurvey: true
         }
       ];
+
+      let createdCount = 0;
 
       // Create users and their survey responses
       for (const userData of testUsers) {
         try {
+          // Check if user already exists
+          const existingUser = await storage.getUserByEmail(userData.email);
+          if (existingUser) {
+            console.log(`User ${userData.username} already exists`);
+            continue;
+          }
+
           const user = await storage.createUser(userData);
           
           // Create survey responses for matching
@@ -330,16 +339,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
             favoriteShow: 'Food Network',
             personalityType: userData.username.includes('mike') ? 'Introvert' : 'Extrovert'
           });
+
+          createdCount++;
+          console.log(`Created user: ${userData.username}`);
         } catch (error) {
-          // User might already exist, skip
-          console.log(`User ${userData.username} already exists`);
+          console.error(`Error creating user ${userData.username}:`, error);
         }
       }
 
-      res.json({ message: 'Test users created successfully' });
+      res.json({ 
+        message: `Test users processed successfully. Created ${createdCount} new users.`,
+        created: createdCount
+      });
     } catch (error) {
-      console.error('Error creating test users:', error);
-      res.status(500).json({ message: 'Failed to create test users' });
+      console.error('Error in populate-users endpoint:', error);
+      res.status(500).json({ 
+        message: 'Failed to create test users', 
+        error: error.message 
+      });
     }
   });
 
