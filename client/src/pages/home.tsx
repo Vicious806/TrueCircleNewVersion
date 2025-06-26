@@ -35,7 +35,7 @@ export default function Home() {
 
   const populateTestUsers = useMutation({
     mutationFn: async () => {
-      return await apiRequest('/api/test/populate-users', 'POST');
+      return await apiRequest('POST', '/api/test/populate-users');
     },
     onSuccess: () => {
       toast({
