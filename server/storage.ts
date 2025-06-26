@@ -362,7 +362,7 @@ export class DatabaseStorage implements IStorage {
       .where(and(...conditions))
       .limit(10);
 
-    // For 1v1: Prefer users with shared survey answers, but fallback to any user for speed
+    // For 1v1: Require at least one shared survey answer for conversation starter
     // For group: No survey compatibility required
     if (meetupType === '1v1') {
       const compatibleUsers = potentialRequests.filter(req => {
@@ -377,12 +377,8 @@ export class DatabaseStorage implements IStorage {
         );
       });
 
-      // If we have compatible users, return them. Otherwise, return any user for speed
-      if (compatibleUsers.length > 0) {
-        return compatibleUsers.map(user => user.userId);
-      } else {
-        return potentialRequests.map(user => user.userId);
-      }
+      // Only return users with shared interests for 1v1 matches
+      return compatibleUsers.map(user => user.userId);
     } else {
       // Group matching - no survey requirements, just return all potential users
       return potentialRequests.map(user => user.userId);
