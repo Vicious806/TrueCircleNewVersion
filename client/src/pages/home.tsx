@@ -8,6 +8,7 @@ import { useState } from "react";
 import SmartMatchingModal from "@/components/SmartMatchingModal";
 import MeetupCard from "@/components/MeetupCard";
 import ProfileModal from "@/components/ProfileModal";
+import LocationModal from "@/components/LocationModal";
 import type { MeetupWithCreator, User } from "@shared/schema";
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
   const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [selectedMeetupType, setSelectedMeetupType] = useState<'1v1' | 'group'>('1v1');
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
 
   const { data: userMatches = [] } = useQuery({
     queryKey: ['/api/user/matches'],
@@ -96,7 +98,7 @@ export default function Home() {
                 variant="ghost" 
                 size="sm" 
                 className="text-blue-600 hover:text-blue-700"
-                onClick={() => setShowProfileModal(true)}
+                onClick={() => setShowLocationModal(true)}
               >
                 Edit
               </Button>
@@ -197,6 +199,12 @@ export default function Home() {
         isOpen={showMatchingModal}
         onClose={() => setShowMatchingModal(false)}
         meetupType={selectedMeetupType}
+      />
+
+      <LocationModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        currentLocation={userData?.location}
       />
     </div>
   );

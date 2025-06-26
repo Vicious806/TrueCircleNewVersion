@@ -32,12 +32,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Profile update schema - allow username, bio, profile picture, and interests
+  // Profile update schema - allow username, bio, profile picture, interests, and location
   const profileUpdateSchema = z.object({
     username: z.string().min(1).optional(),
     bio: z.string().optional(),
     profileImageUrl: z.string().optional().or(z.literal('')), // Allow base64 data URLs or empty string
     interests: z.array(z.string()).optional(),
+    location: z.string().optional(),
   });
 
   app.put('/api/profile', isAuthenticated, async (req: any, res) => {
@@ -61,6 +62,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid profile data" });
       }
       res.status(400).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // Location update endpoint
+  app.patch('/api/user/location', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { location } = req.body;
+
+      if (!location || typeof location !== 'string') {
+        return res.status(400).json({ message: "Location is required" });
+      }
+
+      const updatedUser = await storage.updateUser(userId, { location: location.trim() });
+      
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ ...updatedUser, password: undefined });
+    } catch (error) {
+      console.error("Error updating user location:", error);
+      res.status(500).json({ message: "Failed to update location" });
     }
   });
 
