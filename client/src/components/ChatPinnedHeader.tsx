@@ -3,7 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, Clock, Edit, Check, X, Coffee, Utensils } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { MapPin, Calendar, Clock, Edit, Check, X, Coffee, Utensils, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ChatPinnedHeaderProps {
@@ -44,6 +45,16 @@ export default function ChatPinnedHeader({
     setIsEditing(false);
   };
 
+  const handleCancelMeeting = () => {
+    toast({
+      title: "Meeting Cancelled",
+      description: "The meetup has been cancelled for all participants.",
+      variant: "destructive",
+    });
+    // In a real implementation, this would make an API call to cancel the meeting
+    // and potentially redirect users back to the matches page
+  };
+
   const getVenueIcon = () => {
     return venueType === 'restaurant' ? <Utensils className="w-4 h-4" /> : <Coffee className="w-4 h-4" />;
   };
@@ -60,7 +71,7 @@ export default function ChatPinnedHeader({
     <Card className="mx-4 mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 sticky top-0 z-10">
       <CardContent className="p-4">
         <div className="space-y-3">
-          {/* Header with venue type and edit button */}
+          {/* Header with venue type and buttons */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Badge variant="secondary" className="flex items-center space-x-1">
@@ -71,37 +82,70 @@ export default function ChatPinnedHeader({
                 {participantCount} people
               </Badge>
             </div>
-            {!isEditing && (
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setIsEditing(true)}
-                className="text-blue-600 hover:text-blue-700"
-              >
-                <Edit className="w-4 h-4 mr-1" />
-                Set Details
-              </Button>
-            )}
-            {isEditing && (
-              <div className="flex items-center space-x-2">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleCancel}
-                  className="text-gray-600 hover:text-gray-700"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-                <Button 
-                  size="sm"
-                  onClick={handleSave}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <Check className="w-4 h-4 mr-1" />
-                  Save
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center space-x-2">
+              {!isEditing && (
+                <>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <AlertTriangle className="w-4 h-4 mr-1" />
+                        Cancel
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Cancel Meeting</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to cancel this meetup? This will cancel the meeting for all participants and cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Keep Meeting</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={handleCancelMeeting}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Yes, Cancel Meeting
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Set Details
+                  </Button>
+                </>
+              )}
+              {isEditing && (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={handleCancel}
+                    className="text-gray-600 hover:text-gray-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={handleSave}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Check className="w-4 h-4 mr-1" />
+                    Save
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Meetup details grid */}
