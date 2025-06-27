@@ -350,7 +350,7 @@ export default function Auth() {
             </div>
             <div className="flex items-center space-x-3">
               <div className="w-2 h-2 bg-white rounded-full"></div>
-              <span>Safe, verified 18+ community</span>
+              <span>Safe 18+ community</span>
             </div>
           </div>
         </div>
