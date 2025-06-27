@@ -64,6 +64,8 @@ export interface IStorage {
   // Meetup request operations
   createMeetupRequest(request: InsertMeetupRequest): Promise<MeetupRequest>;
   getUserActiveRequest(userId: number, meetupType: string): Promise<MeetupRequest | undefined>;
+  getUserAnyActiveRequest(userId: number): Promise<MeetupRequest | undefined>;
+  cancelMeetupRequest(requestId: number): Promise<boolean>;
   
   // Matching operations
   findPotentialMatches(userId: number, meetupType: string): Promise<number[]>;
@@ -383,6 +385,26 @@ export class DatabaseStorage implements IStorage {
       ))
       .limit(1);
     return request;
+  }
+
+  async getUserAnyActiveRequest(userId: number): Promise<MeetupRequest | undefined> {
+    const [request] = await db
+      .select()
+      .from(meetupRequests)
+      .where(and(
+        eq(meetupRequests.userId, userId),
+        eq(meetupRequests.status, 'active')
+      ))
+      .limit(1);
+    return request;
+  }
+
+  async cancelMeetupRequest(requestId: number): Promise<boolean> {
+    const result = await db
+      .update(meetupRequests)
+      .set({ status: 'cancelled' })
+      .where(eq(meetupRequests.id, requestId));
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Matching operations - handles both 1v1 and group matching with different logic

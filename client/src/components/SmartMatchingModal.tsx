@@ -87,10 +87,31 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([10]);
   const [ageRange, setAgeRange] = useState([18, 50]);
+  const [conflictInfo, setConflictInfo] = useState<any>(null);
+  const [pendingRequest, setPendingRequest] = useState<MeetupRequestFormData | null>(null);
 
   const createMatchingRequest = useMutation({
     mutationFn: async (requestData: MeetupRequestFormData) => {
-      return apiRequest('POST', '/api/matching-request', requestData);
+      const response = await fetch('/api/matching-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(requestData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 409) {
+          throw new Error(JSON.stringify({
+            type: 'conflict',
+            message: errorData.message,
+            existingRequest: errorData.existingRequest
+          }));
+        }
+        throw new Error(errorData.message || 'Failed to create request');
+      }
+      
+      return response.json();
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['/api/user/matches'] });
@@ -122,6 +143,47 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
       });
     },
   });
+
+  const cancelExistingRequest = useMutation({
+    mutationFn: async (requestId: number) => {
+      const response = await fetch(`/api/matching-request/${requestId}/cancel`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to cancel request');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      if (pendingRequest) {
+        createMatchingRequest.mutate(pendingRequest);
+      }
+      setConflictInfo(null);
+      setPendingRequest(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleConflictCancel = () => {
+    if (conflictInfo?.existingRequest?.id) {
+      cancelExistingRequest.mutate(conflictInfo.existingRequest.id);
+    }
+  };
+
+  const handleConflictKeep = () => {
+    setConflictInfo(null);
+    setPendingRequest(null);
+  };
 
   const handleSubmit = () => {
     if (!venueType || !preferredDate || !preferredTime) {
@@ -352,6 +414,35 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
           </Button>
         </div>
       </DialogContent>
+      
+      {/* Conflict Resolution Dialog */}
+      {conflictInfo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-3">Existing Request Found</h3>
+            <p className="text-gray-600 mb-4">
+              You already have an active {conflictInfo.existingRequest.meetupType} request for {conflictInfo.existingRequest.venueType}s. 
+              Would you like to cancel it and create this new request instead?
+            </p>
+            <div className="flex gap-3">
+              <Button 
+                onClick={handleConflictKeep}
+                variant="outline"
+                className="flex-1"
+              >
+                Keep Existing
+              </Button>
+              <Button 
+                onClick={handleConflictCancel}
+                disabled={cancelExistingRequest.isPending}
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                {cancelExistingRequest.isPending ? 'Canceling...' : 'Cancel & Create New'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Dialog>
   );
 }

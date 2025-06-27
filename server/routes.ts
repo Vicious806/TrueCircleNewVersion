@@ -278,11 +278,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const requestData = meetupRequestSchema.parse(req.body);
       
-      // Check for existing active request from this user for the same meetup type
-      const existingRequest = await storage.getUserActiveRequest(userId, requestData.meetupType);
+      // Check for any existing active request from this user (any meetup type)
+      const existingRequest = await storage.getUserAnyActiveRequest(userId);
       if (existingRequest) {
-        return res.status(400).json({ 
-          message: "You already have an active request for this meetup type. Please wait for matching or cancel your existing request." 
+        return res.status(409).json({ 
+          message: "You already have an active request. Would you like to cancel it and create a new one?",
+          existingRequest: {
+            id: existingRequest.id,
+            meetupType: existingRequest.meetupType,
+            venueType: existingRequest.venueType
+          }
         });
       }
       
@@ -370,6 +375,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating matching request:", error);
       res.status(500).json({ message: "Failed to create matching request" });
+    }
+  });
+
+  // Cancel matching request route
+  app.post('/api/matching-request/:id/cancel', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const requestId = parseInt(req.params.id);
+      
+      // Verify the request belongs to the user
+      const request = await storage.getUserActiveRequest(userId, 'group') || await storage.getUserActiveRequest(userId, '1v1');
+      if (!request || request.id !== requestId) {
+        return res.status(404).json({ message: "Request not found" });
+      }
+      
+      const success = await storage.cancelMeetupRequest(requestId);
+      if (success) {
+        res.json({ message: "Request cancelled successfully" });
+      } else {
+        res.status(500).json({ message: "Failed to cancel request" });
+      }
+    } catch (error) {
+      console.error("Error cancelling request:", error);
+      res.status(500).json({ message: "Failed to cancel request" });
     }
   });
   
