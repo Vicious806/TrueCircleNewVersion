@@ -127,6 +127,7 @@ Changelog:
 - June 27, 2025. Implemented comprehensive duplicate prevention system preventing users from having multiple active matching requests simultaneously. Added backend validation with 409 conflict responses, frontend conflict detection popup, and cancel request functionality. System ensures accurate user counts and prevents gaming the matching algorithm.
 - June 27, 2025. Changed app name from "FriendMeet" to "TrueCircle" throughout the entire application including landing page, authentication pages, welcome survey, and all documentation.
 - June 27, 2025. Updated ChatPinnedHeader component to automatically display scheduled date and time from smart matching selections instead of requiring manual input. Date and time now appear from the suggestedDate and suggestedTime fields in match data, with proper time formatting (lunch=1:00 PM, dinner=5:30 PM).
+- June 27, 2025. Fixed critical chat messaging system by resolving React hooks errors and database constraint issues. Added functional emoji picker with 18 common emojis accessible via smile button. Updated database schema to support match-based chat with proper column handling for both meetup_id and match_id fields.
 
 ## User Preferences
 
