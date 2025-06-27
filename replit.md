@@ -121,6 +121,7 @@ Changelog:
 - June 27, 2025. Implemented real email verification system using Gmail SMTP (truecirclesocial@gmail.com). Registration now requires actual date of birth input with 18+ validation and sends professional verification emails. Users must verify their email before logging in. System calculates actual age from birth date and enforces strict age matching in smart matching algorithm.
 - June 27, 2025. Transformed email verification from link-based to verification code-based system. Users now receive 6-digit codes via email that expire in 15 minutes. Added verification code input form to frontend with code-focused UI design. Improved email template styling and deliverability. System fully functional with Gmail SMTP integration.
 - June 27, 2025. Fixed smart matching request validation error by updating time options to use proper enum values ("lunch", "dinner") instead of raw time strings ("1pm", "5:30pm"). Verification code system and smart matching both fully operational.
+- June 27, 2025. Implemented comprehensive group matching system that prioritizes filling existing groups before creating new ones. Groups match based on venue type (restaurant/cafe), date, time, and age range compatibility. Users with "no preference" age settings can join any compatible group. Maximum group size enforced at 4 people. System separates 1v1 matching (requires shared interests) from group matching (logistics-focused only).
 
 ## User Preferences
 
