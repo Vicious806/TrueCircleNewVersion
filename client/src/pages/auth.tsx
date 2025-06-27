@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -166,10 +166,17 @@ export default function Auth() {
   const verifyForm = useForm<EmailVerification>({
     resolver: zodResolver(emailVerificationSchema),
     defaultValues: {
-      email: registrationEmail,
+      email: "",
       code: "",
     },
   });
+
+  // Update email when registration email changes
+  useEffect(() => {
+    if (registrationEmail) {
+      verifyForm.setValue("email", registrationEmail);
+    }
+  }, [registrationEmail, verifyForm]);
 
   const onLoginSubmit = (data: LoginFormData) => {
     loginMutation.mutate(data);
@@ -195,6 +202,7 @@ export default function Auth() {
   };
 
   const onVerifySubmit = (data: EmailVerification) => {
+    console.log("Verification form data:", data);
     verifyMutation.mutate(data);
   };
 
@@ -213,6 +221,10 @@ export default function Auth() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={verifyForm.handleSubmit(onVerifySubmit)} className="space-y-4">
+                  <input 
+                    type="hidden" 
+                    {...verifyForm.register("email")} 
+                  />
                   <div className="space-y-2">
                     <Label htmlFor="code">Verification Code</Label>
                     <Input
@@ -226,6 +238,11 @@ export default function Auth() {
                     {verifyForm.formState.errors.code && (
                       <p className="text-sm text-red-500">
                         {verifyForm.formState.errors.code.message}
+                      </p>
+                    )}
+                    {verifyForm.formState.errors.email && (
+                      <p className="text-sm text-red-500">
+                        {verifyForm.formState.errors.email.message}
                       </p>
                     )}
                   </div>
