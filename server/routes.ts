@@ -441,6 +441,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
+  // Match routes
+  app.get('/api/matches/:id', isAuthenticated, async (req, res) => {
+    try {
+      const matchId = parseInt(req.params.id);
+      const userMatches = await storage.getUserMatches((req.user as any).id);
+      const match = userMatches.find(m => m.id === matchId);
+      
+      if (!match) {
+        return res.status(404).json({ message: "Match not found" });
+      }
+      
+      res.json(match);
+    } catch (error) {
+      console.error("Error fetching match:", error);
+      res.status(500).json({ message: "Failed to fetch match" });
+    }
+  });
+
   // Chat routes for matches
   app.get('/api/matches/:id/messages', isAuthenticated, async (req, res) => {
     try {
@@ -450,6 +468,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching chat messages:", error);
       res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  app.post('/api/matches/:id/messages', isAuthenticated, async (req, res) => {
+    try {
+      const matchId = parseInt(req.params.id);
+      const { message } = req.body;
+      const userId = (req.user as any).id;
+      
+      const chatMessage = await storage.createMatchChatMessage(matchId, userId, message);
+      res.json(chatMessage);
+    } catch (error) {
+      console.error("Error sending chat message:", error);
+      res.status(500).json({ message: "Failed to send message" });
     }
   });
 

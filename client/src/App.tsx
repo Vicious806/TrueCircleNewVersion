@@ -39,7 +39,8 @@ function Router() {
         <>
           <Route path="/" component={Home} />
           <Route path="/matches" component={Matches} />
-          <Route path="/chat/:id" component={Chat} />
+          <Route path="/chat/:id?" component={Chat} />
+          <Route path="/chat" component={Chat} />
         </>
       )}
       <Route component={NotFound} />
