@@ -33,8 +33,8 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  dateOfBirth: timestamp("date_of_birth"),
   age: integer("age"),
-  isAgeVerified: boolean("is_age_verified").default(false).notNull(),
   isEmailVerified: boolean("is_email_verified").default(false).notNull(),
   hasTakenSurvey: boolean("has_taken_survey").default(false).notNull(),
   emailVerificationToken: varchar("email_verification_token"),
@@ -232,6 +232,23 @@ export const meetupRequestSchema = z.object({
   ageRangeMax: z.number().min(18).max(50).optional()
 });
 
+// Registration schema with date of birth validation
+export const registerSchema = insertUserSchema.extend({
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  dateOfBirth: z.string().refine((date) => {
+    const birthDate = new Date(date);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age = age - 1;
+    }
+    return age >= 18;
+  }, "You must be at least 18 years old to join"),
+  age: z.number().min(18).optional(),
+});
+
 // Login schema
 export const loginSchema = z.object({
   usernameOrEmail: z.string().min(1, "Username or email is required"),
@@ -258,6 +275,7 @@ export const meetupFilterSchema = z.object({
 // Types
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type RegisterData = z.infer<typeof registerSchema>;
 export type User = typeof users.$inferSelect;
 export type LoginData = z.infer<typeof loginSchema>;
 export type EmailVerification = z.infer<typeof emailVerificationSchema>;

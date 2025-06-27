@@ -16,7 +16,8 @@ declare global {
       email: string;
       firstName: string | null;
       lastName: string | null;
-      isAgeVerified: boolean;
+      dateOfBirth: Date | null;
+      age: number | null;
       isEmailVerified: boolean;
     }
   }
@@ -101,10 +102,11 @@ export function setupAuth(app: Express) {
   // Register route
   app.post("/api/register", async (req, res) => {
     try {
-      const { username, email, password, isAgeVerified, firstName, lastName } = req.body;
+      const { username, email, password, dateOfBirth, firstName, lastName, age } = req.body;
 
-      if (!isAgeVerified) {
-        return res.status(400).json({ message: "Age verification required" });
+      // Validate age requirement
+      if (!age || age < 18) {
+        return res.status(400).json({ message: "You must be at least 18 years old to join" });
       }
 
       // Check if username or email already exists
@@ -127,7 +129,8 @@ export function setupAuth(app: Express) {
         password: hashedPassword,
         firstName,
         lastName,
-        isAgeVerified,
+        dateOfBirth: new Date(dateOfBirth),
+        age,
       });
 
       // TODO: Send verification email in production

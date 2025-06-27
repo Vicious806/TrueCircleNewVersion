@@ -98,7 +98,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(userData: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(userData).returning();
+    // Calculate age from date of birth if provided
+    let calculatedAge = userData.age;
+    if (userData.dateOfBirth) {
+      const birthDate = new Date(userData.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age = age - 1;
+      }
+      calculatedAge = age;
+    }
+    
+    const [user] = await db.insert(users).values({
+      ...userData,
+      age: calculatedAge
+    }).returning();
     return user;
   }
 

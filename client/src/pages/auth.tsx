@@ -13,25 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 
-const loginSchema = z.object({
-  usernameOrEmail: z.string().min(1, "Username or email is required"),
-  password: z.string().min(1, "Password is required"),
-});
+import { loginSchema, registerSchema, type LoginData, type RegisterData } from "@shared/schema";
 
-const registerSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  age: z.number().min(18, "You must be at least 18 years old").max(100, "Please enter a valid age"),
-  isAgeVerified: z.boolean().refine(val => val === true, {
-    message: "You must be 18 or older to use this platform",
-  }),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-type RegisterFormData = z.infer<typeof registerSchema>;
+type LoginFormData = LoginData;
+type RegisterFormData = RegisterData;
 
 export default function Auth() {
   const [, setLocation] = useLocation();
@@ -54,8 +39,7 @@ export default function Auth() {
       password: "",
       firstName: "",
       lastName: "",
-      age: 18,
-      isAgeVerified: false,
+      dateOfBirth: "",
     },
   });
 
@@ -128,7 +112,22 @@ export default function Auth() {
   };
 
   const onRegisterSubmit = (data: RegisterFormData) => {
-    registerMutation.mutate(data);
+    // Calculate age from date of birth
+    const birthDate = new Date(data.dateOfBirth);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age = age - 1;
+    }
+
+    const registrationData = {
+      ...data,
+      age: age
+    };
+    
+    registerMutation.mutate(registrationData);
   };
 
   return (
@@ -271,39 +270,19 @@ export default function Auth() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="age">Age</Label>
+                      <Label htmlFor="dateOfBirth">Date of Birth</Label>
                       <Input
-                        id="age"
-                        type="number"
-                        min="18"
-                        max="100"
-                        {...registerForm.register("age", { valueAsNumber: true })}
-                        placeholder="Enter your age"
+                        id="dateOfBirth"
+                        type="date"
+                        {...registerForm.register("dateOfBirth")}
+                        max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
                       />
-                      {registerForm.formState.errors.age && (
+                      {registerForm.formState.errors.dateOfBirth && (
                         <p className="text-sm text-red-500">
-                          {registerForm.formState.errors.age.message}
+                          {registerForm.formState.errors.dateOfBirth.message}
                         </p>
                       )}
                     </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="ageVerification"
-                        checked={registerForm.watch("isAgeVerified")}
-                        onCheckedChange={(checked) => 
-                          registerForm.setValue("isAgeVerified", !!checked)
-                        }
-                      />
-                      <Label htmlFor="ageVerification" className="text-sm">
-                        I confirm that I am 18 years of age or older
-                      </Label>
-                    </div>
-                    {registerForm.formState.errors.isAgeVerified && (
-                      <p className="text-sm text-red-500">
-                        {registerForm.formState.errors.isAgeVerified.message}
-                      </p>
-                    )}
 
                     <Button
                       type="submit"
