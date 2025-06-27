@@ -283,6 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (existingRequest) {
         return res.status(409).json({ 
           message: "You already have an active request. Would you like to cancel it and create a new one?",
+          conflict: true,
           existingRequest: {
             id: existingRequest.id,
             meetupType: existingRequest.meetupType,
@@ -375,6 +376,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating matching request:", error);
       res.status(500).json({ message: "Failed to create matching request" });
+    }
+  });
+
+  // Get user's active request route
+  app.get('/api/user/active-request', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const activeRequest = await storage.getUserAnyActiveRequest(userId);
+      
+      if (activeRequest) {
+        res.json(activeRequest);
+      } else {
+        res.status(404).json({ message: "No active request found" });
+      }
+    } catch (error) {
+      console.error("Error fetching active request:", error);
+      res.status(500).json({ message: "Failed to fetch active request" });
     }
   });
 

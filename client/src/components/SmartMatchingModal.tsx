@@ -101,11 +101,11 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
       
       if (!response.ok) {
         const errorData = await response.json();
-        if (response.status === 409) {
+        if (response.status === 409 && errorData.conflict) {
+          // Conflict detected - store the actual backend response
           throw new Error(JSON.stringify({
             type: 'conflict',
-            message: errorData.message,
-            existingRequest: errorData.existingRequest
+            ...errorData
           }));
         }
         throw new Error(errorData.message || 'Failed to create request');
@@ -126,6 +126,24 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
       setLocation('/matches');
     },
     onError: (error) => {
+      // Check if this is a conflict error (409 status)
+      if (error.message.includes('You already have an active request')) {
+        setConflictInfo({
+          message: error.message,
+          existingRequest: { meetupType: 'existing' }
+        });
+        setPendingRequest({
+          meetupType,
+          venueType: venueType as any,
+          preferredDate,
+          preferredTime: preferredTime as any,
+          maxDistance: maxDistance[0],
+          ageRangeMin: ageRange[0],
+          ageRangeMax: ageRange[1],
+        });
+        return;
+      }
+      
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
@@ -174,9 +192,17 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
     },
   });
 
-  const handleConflictCancel = () => {
-    if (conflictInfo?.existingRequest?.id) {
-      cancelExistingRequest.mutate(conflictInfo.existingRequest.id);
+  const handleConflictCancel = async () => {
+    // Get the first active request ID from database
+    const response = await fetch('/api/user/active-request', {
+      credentials: 'include',
+    });
+    
+    if (response.ok) {
+      const activeRequest = await response.json();
+      if (activeRequest?.id) {
+        cancelExistingRequest.mutate(activeRequest.id);
+      }
     }
   };
 
@@ -421,8 +447,8 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
           <div className="bg-white p-6 rounded-lg max-w-md mx-4">
             <h3 className="text-lg font-semibold mb-3">Existing Request Found</h3>
             <p className="text-gray-600 mb-4">
-              You already have an active {conflictInfo.existingRequest.meetupType} request for {conflictInfo.existingRequest.venueType}s. 
-              Would you like to cancel it and create this new request instead?
+              You already have an active matching request. You can only have one active request at a time.
+              Would you like to cancel your existing request and create this new {meetupType} request instead?
             </p>
             <div className="flex gap-3">
               <Button 
