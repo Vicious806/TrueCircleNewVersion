@@ -251,6 +251,8 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
             </div>
           </div>
 
+
+
           {/* Smart Matching Info */}
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
             <div className="flex items-center mb-2">
