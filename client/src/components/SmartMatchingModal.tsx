@@ -31,7 +31,6 @@ const venueOptions = [
 ];
 
 // Helper function to get the next few Fridays
-// Note: This is a simplified version - the backend will check for waiting users
 function getNextFridays(count: number) {
   const fridays = [];
   const today = new Date();
@@ -40,14 +39,19 @@ function getNextFridays(count: number) {
   // Find the next Friday
   const daysUntilFriday = (5 - currentDate.getDay() + 7) % 7;
   
-  // Basic cutoff: Skip current Friday if it's Friday after 6 PM
-  // (Backend will handle the smart logic for waiting users)
+  // Skip current Friday if it's Thursday after 10 PM or later
   const shouldSkipCurrentFriday = 
-    (daysUntilFriday === 0 && currentDate.getHours() >= 18); // Friday after 6 PM only
+    (currentDate.getDay() === 4 && currentDate.getHours() >= 22) || // Thursday 10 PM or later
+    (currentDate.getDay() === 5) || // Friday (any time)
+    (currentDate.getDay() === 6) || // Saturday
+    (currentDate.getDay() === 0); // Sunday
   
-  if (shouldSkipCurrentFriday) {
+  if (shouldSkipCurrentFriday || daysUntilFriday === 0) {
     // Start from next Friday
-    currentDate.setDate(currentDate.getDate() + 7);
+    currentDate.setDate(currentDate.getDate() + 7 - daysUntilFriday);
+    if (daysUntilFriday === 0) {
+      currentDate.setDate(currentDate.getDate() + 7);
+    }
   } else {
     currentDate.setDate(currentDate.getDate() + daysUntilFriday);
   }

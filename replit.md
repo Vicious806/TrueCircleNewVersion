@@ -123,6 +123,7 @@ Changelog:
 - June 27, 2025. Fixed smart matching request validation error by updating time options to use proper enum values ("lunch", "dinner") instead of raw time strings ("1pm", "5:30pm"). Verification code system and smart matching both fully operational.
 - June 27, 2025. Implemented comprehensive group matching system that prioritizes filling existing groups before creating new ones. Groups match based on venue type (restaurant/cafe), date, time, and age range compatibility. Users with "no preference" age settings can join any compatible group. Maximum group size enforced at 4 people. System separates 1v1 matching (requires shared interests) from group matching (logistics-focused only).
 - June 27, 2025. Updated 1v1 age slider to jump 3 years per tick for faster selection. Simplified verification code email template to reduce spam flagging - removed promotional styling, marketing language, and branding to create clean transactional email format.
+- June 27, 2025. Simplified Friday availability to strict Thursday 10pm cutoff. Removed complex waiting user logic and backend availability checking. Fridays now become unavailable at exactly Thursday 10pm regardless of how many people are waiting.
 
 ## User Preferences
 

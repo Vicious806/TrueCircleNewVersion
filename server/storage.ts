@@ -70,7 +70,7 @@ export interface IStorage {
   createMatch(match: any): Promise<Match>;
   getUserMatches(userId: number): Promise<MatchWithUsers[]>;
   updateMatch(id: number, updates: Partial<Match>): Promise<Match | undefined>;
-  countWaitingUsers(date: string, meetupType: string): Promise<number>;
+
 }
 
 export class DatabaseStorage implements IStorage {
@@ -672,18 +672,7 @@ export class DatabaseStorage implements IStorage {
     return updatedMatch;
   }
 
-  async countWaitingUsers(date: string, meetupType: string): Promise<number> {
-    const waitingUsers = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(meetupRequests)
-      .where(and(
-        eq(meetupRequests.preferredDate, date),
-        eq(meetupRequests.meetupType, meetupType),
-        eq(meetupRequests.status, 'active')
-      ));
-    
-    return waitingUsers[0]?.count || 0;
-  }
+
 }
 
 export const storage = new DatabaseStorage();

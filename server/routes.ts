@@ -384,32 +384,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Check if Friday should stay available based on waiting users
-  app.get('/api/check-friday-availability/:date', async (req, res) => {
-    try {
-      const fridayDate = req.params.date;
-      
-      // Count waiting users for each meetup type on this Friday
-      const waitingFor1v1 = await storage.countWaitingUsers(fridayDate, '1v1');
-      const waitingForGroup = await storage.countWaitingUsers(fridayDate, 'group');
-      
-      // Keep Friday available if:
-      // - At least 1 person waiting for 1v1 (need 1 more to complete)
-      // - At least 1-2 people waiting for group (need to reach 3 total)
-      const shouldKeepAvailable = waitingFor1v1 >= 1 || waitingForGroup >= 1;
-      
-      res.json({
-        available: shouldKeepAvailable,
-        waiting: {
-          '1v1': waitingFor1v1,
-          'group': waitingForGroup
-        }
-      });
-    } catch (error) {
-      console.error("Error checking Friday availability:", error);
-      res.status(500).json({ message: "Failed to check availability" });
-    }
-  });
+
 
   // Chat routes
   app.get('/api/meetups/:id/messages', isAuthenticated, async (req, res) => {
