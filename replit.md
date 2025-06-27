@@ -125,4 +125,4 @@ App scope: Meetups are for both restaurants and cafes (not just restaurants).
 Minimum distance setting: 10 miles minimum for all smart matching requests.
 Smart matching requirement: Only match users with same meetup type (1v1 with 1v1, group with group). Removed 3-people option entirely from the app.
 Maximum group size: 4 people for optimal group dynamics and conversation quality.
-Age verification: All users must be 18+ verified during registration, but individual ages are not stored for privacy.
+Age range matching: Users can set age preferences (18-50+) for group matching. Individual ages are stored for matching purposes while maintaining 18+ verification requirement.

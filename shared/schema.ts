@@ -33,6 +33,7 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  age: integer("age"),
   isAgeVerified: boolean("is_age_verified").default(false).notNull(),
   isEmailVerified: boolean("is_email_verified").default(false).notNull(),
   hasTakenSurvey: boolean("has_taken_survey").default(false).notNull(),
@@ -63,6 +64,8 @@ export const meetupRequests = pgTable("meetup_requests", {
   preferredTime: varchar("preferred_time"),
   preferredDate: varchar("preferred_date"),
   maxDistance: integer("max_distance").default(10),
+  ageRangeMin: integer("age_range_min"),
+  ageRangeMax: integer("age_range_max"),
   status: varchar("status").default("active").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -224,7 +227,9 @@ export const meetupRequestSchema = z.object({
   venueType: z.enum(['restaurant', 'cafe']),
   preferredTime: z.enum(['lunch', 'dinner', 'brunch', 'late-dinner']),
   preferredDate: z.string().min(1, "Date is required"),
-  maxDistance: z.number().min(1).max(50).default(10)
+  maxDistance: z.number().min(1).max(50).default(10),
+  ageRangeMin: z.number().min(18).max(50).optional(),
+  ageRangeMax: z.number().min(18).max(50).optional()
 });
 
 // Login schema

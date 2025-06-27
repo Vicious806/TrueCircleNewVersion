@@ -35,6 +35,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
   const [bio, setBio] = useState('');
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [interests, setInterests] = useState<string[]>([]);
+  const [age, setAge] = useState(18);
 
   // Initialize form with user data
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       setBio(userData.bio || '');
       setProfileImageUrl(userData.profileImageUrl || '');
       setInterests(userData.interests || []);
+      setAge(userData.age || 18);
     }
   }, [user]);
 
@@ -126,6 +128,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       bio: bio.trim(),
       profileImageUrl: profileImageUrl.trim(),
       interests,
+      age,
     };
 
     updateProfileMutation.mutate(profileData);
@@ -214,6 +217,20 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
               maxLength={200}
             />
             <p className="text-xs text-gray-500 mt-1">{bio.length}/200 characters</p>
+          </div>
+
+          {/* Age */}
+          <div>
+            <Label className="text-sm font-medium text-gray-700 mb-2 block">Age</Label>
+            <Input
+              type="number"
+              min="18"
+              max="100"
+              value={age}
+              onChange={(e) => setAge(parseInt(e.target.value) || 18)}
+              placeholder="Enter your age"
+            />
+            <p className="text-xs text-gray-500 mt-1">Used for age range matching in groups</p>
           </div>
 
           {/* Interests */}

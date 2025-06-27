@@ -82,6 +82,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
   const [venueType, setVenueType] = useState('');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([10]);
+  const [ageRange, setAgeRange] = useState([18, 50]);
 
   const createMatchingRequest = useMutation({
     mutationFn: async (requestData: MeetupRequestFormData) => {
@@ -134,6 +135,10 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
       preferredDate,
       preferredTime: preferredTime as any,
       maxDistance: maxDistance[0],
+      ...(meetupType === 'group' && {
+        ageRangeMin: ageRange[0],
+        ageRangeMax: ageRange[1]
+      })
     };
 
     createMatchingRequest.mutate(requestData);
@@ -165,6 +170,33 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Age Range for Group Matching */}
+          {meetupType === 'group' && (
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">
+                <Users className="w-4 h-4 mr-2" />
+                Age Range Preference
+              </Label>
+              <div className="px-3">
+                <Slider
+                  value={ageRange}
+                  onValueChange={setAgeRange}
+                  min={18}
+                  max={50}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>18</span>
+                  <span>50+</span>
+                </div>
+                <div className="text-center text-sm text-gray-700 mt-2">
+                  Match with people ages {ageRange[0]} - {ageRange[1] === 50 ? '50+' : ageRange[1]}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Venue Type Selection */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">

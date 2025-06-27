@@ -332,7 +332,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Matching operations - ensures only same meetup types and venue types get matched
-  async findPotentialMatches(userId: number, meetupType: string, venueType?: string): Promise<number[]> {
+  async findPotentialMatches(userId: number, meetupType: string, venueType?: string, ageRangeMin?: number, ageRangeMax?: number): Promise<number[]> {
     // Get current user's survey
     const currentUserSurvey = await this.getSurveyResponse(userId);
     if (!currentUserSurvey) return [];
@@ -355,10 +355,12 @@ export class DatabaseStorage implements IStorage {
         favoriteMusic: userSurveyResponses.favoriteMusic,
         favoriteShow: userSurveyResponses.favoriteShow,
         personalityType: userSurveyResponses.personalityType,
-        hobbies: userSurveyResponses.hobbies
+        hobbies: userSurveyResponses.hobbies,
+        userAge: users.age
       })
       .from(meetupRequests)
       .leftJoin(userSurveyResponses, eq(meetupRequests.userId, userSurveyResponses.userId))
+      .leftJoin(users, eq(meetupRequests.userId, users.id))
       .where(and(...conditions))
       .limit(10);
 
@@ -380,8 +382,17 @@ export class DatabaseStorage implements IStorage {
       // Only return users with shared interests for 1v1 matches
       return compatibleUsers.map(user => user.userId);
     } else {
-      // Group matching - no survey requirements, just return all potential users
-      return potentialRequests.map(user => user.userId);
+      // Group matching - no survey requirements, but filter by age range if provided
+      let filteredUsers = potentialRequests;
+      
+      if (ageRangeMin !== undefined && ageRangeMax !== undefined) {
+        filteredUsers = potentialRequests.filter(req => {
+          if (!req.userAge) return false; // Skip users without age
+          return req.userAge >= ageRangeMin && req.userAge <= ageRangeMax;
+        });
+      }
+      
+      return filteredUsers.map(user => user.userId);
     }
   }
 

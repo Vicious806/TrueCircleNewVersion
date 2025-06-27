@@ -24,6 +24,7 @@ const registerSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
+  age: z.number().min(18, "You must be at least 18 years old").max(100, "Please enter a valid age"),
   isAgeVerified: z.boolean().refine(val => val === true, {
     message: "You must be 18 or older to use this platform",
   }),
@@ -53,6 +54,7 @@ export default function Auth() {
       password: "",
       firstName: "",
       lastName: "",
+      age: 18,
       isAgeVerified: false,
     },
   });
@@ -264,6 +266,23 @@ export default function Auth() {
                       {registerForm.formState.errors.password && (
                         <p className="text-sm text-red-500">
                           {registerForm.formState.errors.password.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="age">Age</Label>
+                      <Input
+                        id="age"
+                        type="number"
+                        min="18"
+                        max="100"
+                        {...registerForm.register("age", { valueAsNumber: true })}
+                        placeholder="Enter your age"
+                      />
+                      {registerForm.formState.errors.age && (
+                        <p className="text-sm text-red-500">
+                          {registerForm.formState.errors.age.message}
                         </p>
                       )}
                     </div>

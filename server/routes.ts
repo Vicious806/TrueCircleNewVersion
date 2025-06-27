@@ -32,13 +32,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Profile update schema - allow username, bio, profile picture, interests, and location
+  // Profile update schema - allow username, bio, profile picture, interests, location, and age
   const profileUpdateSchema = z.object({
     username: z.string().min(1).optional(),
     bio: z.string().optional(),
     profileImageUrl: z.string().optional().or(z.literal('')), // Allow base64 data URLs or empty string
     interests: z.array(z.string()).optional(),
     location: z.string().optional(),
+    age: z.number().min(18).max(100).optional(),
   });
 
   app.put('/api/profile', isAuthenticated, async (req: any, res) => {
@@ -285,7 +286,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Try to find compatible matches immediately
       // This ensures only same meetupType and venueType users get matched
-      const potentialMatches = await storage.findPotentialMatches(userId, requestData.meetupType, requestData.venueType);
+      const potentialMatches = await storage.findPotentialMatches(
+        userId, 
+        requestData.meetupType, 
+        requestData.venueType,
+        requestData.ageRangeMin,
+        requestData.ageRangeMax
+      );
       
       if (potentialMatches.length > 0) {
         // Only match with ONE person at a time (1v1 matching)
