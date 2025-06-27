@@ -281,7 +281,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
                 <SelectValue placeholder="Select a Friday" />
               </SelectTrigger>
               <SelectContent>
-                {getNextFridays(4).map((friday: { value: string; label: string }) => (
+                {getNextFridays(2).map((friday: { value: string; label: string }) => (
                   <SelectItem key={friday.value} value={friday.value}>
                     {friday.label}
                   </SelectItem>
