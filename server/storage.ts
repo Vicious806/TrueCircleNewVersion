@@ -27,7 +27,7 @@ import {
   type MatchWithUsers,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, or, inArray, desc, asc, sql } from "drizzle-orm";
+import { eq, and, gte, lte, or, inArray, desc, asc, sql, not } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -373,24 +373,19 @@ export class DatabaseStorage implements IStorage {
 
   // Matching operations - ensures only same meetup types and venue types get matched
   async findPotentialMatches(userId: number, meetupType: string, venueType?: string, ageRangeMin?: number, ageRangeMax?: number): Promise<number[]> {
-    // Get current user's survey
+    // Get current user's survey 
     const currentUserSurvey = await this.getSurveyResponse(userId);
-    if (!currentUserSurvey) return [];
+    if (!currentUserSurvey && meetupType === '1v1') return []; // 1v1 requires survey
 
-    // Find users with same meetup type, venue type, AND at least one shared survey answer
-    const conditions = [
-      eq(meetupRequests.meetupType, meetupType), // CRITICAL: Only same meetup type
-      eq(meetupRequests.status, 'active'),
-      sql`${meetupRequests.userId} != ${userId}` // Exclude self
-    ];
-    
-    if (venueType) {
-      conditions.push(eq(meetupRequests.venueType, venueType)); // CRITICAL: Only same venue type
-    }
-
+    // Find potential matches with same meetup type and venue type
     const potentialRequests = await db
       .select({ 
         userId: meetupRequests.userId,
+        requestId: meetupRequests.id,
+        ageRangeMin: meetupRequests.ageRangeMin,
+        ageRangeMax: meetupRequests.ageRangeMax,
+        preferredTime: meetupRequests.preferredTime,
+        preferredDate: meetupRequests.preferredDate,
         favoriteConversationTopic: userSurveyResponses.favoriteConversationTopic,
         favoriteMusic: userSurveyResponses.favoriteMusic,
         favoriteShow: userSurveyResponses.favoriteShow,
@@ -401,39 +396,60 @@ export class DatabaseStorage implements IStorage {
       .from(meetupRequests)
       .leftJoin(userSurveyResponses, eq(meetupRequests.userId, userSurveyResponses.userId))
       .leftJoin(users, eq(meetupRequests.userId, users.id))
-      .where(and(...conditions))
-      .limit(10);
+      .where(and(
+        eq(meetupRequests.meetupType, meetupType), // Same meetup type (1v1 with 1v1)
+        eq(meetupRequests.status, 'active'),
+        sql`${meetupRequests.userId} != ${userId}`, // Exclude self
+        eq(meetupRequests.venueType, venueType || '') // Same venue type
+      ))
+      .limit(20);
 
-    // Apply age filtering for both 1v1 and group matches
-    let ageFilteredUsers = potentialRequests;
+    console.log(`Found ${potentialRequests.length} potential matches for user ${userId}`);
+
+    let compatibleUsers = potentialRequests;
+
+    // Filter by age range if specified
     if (ageRangeMin !== undefined && ageRangeMax !== undefined) {
-      ageFilteredUsers = potentialRequests.filter(req => {
-        if (!req.userAge) return false; // Skip users without age
-        return req.userAge >= ageRangeMin && req.userAge <= ageRangeMax;
+      // Get current user's age once for efficiency
+      const currentUser = await this.getUser(userId);
+      const currentUserAge = currentUser?.age;
+      
+      compatibleUsers = compatibleUsers.filter(req => {
+        if (!req.userAge) return false;
+        
+        // Mutual age compatibility: their age must be in current user's range
+        const theirAgeInMyRange = req.userAge >= ageRangeMin && req.userAge <= ageRangeMax;
+        
+        // Current user's age must be in their range (if they specified one)
+        let myAgeInTheirRange = true;
+        if (req.ageRangeMin && req.ageRangeMax && currentUserAge) {
+          myAgeInTheirRange = currentUserAge >= req.ageRangeMin && currentUserAge <= req.ageRangeMax;
+        }
+        
+        return theirAgeInMyRange && myAgeInTheirRange;
       });
     }
 
     // For 1v1: Require at least one shared survey answer for conversation starter
-    // For group: No survey compatibility required
-    if (meetupType === '1v1') {
-      const compatibleUsers = ageFilteredUsers.filter(req => {
-        if (!req.favoriteConversationTopic) return false; // Must have survey
+    if (meetupType === '1v1' && currentUserSurvey) {
+      compatibleUsers = compatibleUsers.filter(req => {
+        if (!req.favoriteConversationTopic) return false; // Must have survey data
         
-        return (
+        const hasSharedInterest = (
           req.favoriteConversationTopic === currentUserSurvey.favoriteConversationTopic ||
           req.favoriteMusic === currentUserSurvey.favoriteMusic ||
           req.favoriteShow === currentUserSurvey.favoriteShow ||
           req.personalityType === currentUserSurvey.personalityType ||
           req.hobbies === currentUserSurvey.hobbies
         );
+        
+        console.log(`User ${req.userId} shared interest check:`, hasSharedInterest);
+        return hasSharedInterest;
       });
-
-      // Only return users with shared interests AND age preferences for 1v1 matches
-      return compatibleUsers.map(user => user.userId);
-    } else {
-      // Group matching - no survey requirements, just age filtering
-      return ageFilteredUsers.map(user => user.userId);
     }
+
+    console.log(`Final compatible matches: ${compatibleUsers.length}`);
+    return compatibleUsers.map(user => user.userId);
   }
 
   async findSharedInterest(userId1: number, userId2: number): Promise<string | null> {
