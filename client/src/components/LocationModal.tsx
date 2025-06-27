@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,11 +14,73 @@ interface LocationModalProps {
   currentLocation?: string;
 }
 
+interface AddressSuggestion {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
 export default function LocationModal({ isOpen, onClose, currentLocation }: LocationModalProps) {
   const [address, setAddress] = useState(currentLocation || "");
+  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch address suggestions from Nominatim (OpenStreetMap)
+  const fetchAddressSuggestions = async (query: string) => {
+    if (query.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    setIsLoadingSuggestions(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&countrycodes=us,ca,gb,au`
+      );
+      const data = await response.json();
+      setSuggestions(data || []);
+    } catch (error) {
+      console.error('Failed to fetch address suggestions:', error);
+      setSuggestions([]);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Debounced address search
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      if (address.trim() && showSuggestions) {
+        fetchAddressSuggestions(address.trim());
+      }
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [address, showSuggestions]);
+
+  const handleAddressChange = (value: string) => {
+    setAddress(value);
+    setShowSuggestions(true);
+  };
+
+  const selectSuggestion = (suggestion: AddressSuggestion) => {
+    setAddress(suggestion.display_name);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
 
   const updateLocationMutation = useMutation({
     mutationFn: async (location: string) => {
@@ -135,13 +197,48 @@ export default function LocationModal({ isOpen, onClose, currentLocation }: Loca
 
             <div className="space-y-2">
               <Label htmlFor="address">Address or Area</Label>
-              <Input
-                id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="e.g., Downtown San Francisco, Brooklyn NY, or specific address"
-                className="w-full"
-              />
+              <div className="relative">
+                <Input
+                  id="address"
+                  value={address}
+                  onChange={(e) => handleAddressChange(e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => {
+                    // Delay hiding suggestions to allow clicks
+                    setTimeout(() => setShowSuggestions(false), 200);
+                  }}
+                  placeholder="Start typing your address..."
+                  className="w-full"
+                />
+                
+                {/* Address Suggestions Dropdown */}
+                {showSuggestions && (suggestions.length > 0 || isLoadingSuggestions) && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {isLoadingSuggestions ? (
+                      <div className="p-3 text-sm text-gray-500 flex items-center">
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Loading suggestions...
+                      </div>
+                    ) : (
+                      suggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          className="w-full p-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 focus:bg-gray-50 focus:outline-none"
+                          onClick={() => selectSuggestion(suggestion)}
+                        >
+                          <div className="flex items-start space-x-2">
+                            <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                            <div className="text-sm text-gray-900 leading-tight">
+                              {suggestion.display_name}
+                            </div>
+                          </div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <Button

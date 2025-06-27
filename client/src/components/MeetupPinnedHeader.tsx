@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, Clock, Edit, Check, X, Coffee, Utensils } from "lucide-react";
+import { MapPin, Calendar, Clock, Edit, Check, X, Coffee, Utensils, Loader2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,6 +22,12 @@ interface MeetupDetailsUpdate {
   time?: string;
 }
 
+interface AddressSuggestion {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
 export default function MeetupPinnedHeader({ 
   matchId, 
   venueType, 
@@ -34,8 +40,65 @@ export default function MeetupPinnedHeader({
   const [editLocation, setEditLocation] = useState(location || '');
   const [editDate, setEditDate] = useState(date || '');
   const [editTime, setEditTime] = useState(time || '');
+  const [locationSuggestions, setLocationSuggestions] = useState<AddressSuggestion[]>([]);
+  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
+  const [isLoadingLocationSuggestions, setIsLoadingLocationSuggestions] = useState(false);
+  const locationDebounceRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch restaurant/cafe suggestions
+  const fetchLocationSuggestions = async (query: string) => {
+    if (query.length < 3) {
+      setLocationSuggestions([]);
+      return;
+    }
+
+    setIsLoadingLocationSuggestions(true);
+    try {
+      const venueQuery = venueType === 'restaurant' ? 'restaurant' : 'cafe coffee';
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ' ' + venueQuery)}&format=json&addressdetails=1&limit=5&countrycodes=us,ca,gb,au`
+      );
+      const data = await response.json();
+      setLocationSuggestions(data || []);
+    } catch (error) {
+      console.error('Failed to fetch location suggestions:', error);
+      setLocationSuggestions([]);
+    } finally {
+      setIsLoadingLocationSuggestions(false);
+    }
+  };
+
+  // Debounced location search
+  useEffect(() => {
+    if (locationDebounceRef.current) {
+      clearTimeout(locationDebounceRef.current);
+    }
+
+    locationDebounceRef.current = setTimeout(() => {
+      if (editLocation.trim() && showLocationSuggestions && isEditing) {
+        fetchLocationSuggestions(editLocation.trim());
+      }
+    }, 300);
+
+    return () => {
+      if (locationDebounceRef.current) {
+        clearTimeout(locationDebounceRef.current);
+      }
+    };
+  }, [editLocation, showLocationSuggestions, isEditing, venueType]);
+
+  const handleLocationChange = (value: string) => {
+    setEditLocation(value);
+    setShowLocationSuggestions(true);
+  };
+
+  const selectLocationSuggestion = (suggestion: AddressSuggestion) => {
+    setEditLocation(suggestion.display_name);
+    setLocationSuggestions([]);
+    setShowLocationSuggestions(false);
+  };
 
   const updateMeetupMutation = useMutation({
     mutationFn: async (updates: MeetupDetailsUpdate) => {
@@ -153,12 +216,46 @@ export default function MeetupPinnedHeader({
               <div className="flex-1">
                 <div className="text-xs font-medium text-gray-700 mb-1">Location</div>
                 {isEditing ? (
-                  <Input
-                    value={editLocation}
-                    onChange={(e) => setEditLocation(e.target.value)}
-                    placeholder={`Enter ${getVenueLabel().toLowerCase()} name or address`}
-                    className="h-8 text-sm"
-                  />
+                  <div className="relative">
+                    <Input
+                      value={editLocation}
+                      onChange={(e) => handleLocationChange(e.target.value)}
+                      onFocus={() => setShowLocationSuggestions(true)}
+                      onBlur={() => {
+                        setTimeout(() => setShowLocationSuggestions(false), 200);
+                      }}
+                      placeholder={`Enter ${getVenueLabel().toLowerCase()} name or address`}
+                      className="h-8 text-sm"
+                    />
+                    
+                    {/* Location Suggestions Dropdown */}
+                    {showLocationSuggestions && (locationSuggestions.length > 0 || isLoadingLocationSuggestions) && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                        {isLoadingLocationSuggestions ? (
+                          <div className="p-2 text-xs text-gray-500 flex items-center">
+                            <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                            Loading suggestions...
+                          </div>
+                        ) : (
+                          locationSuggestions.map((suggestion, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              className="w-full p-2 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 focus:bg-gray-50 focus:outline-none"
+                              onClick={() => selectLocationSuggestion(suggestion)}
+                            >
+                              <div className="flex items-start space-x-2">
+                                <MapPin className="w-3 h-3 text-gray-400 mt-0.5 flex-shrink-0" />
+                                <div className="text-xs text-gray-900 leading-tight">
+                                  {suggestion.display_name}
+                                </div>
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="text-sm text-gray-900">
                     {location || `${getVenueLabel()} to be decided`}
