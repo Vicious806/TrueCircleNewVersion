@@ -278,6 +278,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const requestData = meetupRequestSchema.parse(req.body);
       
+      // Check for existing active request from this user for the same meetup type
+      const existingRequest = await storage.getUserActiveRequest(userId, requestData.meetupType);
+      if (existingRequest) {
+        return res.status(400).json({ 
+          message: "You already have an active request for this meetup type. Please wait for matching or cancel your existing request." 
+        });
+      }
+      
       // Create the matching request
       const matchingRequest = await storage.createMeetupRequest({
         ...requestData,

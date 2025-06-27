@@ -63,6 +63,7 @@ export interface IStorage {
   
   // Meetup request operations
   createMeetupRequest(request: InsertMeetupRequest): Promise<MeetupRequest>;
+  getUserActiveRequest(userId: number, meetupType: string): Promise<MeetupRequest | undefined>;
   
   // Matching operations
   findPotentialMatches(userId: number, meetupType: string): Promise<number[]>;
@@ -368,6 +369,19 @@ export class DatabaseStorage implements IStorage {
   // Meetup request operations
   async createMeetupRequest(requestData: InsertMeetupRequest): Promise<MeetupRequest> {
     const [request] = await db.insert(meetupRequests).values(requestData).returning();
+    return request;
+  }
+
+  async getUserActiveRequest(userId: number, meetupType: string): Promise<MeetupRequest | undefined> {
+    const [request] = await db
+      .select()
+      .from(meetupRequests)
+      .where(and(
+        eq(meetupRequests.userId, userId),
+        eq(meetupRequests.meetupType, meetupType),
+        eq(meetupRequests.status, 'active')
+      ))
+      .limit(1);
     return request;
   }
 
