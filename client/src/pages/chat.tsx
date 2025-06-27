@@ -224,6 +224,8 @@ export default function Chat() {
       <ChatPinnedHeader
         matchId={matchId}
         venueType={match.venueType}
+        suggestedDate={match.suggestedDate}
+        suggestedTime={match.suggestedTime}
         canEdit={true}
       />
 

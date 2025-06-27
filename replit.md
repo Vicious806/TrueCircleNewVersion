@@ -126,6 +126,7 @@ Changelog:
 - June 27, 2025. Simplified Friday availability to strict Thursday 10pm cutoff. Removed complex waiting user logic and backend availability checking. Fridays now become unavailable at exactly Thursday 10pm regardless of how many people are waiting.
 - June 27, 2025. Implemented comprehensive duplicate prevention system preventing users from having multiple active matching requests simultaneously. Added backend validation with 409 conflict responses, frontend conflict detection popup, and cancel request functionality. System ensures accurate user counts and prevents gaming the matching algorithm.
 - June 27, 2025. Changed app name from "FriendMeet" to "TrueCircle" throughout the entire application including landing page, authentication pages, welcome survey, and all documentation.
+- June 27, 2025. Updated ChatPinnedHeader component to automatically display scheduled date and time from smart matching selections instead of requiring manual input. Date and time now appear from the suggestedDate and suggestedTime fields in match data, with proper time formatting (lunch=1:00 PM, dinner=5:30 PM).
 
 ## User Preferences
 

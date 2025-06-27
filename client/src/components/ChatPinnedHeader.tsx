@@ -13,6 +13,8 @@ interface ChatPinnedHeaderProps {
   meetupType?: string;
   participantCount?: number;
   canEdit?: boolean;
+  suggestedDate?: string;
+  suggestedTime?: string;
 }
 
 export default function ChatPinnedHeader({ 
@@ -20,12 +22,12 @@ export default function ChatPinnedHeader({
   venueType = 'restaurant',
   meetupType = '1v1',
   participantCount = 2,
-  canEdit = true
+  canEdit = true,
+  suggestedDate,
+  suggestedTime
 }: ChatPinnedHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [location, setLocation] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
   const { toast } = useToast();
 
   const handleSave = () => {
@@ -181,22 +183,9 @@ export default function ChatPinnedHeader({
                 <Calendar className="w-4 h-4 text-blue-600 flex-shrink-0" />
                 <div className="flex-1">
                   <div className="text-xs font-medium text-gray-700 mb-1">Date</div>
-                  {isEditing ? (
-                    <Input
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="h-8 text-sm"
-                    />
-                  ) : (
-                    <div className="text-sm text-gray-900">
-                      {date ? new Date(date).toLocaleDateString('en-US', { 
-                        weekday: 'short', 
-                        month: 'short', 
-                        day: 'numeric' 
-                      }) : 'Date TBD'}
-                    </div>
-                  )}
+                  <div className="text-sm text-gray-900">
+                    {suggestedDate || 'Date TBD'}
+                  </div>
                 </div>
               </div>
 
@@ -205,29 +194,18 @@ export default function ChatPinnedHeader({
                 <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
                 <div className="flex-1">
                   <div className="text-xs font-medium text-gray-700 mb-1">Time</div>
-                  {isEditing ? (
-                    <Input
-                      type="time"
-                      value={time}
-                      onChange={(e) => setTime(e.target.value)}
-                      className="h-8 text-sm"
-                    />
-                  ) : (
-                    <div className="text-sm text-gray-900">
-                      {time ? new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      }) : 'Time TBD'}
-                    </div>
-                  )}
+                  <div className="text-sm text-gray-900">
+                    {suggestedTime === 'lunch' ? '1:00 PM' : 
+                     suggestedTime === 'dinner' ? '5:30 PM' : 
+                     suggestedTime || 'Time TBD'}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Helper text */}
-          {!location && !date && !time && !isEditing && (
+          {!location && !suggestedDate && !suggestedTime && !isEditing && (
             <div className="text-xs text-gray-600 bg-white/50 rounded-lg p-2 text-center">
               Coordinate your meetup details with the group
             </div>
