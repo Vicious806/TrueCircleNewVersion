@@ -364,10 +364,19 @@ export class DatabaseStorage implements IStorage {
       .where(and(...conditions))
       .limit(10);
 
+    // Apply age filtering for both 1v1 and group matches
+    let ageFilteredUsers = potentialRequests;
+    if (ageRangeMin !== undefined && ageRangeMax !== undefined) {
+      ageFilteredUsers = potentialRequests.filter(req => {
+        if (!req.userAge) return false; // Skip users without age
+        return req.userAge >= ageRangeMin && req.userAge <= ageRangeMax;
+      });
+    }
+
     // For 1v1: Require at least one shared survey answer for conversation starter
     // For group: No survey compatibility required
     if (meetupType === '1v1') {
-      const compatibleUsers = potentialRequests.filter(req => {
+      const compatibleUsers = ageFilteredUsers.filter(req => {
         if (!req.favoriteConversationTopic) return false; // Must have survey
         
         return (
@@ -379,20 +388,11 @@ export class DatabaseStorage implements IStorage {
         );
       });
 
-      // Only return users with shared interests for 1v1 matches
+      // Only return users with shared interests AND age preferences for 1v1 matches
       return compatibleUsers.map(user => user.userId);
     } else {
-      // Group matching - no survey requirements, but filter by age range if provided
-      let filteredUsers = potentialRequests;
-      
-      if (ageRangeMin !== undefined && ageRangeMax !== undefined) {
-        filteredUsers = potentialRequests.filter(req => {
-          if (!req.userAge) return false; // Skip users without age
-          return req.userAge >= ageRangeMin && req.userAge <= ageRangeMax;
-        });
-      }
-      
-      return filteredUsers.map(user => user.userId);
+      // Group matching - no survey requirements, just age filtering
+      return ageFilteredUsers.map(user => user.userId);
     }
   }
 

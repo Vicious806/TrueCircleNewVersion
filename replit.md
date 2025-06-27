@@ -117,6 +117,7 @@ Changelog:
 - June 26, 2025. Implemented anonymous group chat system where users appear as "Anonymous 1", "Anonymous 2", etc. to protect privacy during coordination. Added smart Friday availability logic that keeps Friday options open after Thursday 8am cutoff if people are waiting for matches (1+ for 1v1, 1-2 for groups) to prevent users from being stranded.
 - June 26, 2025. Updated matching requirements: 1v1 matching requires at least one shared survey answer for compatibility, while group matching has no survey requirements and focuses purely on logistics (date, time, venue type) for more diverse group dynamics.
 - June 26, 2025. Enhanced matching system with shared interest requirement: 1v1 matching requires at least one shared survey answer to ensure meaningful conversation starters. Added shared interest detection and display in 1v1 chats (e.g., "Both enjoy talking about travel"). Chat interface now shows anonymous users for groups ("Anonymous 1", "Anonymous 2") and "You"/"Other person" labels for 1v1 conversations.
+- June 27, 2025. Implemented comprehensive age range matching system for both 1v1 and group meetups. Added draggable dual-handle slider (18-50+) positioned above venue selection. Users can set age preferences that filter potential matches while maintaining shared interest requirements for 1v1 conversations. Age field integrated into registration and profile editing.
 
 ## User Preferences
 
