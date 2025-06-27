@@ -82,7 +82,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
   const [venueType, setVenueType] = useState('');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([10]);
-  const [ageRange, setAgeRange] = useState([18, 28]);
+  const [ageRange, setAgeRange] = useState([18, 50]);
 
   const createMatchingRequest = useMutation({
     mutationFn: async (requestData: MeetupRequestFormData) => {
@@ -175,7 +175,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
               Age Range Preference
             </Label>
             {meetupType === 'group' ? (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                     ageRange[0] === 18 && ageRange[1] === 28
@@ -200,6 +200,19 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">28-50+</h4>
                     <p className="text-sm text-gray-600">Professionals</p>
+                  </div>
+                </div>
+                <div
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    ageRange[0] === 18 && ageRange[1] === 50
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setAgeRange([18, 50])}
+                >
+                  <div className="text-center">
+                    <h4 className="font-medium text-gray-900">No Preference</h4>
+                    <p className="text-sm text-gray-600">All Ages</p>
                   </div>
                 </div>
               </div>
