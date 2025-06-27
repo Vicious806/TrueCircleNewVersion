@@ -118,6 +118,7 @@ Changelog:
 - June 26, 2025. Updated matching requirements: 1v1 matching requires at least one shared survey answer for compatibility, while group matching has no survey requirements and focuses purely on logistics (date, time, venue type) for more diverse group dynamics.
 - June 26, 2025. Enhanced matching system with shared interest requirement: 1v1 matching requires at least one shared survey answer to ensure meaningful conversation starters. Added shared interest detection and display in 1v1 chats (e.g., "Both enjoy talking about travel"). Chat interface now shows anonymous users for groups ("Anonymous 1", "Anonymous 2") and "You"/"Other person" labels for 1v1 conversations.
 - June 27, 2025. Implemented comprehensive age range matching system for both 1v1 and group meetups. Added draggable dual-handle slider (18-50+) positioned above venue selection. Users can set age preferences that filter potential matches while maintaining shared interest requirements for 1v1 conversations. Age field integrated into registration and profile editing.
+- June 27, 2025. Implemented real email verification system using Gmail SMTP (truecirclesocial@gmail.com). Registration now requires actual date of birth input with 18+ validation and sends professional verification emails. Users must verify their email before logging in. System calculates actual age from birth date and enforces strict age matching in smart matching algorithm.
 
 ## User Preferences
 

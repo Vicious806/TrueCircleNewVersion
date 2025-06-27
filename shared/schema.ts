@@ -181,8 +181,6 @@ export const chatMessagesRelations = relations(chatMessages, ({ one }) => ({
 export const upsertUserSchema = createInsertSchema(users);
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
-  isEmailVerified: true,
-  emailVerificationToken: true,
   createdAt: true,
   updatedAt: true
 });

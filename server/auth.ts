@@ -7,6 +7,7 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import type { User } from "@shared/schema";
 import connectPg from "connect-pg-simple";
+import { sendEmail, generateVerificationEmail } from "./emailService";
 
 declare global {
   namespace Express {
@@ -102,10 +103,22 @@ export function setupAuth(app: Express) {
   // Register route
   app.post("/api/register", async (req, res) => {
     try {
-      const { username, email, password, dateOfBirth, firstName, lastName, age } = req.body;
+      const { username, email, password, dateOfBirth, firstName, lastName } = req.body;
+
+      // Calculate age from date of birth
+      const birthDate = new Date(dateOfBirth);
+      const today = new Date();
+      let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        calculatedAge = calculatedAge - 1;
+      }
+
+
 
       // Validate age requirement
-      if (!age || age < 18) {
+      if (calculatedAge < 18) {
         return res.status(400).json({ message: "You must be at least 18 years old to join" });
       }
 
@@ -130,20 +143,57 @@ export function setupAuth(app: Express) {
         firstName,
         lastName,
         dateOfBirth: new Date(dateOfBirth),
-        age,
+        age: calculatedAge,
+        emailVerificationToken: verificationToken
       });
 
-      // TODO: Send verification email in production
-      // For development, auto-verify email
-      await storage.updateUser(user.id, { isEmailVerified: true });
+      // Send verification email
+      const baseUrl = process.env.NODE_ENV === 'development' 
+        ? `http://localhost:5000` 
+        : `https://${req.get('host')}`;
+      const verificationUrl = `${baseUrl}/api/verify-email?token=${verificationToken}`;
+      
+      const emailHtml = generateVerificationEmail(username, verificationUrl);
+      const emailSent = await sendEmail({
+        to: email,
+        subject: 'Verify Your Email - FriendMeet',
+        html: emailHtml
+      });
+
+      if (!emailSent) {
+        console.error('Failed to send verification email to:', email);
+      }
 
       res.status(201).json({ 
-        message: "Registration successful. Please check your email for verification.",
-        userId: user.id 
+        message: "Registration successful! Please check your email to verify your account.",
+        emailSent: emailSent
       });
     } catch (error) {
       console.error("Registration error:", error);
       res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
+  // Email verification route
+  app.get("/api/verify-email", async (req, res) => {
+    try {
+      const { token } = req.query;
+      
+      if (!token || typeof token !== 'string') {
+        return res.status(400).json({ message: "Invalid verification token" });
+      }
+
+      const verified = await storage.verifyEmail(token);
+      
+      if (verified) {
+        // Redirect to login page with success message
+        res.redirect('/?verified=true');
+      } else {
+        res.redirect('/?verified=false');
+      }
+    } catch (error) {
+      console.error("Email verification error:", error);
+      res.redirect('/?verified=false');
     }
   });
 
@@ -156,6 +206,14 @@ export function setupAuth(app: Express) {
       if (!user) {
         return res.status(401).json({ message: info?.message || "Invalid credentials" });
       }
+      
+      // Check if email is verified
+      if (!user.isEmailVerified) {
+        return res.status(401).json({ 
+          message: "Please verify your email address before logging in. Check your inbox for the verification link." 
+        });
+      }
+      
       req.logIn(user, (err) => {
         if (err) {
           return res.status(500).json({ message: "Login failed" });

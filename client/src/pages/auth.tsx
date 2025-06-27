@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,6 +22,31 @@ export default function Auth() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("login");
+
+  // Check for email verification status on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const verified = urlParams.get('verified');
+    
+    if (verified === 'true') {
+      toast({
+        title: "Email Verified!",
+        description: "Your email has been successfully verified. You can now log in.",
+        variant: "default",
+      });
+      setActiveTab("login");
+      // Clear the URL parameter
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (verified === 'false') {
+      toast({
+        title: "Verification Failed",
+        description: "Email verification failed or link expired. Please try registering again.",
+        variant: "destructive",
+      });
+      // Clear the URL parameter
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [toast]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -71,31 +96,24 @@ export default function Auth() {
       const response = await apiRequest("POST", "/api/register", data);
       return response.json();
     },
-    onSuccess: async () => {
-      // After registration, log the user in automatically
-      const loginData = {
-        usernameOrEmail: registerForm.getValues("username"),
-        password: registerForm.getValues("password"),
-      };
+    onSuccess: async (result) => {
+      toast({
+        title: "Registration successful!",
+        description: "Please check your email to verify your account before logging in.",
+      });
+      setActiveTab("login");
       
-      try {
-        const loginResponse = await apiRequest("POST", "/api/login", loginData);
-        const loginResult = await loginResponse.json();
-        
-        // Update the user cache with the logged-in user data
-        queryClient.setQueryData(["/api/user"], loginResult.user);
-        
+      if (result.emailSent) {
         toast({
-          title: "Welcome to FriendMeet!",
-          description: "Your account has been created and you're now logged in.",
+          title: "Verification email sent",
+          description: "Check your inbox and click the verification link to activate your account.",
         });
-        setLocation("/");
-      } catch (error) {
+      } else {
         toast({
-          title: "Registration successful!",
-          description: "Please log in with your new credentials.",
+          title: "Email delivery issue",
+          description: "We couldn't send the verification email. Please contact support.",
+          variant: "destructive",
         });
-        setActiveTab("login");
       }
     },
     onError: (error: Error) => {
