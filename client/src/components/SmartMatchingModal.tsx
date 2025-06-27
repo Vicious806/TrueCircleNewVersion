@@ -82,7 +82,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
   const [venueType, setVenueType] = useState('');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([10]);
-  const [ageRange, setAgeRange] = useState([18, 50]);
+  const [ageRange, setAgeRange] = useState([18, 28]);
 
   const createMatchingRequest = useMutation({
     mutationFn: async (requestData: MeetupRequestFormData) => {
@@ -174,23 +174,54 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
               <Users className="w-4 h-4 mr-2" />
               Age Range Preference
             </Label>
-            <div className="px-3">
-              <Slider
-                value={ageRange}
-                onValueChange={setAgeRange}
-                min={18}
-                max={50}
-                step={1}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>18</span>
-                <span>50+</span>
+            {meetupType === 'group' ? (
+              <div className="grid grid-cols-2 gap-3">
+                <div
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    ageRange[0] === 18 && ageRange[1] === 28
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setAgeRange([18, 28])}
+                >
+                  <div className="text-center">
+                    <h4 className="font-medium text-gray-900">18-28</h4>
+                    <p className="text-sm text-gray-600">Young Adults</p>
+                  </div>
+                </div>
+                <div
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    ageRange[0] === 28 && ageRange[1] === 50
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setAgeRange([28, 50])}
+                >
+                  <div className="text-center">
+                    <h4 className="font-medium text-gray-900">28-50+</h4>
+                    <p className="text-sm text-gray-600">Professionals</p>
+                  </div>
+                </div>
               </div>
-              <div className="text-center text-sm text-gray-700 mt-2">
-                Match with people ages {ageRange[0]} - {ageRange[1] === 50 ? '50+' : ageRange[1]}
+            ) : (
+              <div className="px-3">
+                <Slider
+                  value={ageRange}
+                  onValueChange={setAgeRange}
+                  min={18}
+                  max={50}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>18</span>
+                  <span>50+</span>
+                </div>
+                <div className="text-center text-sm text-gray-700 mt-2">
+                  Match with people ages {ageRange[0]} - {ageRange[1] === 50 ? '50+' : ageRange[1]}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Venue Type Selection */}
