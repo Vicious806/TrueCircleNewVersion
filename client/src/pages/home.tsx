@@ -165,7 +165,7 @@ export default function Home() {
                     <p className="text-gray-600 text-sm">Join a larger compatible group</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
-                        Faster Matching
+                        ⚡ Faster Matching
                       </Badge>
                     </div>
                   </div>
