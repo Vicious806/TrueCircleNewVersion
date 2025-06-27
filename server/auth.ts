@@ -153,7 +153,7 @@ export function setupAuth(app: Express) {
       const emailHtml = generateVerificationEmail(username, verificationCode);
       const emailSent = await sendEmail({
         to: email,
-        subject: 'Verify Your Email - FriendMeet',
+        subject: 'Email Verification Code',
         html: emailHtml
       });
 
