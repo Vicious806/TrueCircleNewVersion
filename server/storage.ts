@@ -75,6 +75,7 @@ export interface IStorage {
   createMatch(match: any): Promise<Match>;
   getUserMatches(userId: number): Promise<MatchWithUsers[]>;
   updateMatch(id: number, updates: Partial<Match>): Promise<Match | undefined>;
+  deleteMatch(id: number): Promise<boolean>;
 
 }
 
@@ -756,6 +757,20 @@ export class DatabaseStorage implements IStorage {
     return updatedMatch;
   }
 
+  async deleteMatch(id: number): Promise<boolean> {
+    try {
+      // Delete all chat messages for this match first
+      await db.delete(chatMessages).where(eq(chatMessages.matchId, id));
+      
+      // Delete the match
+      await db.delete(matches).where(eq(matches.id, id));
+      
+      return true;
+    } catch (error) {
+      console.error('Error deleting match:', error);
+      return false;
+    }
+  }
 
 }
 

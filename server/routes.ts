@@ -485,6 +485,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Leave/delete match
+  app.delete('/api/matches/:id/leave', isAuthenticated, async (req, res) => {
+    try {
+      const matchId = parseInt(req.params.id);
+      const userId = (req.user as any).id;
+      
+      // Verify user is in this match
+      const match = await storage.getUserMatches(userId);
+      const userMatch = match.find(m => m.id === matchId);
+      
+      if (!userMatch) {
+        return res.status(404).json({ message: "Match not found" });
+      }
+      
+      // Delete the match (this removes it for all participants)
+      const success = await storage.deleteMatch(matchId);
+      
+      if (!success) {
+        return res.status(500).json({ message: "Failed to leave match" });
+      }
+      
+      res.json({ message: "Successfully left match" });
+    } catch (error) {
+      console.error("Error leaving match:", error);
+      res.status(500).json({ message: "Failed to leave match" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   // WebSocket server for real-time chat

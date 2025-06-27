@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowLeft, Send, Info, Paperclip, Smile } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ArrowLeft, Send, Info, Paperclip, Smile, MoreVertical, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { Link } from "wouter";
@@ -144,6 +146,47 @@ export default function Chat() {
   // Common emojis for quick access
   const commonEmojis = ['😊', '😂', '👍', '❤️', '😍', '🤔', '😮', '👏', '🙌', '🔥', '💯', '✨', '🎉', '😎', '🤗', '😋', '🙏', '💪'];
 
+  // Leave match mutation
+  const leaveMatchMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/matches/${matchId}/leave`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to leave match');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user/matches'] });
+      toast({
+        title: "Left Match",
+        description: "You've left the match and can now find new connections.",
+      });
+      window.location.href = '/';
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to leave match. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Early returns after all hooks
   if (!matchId && matches.length === 0) {
     return (
@@ -201,9 +244,44 @@ export default function Chat() {
               )}
             </p>
           </div>
-          <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100 rounded-full">
-            <Info className="h-5 w-5 text-gray-600" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100 rounded-full">
+                <MoreVertical className="h-5 w-5 text-gray-600" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem 
+                    className="text-red-600 focus:text-red-700 cursor-pointer"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Leave Match
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Leave this match?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to leave this match? You'll return to the home screen and can start matching again for new connections.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => leaveMatchMutation.mutate()}
+                      disabled={leaveMatchMutation.isPending}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      {leaveMatchMutation.isPending ? "Leaving..." : "Leave Match"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
