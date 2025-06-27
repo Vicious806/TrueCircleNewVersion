@@ -440,19 +440,73 @@ export class DatabaseStorage implements IStorage {
     return result.rowCount ? result.rowCount > 0 : false;
   }
 
+  // Calculate distance between two locations using Haversine formula
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 3959; // Earth's radius in miles
+    const dLat = this.toRadians(lat2 - lat1);
+    const dLon = this.toRadians(lon2 - lon1);
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.toRadians(lat1)) * Math.cos(this.toRadians(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  }
+
+  private toRadians(degrees: number): number {
+    return degrees * (Math.PI/180);
+  }
+
+  // Extract coordinates from location string (supports both "lat,lon" format and address lookups)
+  private async getCoordinatesFromLocation(location: string): Promise<{lat: number, lon: number} | null> {
+    if (!location) return null;
+
+    // Check if location is already in "lat,lon" format
+    const coordMatch = location.match(/^(-?\d+\.?\d*),\s*(-?\d+\.?\d*)$/);
+    if (coordMatch) {
+      return {
+        lat: parseFloat(coordMatch[1]),
+        lon: parseFloat(coordMatch[2])
+      };
+    }
+
+    // For address strings, use geocoding to get coordinates
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`
+      );
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lon: parseFloat(data[0].lon)
+        };
+      }
+    } catch (error) {
+      console.error('Error geocoding location:', error);
+    }
+
+    return null;
+  }
+
   // Matching operations - handles both 1v1 and group matching with different logic
-  async findPotentialMatches(userId: number, meetupType: string, venueType?: string, ageRangeMin?: number, ageRangeMax?: number): Promise<number[]> {
+  async findPotentialMatches(userId: number, meetupType: string, venueType?: string, ageRangeMin?: number, ageRangeMax?: number, maxDistance?: number): Promise<number[]> {
     if (meetupType === 'group') {
-      return this.findGroupMatches(userId, venueType, ageRangeMin, ageRangeMax);
+      return this.findGroupMatches(userId, venueType, ageRangeMin, ageRangeMax, maxDistance);
     } else {
-      return this.find1v1Matches(userId, venueType, ageRangeMin, ageRangeMax);
+      return this.find1v1Matches(userId, venueType, ageRangeMin, ageRangeMax, maxDistance);
     }
   }
 
   // 1v1 matching - requires shared interests and compatible logistics
-  private async find1v1Matches(userId: number, venueType?: string, ageRangeMin?: number, ageRangeMax?: number): Promise<number[]> {
+  private async find1v1Matches(userId: number, venueType?: string, ageRangeMin?: number, ageRangeMax?: number, maxDistance?: number): Promise<number[]> {
     const currentUserSurvey = await this.getSurveyResponse(userId);
     if (!currentUserSurvey) return []; // 1v1 requires survey
+
+    // Get current user's location for distance calculations
+    const currentUserData = await this.getUser(userId);
+    const currentUserCoords = currentUserData?.location ? await this.getCoordinatesFromLocation(currentUserData.location) : null;
 
     // Find potential 1v1 matches with same venue type
     const potentialRequests = await db
@@ -468,7 +522,8 @@ export class DatabaseStorage implements IStorage {
         favoriteShow: userSurveyResponses.favoriteShow,
         personalityType: userSurveyResponses.personalityType,
         hobbies: userSurveyResponses.hobbies,
-        userAge: users.age
+        userAge: users.age,
+        userLocation: users.location
       })
       .from(meetupRequests)
       .leftJoin(userSurveyResponses, eq(meetupRequests.userId, userSurveyResponses.userId))
@@ -481,38 +536,53 @@ export class DatabaseStorage implements IStorage {
       ))
       .limit(20);
 
-    // Filter by age compatibility and shared interests
-    const currentUser = await this.getUser(userId);
-    const currentUserAge = currentUser?.age;
+    // Filter by age compatibility, distance, and shared interests
+    const currentUserAge = currentUserData?.age;
     
-    const compatibleUsers = potentialRequests.filter(req => {
-      // Age compatibility check
-      if (ageRangeMin !== undefined && ageRangeMax !== undefined && req.userAge) {
-        const theirAgeInMyRange = req.userAge >= ageRangeMin && req.userAge <= ageRangeMax;
-        let myAgeInTheirRange = true;
-        if (req.ageRangeMin && req.ageRangeMax && currentUserAge) {
-          myAgeInTheirRange = currentUserAge >= req.ageRangeMin && currentUserAge <= req.ageRangeMax;
+    const compatibleUsers = await Promise.all(
+      potentialRequests.map(async (req) => {
+        // Age compatibility check
+        if (ageRangeMin !== undefined && ageRangeMax !== undefined && req.userAge) {
+          const theirAgeInMyRange = req.userAge >= ageRangeMin && req.userAge <= ageRangeMax;
+          let myAgeInTheirRange = true;
+          if (req.ageRangeMin && req.ageRangeMax && currentUserAge) {
+            myAgeInTheirRange = currentUserAge >= req.ageRangeMin && currentUserAge <= req.ageRangeMax;
+          }
+          if (!theirAgeInMyRange || !myAgeInTheirRange) return null;
         }
-        if (!theirAgeInMyRange || !myAgeInTheirRange) return false;
-      }
 
-      // Shared interest requirement for 1v1
-      if (!req.favoriteConversationTopic) return false;
-      
-      return (
-        req.favoriteConversationTopic === currentUserSurvey.favoriteConversationTopic ||
-        req.favoriteMusic === currentUserSurvey.favoriteMusic ||
-        req.favoriteShow === currentUserSurvey.favoriteShow ||
-        req.personalityType === currentUserSurvey.personalityType ||
-        req.hobbies === currentUserSurvey.hobbies
-      );
-    });
+        // Distance check if both users have locations and maxDistance is specified
+        if (currentUserCoords && req.userLocation && maxDistance) {
+          const otherUserCoords = await this.getCoordinatesFromLocation(req.userLocation);
+          if (otherUserCoords) {
+            const distance = this.calculateDistance(
+              currentUserCoords.lat, currentUserCoords.lon,
+              otherUserCoords.lat, otherUserCoords.lon
+            );
+            if (distance > maxDistance) return null;
+          }
+        }
 
-    return compatibleUsers.map(user => user.userId);
+        // Shared interest requirement for 1v1
+        if (!req.favoriteConversationTopic) return null;
+        
+        const hasSharedInterest = (
+          req.favoriteConversationTopic === currentUserSurvey.favoriteConversationTopic ||
+          req.favoriteMusic === currentUserSurvey.favoriteMusic ||
+          req.favoriteShow === currentUserSurvey.favoriteShow ||
+          req.personalityType === currentUserSurvey.personalityType ||
+          req.hobbies === currentUserSurvey.hobbies
+        );
+
+        return hasSharedInterest ? req : null;
+      })
+    );
+
+    return compatibleUsers.filter(user => user !== null).map(user => user!.userId);
   }
 
   // Group matching - fills existing groups before creating new ones
-  private async findGroupMatches(userId: number, venueType?: string, ageRangeMin?: number, ageRangeMax?: number): Promise<number[]> {
+  private async findGroupMatches(userId: number, venueType?: string, ageRangeMin?: number, ageRangeMax?: number, maxDistance?: number): Promise<number[]> {
     // Get current user's request to match logistics
     const currentUserRequest = await db
       .select()
@@ -562,7 +632,8 @@ export class DatabaseStorage implements IStorage {
         ageRangeMax: meetupRequests.ageRangeMax,
         userAge: users.age,
         preferredDate: meetupRequests.preferredDate,
-        preferredTime: meetupRequests.preferredTime
+        preferredTime: meetupRequests.preferredTime,
+        userLocation: users.location
       })
       .from(meetupRequests)
       .leftJoin(users, eq(meetupRequests.userId, users.id))
@@ -574,34 +645,51 @@ export class DatabaseStorage implements IStorage {
       ))
       .limit(10);
 
-    // Filter by date/time and age compatibility for new group formation
+    // Filter by date/time, age compatibility, and distance for new group formation
     const currentUser = await this.getUser(userId);
     const currentUserAge = currentUser?.age;
+    const currentUserCoords = currentUser?.location ? await this.getCoordinatesFromLocation(currentUser.location) : null;
     
-    const compatibleUsers = potentialRequests.filter(req => {
-      // Must match date and time
-      if (req.preferredDate !== currentRequest.preferredDate || 
-          req.preferredTime !== currentRequest.preferredTime) {
-        return false;
-      }
-      
-      if (!req.userAge) return false;
-      
-      // If current user has age preferences
-      if (ageRangeMin !== undefined && ageRangeMax !== undefined) {
-        if (req.userAge < ageRangeMin || req.userAge > ageRangeMax) return false;
-      }
-      
-      // If other user has age preferences and current user has age
-      if (req.ageRangeMin && req.ageRangeMax && currentUserAge) {
-        if (currentUserAge < req.ageRangeMin || currentUserAge > req.ageRangeMax) return false;
-      }
-      
-      return true;
-    });
+    const compatibleUsers = await Promise.all(
+      potentialRequests.map(async (req) => {
+        // Must match date and time
+        if (req.preferredDate !== currentRequest.preferredDate || 
+            req.preferredTime !== currentRequest.preferredTime) {
+          return null;
+        }
+        
+        if (!req.userAge) return null;
+        
+        // If current user has age preferences
+        if (ageRangeMin !== undefined && ageRangeMax !== undefined) {
+          if (req.userAge < ageRangeMin || req.userAge > ageRangeMax) return null;
+        }
+        
+        // If other user has age preferences and current user has age
+        if (req.ageRangeMin && req.ageRangeMax && currentUserAge) {
+          if (currentUserAge < req.ageRangeMin || currentUserAge > req.ageRangeMax) return null;
+        }
 
-    console.log(`Found ${compatibleUsers.length} users for new group formation`);
-    return compatibleUsers.map(user => user.userId);
+        // Distance check if both users have locations and maxDistance is specified
+        if (currentUserCoords && req.userLocation && maxDistance) {
+          const otherUserCoords = await this.getCoordinatesFromLocation(req.userLocation);
+          if (otherUserCoords) {
+            const distance = this.calculateDistance(
+              currentUserCoords.lat, currentUserCoords.lon,
+              otherUserCoords.lat, otherUserCoords.lon
+            );
+            if (distance > maxDistance) return null;
+          }
+        }
+        
+        return req;
+      })
+    );
+
+    const filteredUsers = compatibleUsers.filter((user): user is NonNullable<typeof user> => user !== null);
+
+    console.log(`Found ${filteredUsers.length} users for new group formation`);
+    return filteredUsers.map(user => user.userId);
   }
 
   // Check if user's age is compatible with existing group members (simplified)

@@ -305,7 +305,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         requestData.meetupType, 
         requestData.venueType,
         requestData.ageRangeMin,
-        requestData.ageRangeMax
+        requestData.ageRangeMax,
+        requestData.maxDistance
       );
       
       if (potentialMatches.length > 0) {

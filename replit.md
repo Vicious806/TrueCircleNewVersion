@@ -130,6 +130,7 @@ Changelog:
 - June 27, 2025. Fixed critical chat messaging system by resolving React hooks errors and database constraint issues. Added functional emoji picker with 18 common emojis accessible via smile button. Updated database schema to support match-based chat with proper column handling for both meetup_id and match_id fields.
 - June 27, 2025. Implemented address autocomplete functionality using OpenStreetMap Nominatim API. Added smart address suggestions to LocationModal for user location setting and MeetupPinnedHeader for restaurant/cafe location coordination. Features debounced search, real-time suggestions dropdown, and venue-specific filtering (restaurants vs cafes).
 - June 27, 2025. Added leave match functionality with confirmation dialog. Users can now exit their current match via dropdown menu in chat header, which deletes the match and all associated chat messages, returning them to home screen to find new connections. Includes proper database cleanup and user feedback.
+- June 27, 2025. Implemented location-based distance matching using Haversine formula calculations. Smart matching now respects the selected address from autocomplete suggestions and filters potential matches within the specified radius (10-25 miles). Uses geocoding API to convert addresses to coordinates for accurate distance calculations between users.
 
 ## User Preferences
 
