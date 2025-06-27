@@ -320,7 +320,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   function getMaxParticipants(meetupType: string): number {
     switch (meetupType) {
       case '1v1': return 2;
-      case 'group': return 8;
+      case 'group': return 4;
       default: return 2;
     }
   }
