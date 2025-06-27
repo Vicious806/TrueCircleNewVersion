@@ -28,11 +28,12 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       to: options.to,
       subject: options.subject,
       html: options.html,
-      text: `Hi there! Please verify your email by visiting: http://localhost:5000/api/verify-email?token=YOUR_TOKEN`,
+      text: `Hi there! Welcome to FriendMeet! Please verify your email address to complete your registration and start connecting with fellow food lovers. Visit: ${options.html.match(/href="([^"]+)"/)?.[1] || 'verification link in HTML'}`,
       headers: {
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
-        'Importance': 'high'
+        'X-Mailer': 'FriendMeet',
+        'X-Priority': '3',
+        'List-Unsubscribe': '<mailto:truecirclesocial@gmail.com?subject=unsubscribe>',
+        'Reply-To': 'truecirclesocial@gmail.com'
       }
     };
 
@@ -54,48 +55,65 @@ export function generateVerificationEmail(username: string, verificationUrl: str
     <html>
     <head>
       <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Verify Your Email - FriendMeet</title>
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
-        .button { display: inline-block; background: #3b82f6; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 20px 0; }
-        .footer { text-align: center; margin-top: 30px; color: #64748b; font-size: 14px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; }
+        .header { background: #2563eb; color: white; padding: 40px 30px; text-align: center; }
+        .header h1 { margin: 0 0 10px 0; font-size: 28px; }
+        .header p { margin: 0; opacity: 0.9; }
+        .content { padding: 40px 30px; }
+        .content h2 { color: #1f2937; margin-top: 0; }
+        .button { display: inline-block; background: #2563eb; color: white !important; padding: 15px 35px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 25px 0; transition: background-color 0.3s; }
+        .button:hover { background: #1d4ed8; }
+        .features { background: #f8fafc; padding: 20px; border-radius: 8px; margin: 25px 0; }
+        .features ul { margin: 0; padding-left: 20px; }
+        .features li { margin: 8px 0; }
+        .url-box { background: #f1f5f9; padding: 15px; border-radius: 6px; word-break: break-all; color: #2563eb; font-family: monospace; margin: 20px 0; }
+        .footer { background: #f8fafc; padding: 30px; text-align: center; color: #64748b; font-size: 14px; border-top: 1px solid #e2e8f0; }
+        .footer p { margin: 5px 0; }
+        @media (max-width: 600px) {
+          .container { margin: 0; }
+          .header, .content, .footer { padding: 25px 20px; }
+        }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <h1>Welcome to FriendMeet!</h1>
-          <p>Social dining made simple</p>
+          <p>Your social dining journey starts here</p>
         </div>
         <div class="content">
-          <h2>Hi ${username},</h2>
-          <p>Thanks for joining FriendMeet! We're excited to help you connect with fellow food lovers in your area.</p>
+          <h2>Hi ${username}!</h2>
+          <p>Thank you for joining FriendMeet. We're thrilled to help you discover amazing dining experiences and connect with fellow food enthusiasts.</p>
           
-          <p>To complete your registration and start discovering amazing dining experiences, please verify your email address:</p>
+          <p>To activate your account and start exploring, please verify your email address by clicking the button below:</p>
           
           <div style="text-align: center;">
-            <a href="${verificationUrl}" class="button">Verify My Email</a>
+            <a href="${verificationUrl}" class="button">Verify Email Address</a>
           </div>
           
-          <p>Once verified, you can:</p>
-          <ul>
-            <li>Complete your personality survey for better matches</li>
-            <li>Set your dining preferences (restaurants or cafes)</li>
-            <li>Join Friday meetups at 1:00 PM or 5:30 PM</li>
-            <li>Connect with compatible people in your age range</li>
-          </ul>
+          <div class="features">
+            <p><strong>What's waiting for you:</strong></p>
+            <ul>
+              <li>Smart matching based on your dining preferences</li>
+              <li>Weekend meetups at restaurants and cafes</li>
+              <li>Connect with people in your age range</li>
+              <li>Anonymous group coordination for safety</li>
+            </ul>
+          </div>
           
-          <p>If the button doesn't work, copy and paste this link into your browser:</p>
-          <p style="word-break: break-all; color: #3b82f6;">${verificationUrl}</p>
+          <p>Having trouble with the button? Copy and paste this link into your browser:</p>
+          <div class="url-box">${verificationUrl}</div>
           
-          <p><strong>Note:</strong> This verification link will expire in 24 hours for security reasons.</p>
+          <p><strong>Security note:</strong> This link expires in 24 hours to keep your account secure.</p>
         </div>
         <div class="footer">
-          <p>If you didn't create this account, please ignore this email.</p>
-          <p>© 2025 FriendMeet - Connecting food lovers everywhere</p>
+          <p>Didn't sign up for FriendMeet? You can safely ignore this email.</p>
+          <p>© 2025 FriendMeet • Bringing food lovers together</p>
+          <p>This email was sent to verify your account registration.</p>
         </div>
       </div>
     </body>

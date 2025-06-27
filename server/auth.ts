@@ -239,20 +239,27 @@ export function setupAuth(app: Express) {
     });
   });
 
-  // Email verification route
-  app.get("/api/verify-email/:token", async (req, res) => {
+  // Email verification route (handles query parameter)
+  app.get("/api/verify-email", async (req, res) => {
     try {
-      const { token } = req.params;
+      const { token } = req.query;
+      
+      if (!token || typeof token !== 'string') {
+        return res.redirect('/?verified=false&error=missing_token');
+      }
+
       const verified = await storage.verifyEmail(token);
       
       if (verified) {
-        res.json({ message: "Email verified successfully" });
+        console.log(`Email verified successfully for token: ${token}`);
+        res.redirect('/?verified=true');
       } else {
-        res.status(400).json({ message: "Invalid or expired verification token" });
+        console.log(`Verification failed for token: ${token}`);
+        res.redirect('/?verified=false&error=invalid_token');
       }
     } catch (error) {
       console.error("Email verification error:", error);
-      res.status(500).json({ message: "Verification failed" });
+      res.redirect('/?verified=false&error=server_error');
     }
   });
 }
