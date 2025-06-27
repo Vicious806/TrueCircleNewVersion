@@ -710,13 +710,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserMatches(userId: number): Promise<MatchWithUsers[]> {
-    // Only get active matches (status 'pending' or 'confirmed')
+    // Only get the single most recent active match
     const userMatches = await db
       .select()
       .from(matches)
       .where(and(
         sql`${userId} = ANY(${matches.participants})`,
-        inArray(matches.status, ['pending', 'confirmed'])
+        eq(matches.status, 'pending') // Only show pending matches (current active ones)
       ))
       .orderBy(desc(matches.createdAt))
       .limit(1); // Only return the most recent active match
