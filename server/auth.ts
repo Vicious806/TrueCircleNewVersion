@@ -39,8 +39,8 @@ async function comparePasswords(supplied: string, stored: string): Promise<boole
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
-function generateVerificationToken(): string {
-  return randomBytes(32).toString("hex");
+function generateVerificationCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 export function setupAuth(app: Express) {
@@ -134,7 +134,8 @@ export function setupAuth(app: Express) {
       }
 
       const hashedPassword = await hashPassword(password);
-      const verificationToken = generateVerificationToken();
+      const verificationCode = generateVerificationCode();
+      const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
 
       const user = await storage.createUser({
         username,
@@ -144,16 +145,12 @@ export function setupAuth(app: Express) {
         lastName,
         dateOfBirth: new Date(dateOfBirth),
         age: calculatedAge,
-        emailVerificationToken: verificationToken
+        emailVerificationCode: verificationCode,
+        emailVerificationExpiry: expiryTime
       });
 
-      // Send verification email
-      const baseUrl = process.env.NODE_ENV === 'development' 
-        ? `http://localhost:5000` 
-        : `https://${req.get('host')}`;
-      const verificationUrl = `${baseUrl}/api/verify-email?token=${verificationToken}`;
-      
-      const emailHtml = generateVerificationEmail(username, verificationUrl);
+      // Send verification email with code
+      const emailHtml = generateVerificationEmail(username, verificationCode);
       const emailSent = await sendEmail({
         to: email,
         subject: 'Verify Your Email - FriendMeet',
@@ -164,15 +161,15 @@ export function setupAuth(app: Express) {
         console.error('Failed to send verification email to:', email);
       }
 
-      // For development, also log the verification URL for manual testing
+      // For development, also log the verification code for manual testing
       if (process.env.NODE_ENV === 'development') {
-        console.log(`Verification URL for ${email}: ${verificationUrl}`);
+        console.log(`Verification code for ${email}: ${verificationCode}`);
       }
 
       res.status(201).json({ 
-        message: "Registration successful! Please check your email to verify your account.",
+        message: "Registration successful! Please check your email for your verification code.",
         emailSent: emailSent,
-        verificationUrl: process.env.NODE_ENV === 'development' ? verificationUrl : undefined
+        verificationCode: process.env.NODE_ENV === 'development' ? verificationCode : undefined
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -180,26 +177,25 @@ export function setupAuth(app: Express) {
     }
   });
 
-  // Email verification route
-  app.get("/api/verify-email", async (req, res) => {
+  // Email verification route with code
+  app.post("/api/verify-email", async (req, res) => {
     try {
-      const { token } = req.query;
+      const { email, code } = req.body;
       
-      if (!token || typeof token !== 'string') {
-        return res.status(400).json({ message: "Invalid verification token" });
+      if (!email || !code) {
+        return res.status(400).json({ message: "Email and verification code are required" });
       }
 
-      const verified = await storage.verifyEmail(token);
+      const verified = await storage.verifyEmailWithCode(email, code);
       
       if (verified) {
-        // Redirect to login page with success message
-        res.redirect('/?verified=true');
+        res.json({ message: "Email verified successfully", verified: true });
       } else {
-        res.redirect('/?verified=false');
+        res.status(400).json({ message: "Invalid or expired verification code", verified: false });
       }
     } catch (error) {
       console.error("Email verification error:", error);
-      res.redirect('/?verified=false');
+      res.status(500).json({ message: "Verification failed", verified: false });
     }
   });
 
@@ -239,29 +235,7 @@ export function setupAuth(app: Express) {
     });
   });
 
-  // Email verification route (handles query parameter)
-  app.get("/api/verify-email", async (req, res) => {
-    try {
-      const { token } = req.query;
-      
-      if (!token || typeof token !== 'string') {
-        return res.redirect('/?verified=false&error=missing_token');
-      }
 
-      const verified = await storage.verifyEmail(token);
-      
-      if (verified) {
-        console.log(`Email verified successfully for token: ${token}`);
-        res.redirect('/?verified=true');
-      } else {
-        console.log(`Verification failed for token: ${token}`);
-        res.redirect('/?verified=false&error=invalid_token');
-      }
-    } catch (error) {
-      console.error("Email verification error:", error);
-      res.redirect('/?verified=false&error=server_error');
-    }
-  });
 }
 
 export function isAuthenticated(req: any, res: any, next: any) {

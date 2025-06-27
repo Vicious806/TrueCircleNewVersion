@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 
-import { loginSchema, registerSchema, type LoginData, type RegisterData } from "@shared/schema";
+import { loginSchema, registerSchema, emailVerificationSchema, type LoginData, type RegisterData, type EmailVerification } from "@shared/schema";
 
 type LoginFormData = LoginData;
 type RegisterFormData = RegisterData;
@@ -22,6 +22,8 @@ export default function Auth() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("login");
+  const [showVerification, setShowVerification] = useState(false);
+  const [registrationEmail, setRegistrationEmail] = useState("");
 
   // Check for email verification status on mount
   useEffect(() => {
@@ -97,24 +99,26 @@ export default function Auth() {
       return response.json();
     },
     onSuccess: async (result) => {
+      setRegistrationEmail(registerForm.getValues("email"));
+      setShowVerification(true);
+      
       toast({
         title: "Registration successful!",
-        description: "Please check your email to verify your account before logging in.",
+        description: "Please check your email for your verification code.",
       });
-      setActiveTab("login");
       
       if (result.emailSent) {
         toast({
-          title: "Verification email sent",
-          description: "Check your inbox (including spam folder) for the verification link.",
+          title: "Verification code sent",
+          description: "Check your inbox (including spam folder) for the 6-digit code.",
         });
         
-        // In development, show the verification URL for manual testing
-        if (result.verificationUrl) {
+        // In development, show the verification code for manual testing
+        if (result.verificationCode) {
           setTimeout(() => {
             toast({
               title: "Development Mode",
-              description: `Direct verification link: ${result.verificationUrl}`,
+              description: `Verification code: ${result.verificationCode}`,
               variant: "default",
             });
           }, 2000);
@@ -133,6 +137,37 @@ export default function Auth() {
         description: error.message,
         variant: "destructive",
       });
+    },
+  });
+
+  const verifyMutation = useMutation({
+    mutationFn: async (data: EmailVerification) => {
+      const response = await apiRequest("POST", "/api/verify-email", data);
+      return response.json();
+    },
+    onSuccess: async () => {
+      toast({
+        title: "Email verified!",
+        description: "Your email has been successfully verified. You can now log in.",
+      });
+      setShowVerification(false);
+      setActiveTab("login");
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Verification failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Verification form
+  const verifyForm = useForm<EmailVerification>({
+    resolver: zodResolver(emailVerificationSchema),
+    defaultValues: {
+      email: registrationEmail,
+      code: "",
     },
   });
 
@@ -159,11 +194,62 @@ export default function Auth() {
     registerMutation.mutate(registrationData);
   };
 
+  const onVerifySubmit = (data: EmailVerification) => {
+    verifyMutation.mutate(data);
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Left side - Forms */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
+          {showVerification ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Verify Your Email</CardTitle>
+                <CardDescription>
+                  Enter the 6-digit verification code sent to {registrationEmail}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={verifyForm.handleSubmit(onVerifySubmit)} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="code">Verification Code</Label>
+                    <Input
+                      id="code"
+                      type="text"
+                      maxLength={6}
+                      {...verifyForm.register("code")}
+                      placeholder="Enter 6-digit code"
+                      className="text-center text-2xl font-mono tracking-widest"
+                    />
+                    {verifyForm.formState.errors.code && (
+                      <p className="text-sm text-red-500">
+                        {verifyForm.formState.errors.code.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    disabled={verifyMutation.isPending}
+                  >
+                    {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
+                  </Button>
+
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => setShowVerification(false)}
+                  >
+                    Back to Login
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
@@ -325,6 +411,7 @@ export default function Auth() {
               </Card>
             </TabsContent>
           </Tabs>
+          )}
         </div>
       </div>
 

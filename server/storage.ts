@@ -38,7 +38,7 @@ export interface IStorage {
   getUserByUsernameOrEmail(usernameOrEmail: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, updates: Partial<User>): Promise<User | undefined>;
-  verifyEmail(token: string): Promise<boolean>;
+  verifyEmailWithCode(email: string, code: string): Promise<boolean>;
   
   // Meetup operations
   createMeetup(meetup: InsertMeetup): Promise<Meetup>;
@@ -128,17 +128,40 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async verifyEmail(token: string): Promise<boolean> {
-    const [user] = await db
-      .update(users)
-      .set({ 
-        isEmailVerified: true, 
-        emailVerificationToken: null,
-        updatedAt: new Date()
-      })
-      .where(eq(users.emailVerificationToken, token))
-      .returning();
-    return !!user;
+  async verifyEmailWithCode(email: string, code: string): Promise<boolean> {
+    try {
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(and(
+          eq(users.email, email),
+          eq(users.emailVerificationCode, code)
+        ));
+
+      if (!user) {
+        return false;
+      }
+
+      // Check if code has expired (15 minutes)
+      if (user.emailVerificationExpiry && new Date() > user.emailVerificationExpiry) {
+        return false;
+      }
+
+      await db
+        .update(users)
+        .set({
+          isEmailVerified: true,
+          emailVerificationCode: null,
+          emailVerificationExpiry: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, user.id));
+
+      return true;
+    } catch (error) {
+      console.error("Error verifying email with code:", error);
+      return false;
+    }
   }
 
   // Meetup operations

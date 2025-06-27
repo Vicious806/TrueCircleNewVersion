@@ -37,7 +37,8 @@ export const users = pgTable("users", {
   age: integer("age"),
   isEmailVerified: boolean("is_email_verified").default(false).notNull(),
   hasTakenSurvey: boolean("has_taken_survey").default(false).notNull(),
-  emailVerificationToken: varchar("email_verification_token"),
+  emailVerificationCode: varchar("email_verification_code"),
+  emailVerificationExpiry: timestamp("email_verification_expiry"),
   bio: text("bio"),
   interests: text("interests").array(),
   location: varchar("location"),
@@ -255,7 +256,8 @@ export const loginSchema = z.object({
 
 // Email verification schema
 export const emailVerificationSchema = z.object({
-  token: z.string().min(1, "Verification token is required"),
+  email: z.string().email("Valid email is required"),
+  code: z.string().length(6, "Verification code must be 6 digits"),
 });
 
 // Filter schema for meetup search
