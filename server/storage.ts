@@ -350,14 +350,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMatchChatMessages(matchId: number): Promise<ChatMessageWithUser[]> {
-    // Use negative meetup ID for match-based chats
-    const chatMeetupId = -matchId;
-    
     const results = await db
       .select()
       .from(chatMessages)
       .leftJoin(users, eq(chatMessages.userId, users.id))
-      .where(eq(chatMessages.meetupId, chatMeetupId))
+      .where(eq(chatMessages.matchId, matchId))
       .orderBy(asc(chatMessages.createdAt));
 
     return results.map(result => ({
@@ -368,28 +365,9 @@ export class DatabaseStorage implements IStorage {
 
   async createMatchChatMessage(matchId: number, userId: number, message: string): Promise<ChatMessage> {
     try {
-      // First, ensure we have a meetup record that corresponds to this match
-      // We'll use a unique negative ID to avoid conflicts with real meetups
-      const chatMeetupId = -matchId; // Use negative IDs for chat-only meetups
-      
-      // Create or update the chat meetup record
-      await db.insert(meetups).values({
-        id: chatMeetupId,
-        title: `Match ${matchId} Chat`,
-        description: 'Chat for matched users',
-        meetupType: '1v1',
-        maxParticipants: 2,
-        currentParticipants: 2,
-        createdBy: userId,
-        status: 'active'
-      }).onConflictDoUpdate({
-        target: meetups.id,
-        set: { updatedAt: new Date() }
-      });
-
-      // Insert the chat message
+      // Insert the chat message using the matchId column directly
       const [chatMessage] = await db.insert(chatMessages).values({
-        meetupId: chatMeetupId,
+        matchId: matchId,
         userId,
         message,
       }).returning();

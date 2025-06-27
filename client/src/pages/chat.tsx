@@ -23,9 +23,10 @@ export default function Chat() {
   
   const [message, setMessage] = useState('');
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Get user's current active match
+  // Get user's current active match - always call hooks
   const { data: userMatches = [] } = useQuery({
     queryKey: ['/api/user/matches'],
   });
@@ -53,31 +54,6 @@ export default function Chat() {
     },
     enabled: !!matchId,
   });
-
-  // If no active match, show no match message
-  if (!matchId && matches.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center">
-          <Link to="/">
-            <Button variant="ghost" size="sm" className="mr-2">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <h1 className="font-semibold text-gray-900">Chat</h1>
-        </header>
-        
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <p className="text-gray-500 mb-4">No active matches yet</p>
-            <Link to="/">
-              <Button>Find a Match</Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // WebSocket setup
   useEffect(() => {
@@ -159,6 +135,39 @@ export default function Chat() {
     }
     return firstName?.[0] || lastName?.[0] || '?';
   };
+
+  const addEmoji = (emoji: string) => {
+    setMessage(prev => prev + emoji);
+    setShowEmojiPicker(false);
+  };
+
+  // Common emojis for quick access
+  const commonEmojis = ['😊', '😂', '👍', '❤️', '😍', '🤔', '😮', '👏', '🙌', '🔥', '💯', '✨', '🎉', '😎', '🤗', '😋', '🙏', '💪'];
+
+  // Early returns after all hooks
+  if (!matchId && matches.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center">
+          <Link to="/">
+            <Button variant="ghost" size="sm" className="mr-2">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <h1 className="font-semibold text-gray-900">Chat</h1>
+        </header>
+        
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <p className="text-gray-500 mb-4">No active matches yet</p>
+            <Link to="/">
+              <Button>Find a Match</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!match) {
     return (
@@ -411,13 +420,32 @@ export default function Chat() {
               placeholder="Type a message..."
               className="w-full px-4 py-3 bg-gray-100 rounded-full focus:ring-2 focus:ring-primary focus:bg-white border-0"
             />
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-primary"
-            >
-              <Smile className="h-5 w-5" />
-            </Button>
+            <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-primary"
+                >
+                  <Smile className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" side="top">
+                <div className="grid grid-cols-6 gap-2">
+                  {commonEmojis.map((emoji, index) => (
+                    <Button
+                      key={index}
+                      variant="ghost"
+                      size="sm"
+                      className="h-10 w-10 text-lg hover:bg-gray-100"
+                      onClick={() => addEmoji(emoji)}
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
           
           <Button
