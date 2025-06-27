@@ -350,12 +350,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMatchChatMessages(matchId: number): Promise<ChatMessageWithUser[]> {
-    // Use meetupId field to store matchId for now (reusing existing table structure)
+    // Use negative meetup ID for match-based chats
+    const chatMeetupId = -matchId;
+    
     const results = await db
       .select()
       .from(chatMessages)
       .leftJoin(users, eq(chatMessages.userId, users.id))
-      .where(eq(chatMessages.meetupId, matchId))
+      .where(eq(chatMessages.meetupId, chatMeetupId))
       .orderBy(asc(chatMessages.createdAt));
 
     return results.map(result => ({
@@ -365,13 +367,38 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createMatchChatMessage(matchId: number, userId: number, message: string): Promise<ChatMessage> {
-    // Use meetupId field to store matchId (reusing existing table structure)
-    const [chatMessage] = await db.insert(chatMessages).values({
-      meetupId: matchId,
-      userId,
-      message,
-    }).returning();
-    return chatMessage;
+    try {
+      // First, ensure we have a meetup record that corresponds to this match
+      // We'll use a unique negative ID to avoid conflicts with real meetups
+      const chatMeetupId = -matchId; // Use negative IDs for chat-only meetups
+      
+      // Create or update the chat meetup record
+      await db.insert(meetups).values({
+        id: chatMeetupId,
+        title: `Match ${matchId} Chat`,
+        description: 'Chat for matched users',
+        meetupType: '1v1',
+        maxParticipants: 2,
+        currentParticipants: 2,
+        createdBy: userId,
+        status: 'active'
+      }).onConflictDoUpdate({
+        target: meetups.id,
+        set: { updatedAt: new Date() }
+      });
+
+      // Insert the chat message
+      const [chatMessage] = await db.insert(chatMessages).values({
+        meetupId: chatMeetupId,
+        userId,
+        message,
+      }).returning();
+      
+      return chatMessage;
+    } catch (error) {
+      console.error('Error creating match chat message:', error);
+      throw error;
+    }
   }
 
   // Survey operations

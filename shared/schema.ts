@@ -118,7 +118,8 @@ export const meetupParticipants = pgTable("meetup_participants", {
 
 export const chatMessages = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
-  meetupId: integer("meetup_id").notNull().references(() => meetups.id),
+  meetupId: integer("meetup_id").references(() => meetups.id),
+  matchId: integer("match_id").references(() => matches.id),
   userId: integer("user_id").notNull().references(() => users.id),
   message: text("message").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
