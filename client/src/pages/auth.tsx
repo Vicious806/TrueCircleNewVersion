@@ -106,8 +106,19 @@ export default function Auth() {
       if (result.emailSent) {
         toast({
           title: "Verification email sent",
-          description: "Check your inbox and click the verification link to activate your account.",
+          description: "Check your inbox (including spam folder) for the verification link.",
         });
+        
+        // In development, show the verification URL for manual testing
+        if (result.verificationUrl) {
+          setTimeout(() => {
+            toast({
+              title: "Development Mode",
+              description: `Direct verification link: ${result.verificationUrl}`,
+              variant: "default",
+            });
+          }, 2000);
+        }
       } else {
         toast({
           title: "Email delivery issue",

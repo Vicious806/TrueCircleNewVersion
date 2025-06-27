@@ -1,12 +1,14 @@
 import nodemailer from 'nodemailer';
 
-// Gmail transporter configuration
+// Gmail transporter configuration with correct app password format
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'truecirclesocial@gmail.com',
     pass: 'nvwp wbje monl glxk'
-  }
+  },
+  debug: true,
+  logger: true
 });
 
 export interface EmailOptions {
@@ -17,18 +19,31 @@ export interface EmailOptions {
 
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
+    // Test the connection first
+    await transporter.verify();
+    console.log('SMTP connection verified successfully');
+
     const mailOptions = {
-      from: 'truecirclesocial@gmail.com',
+      from: '"FriendMeet" <truecirclesocial@gmail.com>',
       to: options.to,
       subject: options.subject,
-      html: options.html
+      html: options.html,
+      text: `Hi there! Please verify your email by visiting: http://localhost:5000/api/verify-email?token=YOUR_TOKEN`,
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'high'
+      }
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log(`Email sent successfully to ${options.to}`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Email sent successfully to ${options.to}`, info.messageId);
     return true;
-  } catch (error) {
-    console.error('Failed to send email:', error);
+  } catch (error: any) {
+    console.error('Email delivery failed:', error);
+    if (error.code === 'EAUTH') {
+      console.error('Authentication failed - check Gmail app password');
+    }
     return false;
   }
 }

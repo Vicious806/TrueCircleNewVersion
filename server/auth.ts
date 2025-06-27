@@ -164,9 +164,15 @@ export function setupAuth(app: Express) {
         console.error('Failed to send verification email to:', email);
       }
 
+      // For development, also log the verification URL for manual testing
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Verification URL for ${email}: ${verificationUrl}`);
+      }
+
       res.status(201).json({ 
         message: "Registration successful! Please check your email to verify your account.",
-        emailSent: emailSent
+        emailSent: emailSent,
+        verificationUrl: process.env.NODE_ENV === 'development' ? verificationUrl : undefined
       });
     } catch (error) {
       console.error("Registration error:", error);
