@@ -223,7 +223,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
                   onValueChange={setAgeRange}
                   min={18}
                   max={50}
-                  step={1}
+                  step={3}
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
