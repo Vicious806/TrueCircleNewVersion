@@ -21,8 +21,8 @@ interface SmartMatchingModalProps {
 }
 
 const timeOptions = [
-  { value: '1pm', label: '1:00 PM', icon: '🍽️' },
-  { value: '5:30pm', label: '5:30 PM', icon: '🌆' },
+  { value: 'lunch', label: '1:00 PM (Lunch)', icon: '🍽️' },
+  { value: 'dinner', label: '5:30 PM (Dinner)', icon: '🌆' },
 ];
 
 const venueOptions = [

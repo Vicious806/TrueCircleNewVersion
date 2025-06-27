@@ -120,6 +120,7 @@ Changelog:
 - June 27, 2025. Implemented comprehensive age range matching system for both 1v1 and group meetups. Added draggable dual-handle slider (18-50+) positioned above venue selection. Users can set age preferences that filter potential matches while maintaining shared interest requirements for 1v1 conversations. Age field integrated into registration and profile editing.
 - June 27, 2025. Implemented real email verification system using Gmail SMTP (truecirclesocial@gmail.com). Registration now requires actual date of birth input with 18+ validation and sends professional verification emails. Users must verify their email before logging in. System calculates actual age from birth date and enforces strict age matching in smart matching algorithm.
 - June 27, 2025. Transformed email verification from link-based to verification code-based system. Users now receive 6-digit codes via email that expire in 15 minutes. Added verification code input form to frontend with code-focused UI design. Improved email template styling and deliverability. System fully functional with Gmail SMTP integration.
+- June 27, 2025. Fixed smart matching request validation error by updating time options to use proper enum values ("lunch", "dinner") instead of raw time strings ("1pm", "5:30pm"). Verification code system and smart matching both fully operational.
 
 ## User Preferences
 
