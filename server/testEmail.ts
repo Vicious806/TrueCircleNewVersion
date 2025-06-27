@@ -10,7 +10,7 @@ async function testEmailDelivery() {
   try {
     const result = await sendEmail({
       to: testEmail,
-      subject: 'Test Email - FriendMeet Verification',
+      subject: 'Test Email - TrueCircle Verification',
       html: emailHtml
     });
     

@@ -11,7 +11,7 @@ export default function Landing() {
             <div className="w-20 h-20 gradient-primary rounded-full mx-auto mb-4 flex items-center justify-center">
               <Utensils className="text-white text-2xl" size={32} />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">FriendMeet</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">TrueCircle</h1>
             <p className="text-gray-600">Connect & Dine Together</p>
           </div>
 

@@ -1,8 +1,8 @@
-# FriendMeet - Social Dining Application
+# TrueCircle - Social Dining Application
 
 ## Overview
 
-FriendMeet is a social dining platform that connects food lovers to make new friends over meals. The application allows users to create and join meetups of different sizes (1-on-1, 3 people, or group), chat with participants, and coordinate dining experiences at restaurants and cafes.
+TrueCircle is a social dining platform that connects food lovers to make new friends over meals. The application allows users to create and join meetups of different sizes (1-on-1, 3 people, or group), chat with participants, and coordinate dining experiences at restaurants and cafes.
 
 ## System Architecture
 
@@ -125,6 +125,7 @@ Changelog:
 - June 27, 2025. Updated 1v1 age slider to jump 3 years per tick for faster selection. Simplified verification code email template to reduce spam flagging - removed promotional styling, marketing language, and branding to create clean transactional email format.
 - June 27, 2025. Simplified Friday availability to strict Thursday 10pm cutoff. Removed complex waiting user logic and backend availability checking. Fridays now become unavailable at exactly Thursday 10pm regardless of how many people are waiting.
 - June 27, 2025. Implemented comprehensive duplicate prevention system preventing users from having multiple active matching requests simultaneously. Added backend validation with 409 conflict responses, frontend conflict detection popup, and cancel request functionality. System ensures accurate user counts and prevents gaming the matching algorithm.
+- June 27, 2025. Changed app name from "FriendMeet" to "TrueCircle" throughout the entire application including landing page, authentication pages, welcome survey, and all documentation.
 
 ## User Preferences
 

@@ -146,7 +146,7 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
             <Icon className="text-white h-8 w-8" />
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
-            Welcome to FriendMeet! 
+            Welcome to TrueCircle! 
           </CardTitle>
           <p className="text-gray-600 mt-2">
             Let's get to know you better so we can find your perfect dining companions

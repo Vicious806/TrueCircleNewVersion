@@ -328,7 +328,7 @@ export default function Auth() {
             <TabsContent value="register">
               <Card>
                 <CardHeader>
-                  <CardTitle>Join FriendMeet</CardTitle>
+                  <CardTitle>Join TrueCircle</CardTitle>
                   <CardDescription>
                     Create your account to start meeting new friends over delicious meals
                   </CardDescription>
