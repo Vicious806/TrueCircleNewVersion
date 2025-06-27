@@ -244,44 +244,36 @@ export default function Chat() {
               )}
             </p>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100 rounded-full">
-                <MoreVertical className="h-5 w-5 text-gray-600" />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Leave Match
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem 
-                    className="text-red-600 focus:text-red-700 cursor-pointer"
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Leave Match
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Leave this match?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to leave this match? You'll return to the home screen and can start matching again for new connections.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => leaveMatchMutation.mutate()}
-                      disabled={leaveMatchMutation.isPending}
-                      className="bg-red-600 hover:bg-red-700"
-                    >
-                      {leaveMatchMutation.isPending ? "Leaving..." : "Leave Match"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Leave this match?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to leave this match? You'll return to the home screen and can start matching again for new connections.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => leaveMatchMutation.mutate()}
+                  disabled={leaveMatchMutation.isPending}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  {leaveMatchMutation.isPending ? "Leaving..." : "Leave Match"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </header>
 
