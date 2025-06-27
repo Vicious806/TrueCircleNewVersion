@@ -657,6 +657,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createMatch(matchData: any): Promise<Match> {
+    // Mark any existing matches for these participants as completed
+    for (const participantId of matchData.participants) {
+      await db
+        .update(matches)
+        .set({ status: 'completed', updatedAt: new Date() })
+        .where(and(
+          sql`${participantId} = ANY(${matches.participants})`,
+          inArray(matches.status, ['pending', 'confirmed', 'active'])
+        ));
+    }
+    
     const [match] = await db.insert(matches).values(matchData).returning();
     
     // Mark all participants' requests as matched
@@ -672,11 +683,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserMatches(userId: number): Promise<MatchWithUsers[]> {
+    // Only get active matches (status 'pending' or 'confirmed')
     const userMatches = await db
       .select()
       .from(matches)
-      .where(sql`${userId} = ANY(${matches.participants})`)
-      .orderBy(desc(matches.createdAt));
+      .where(and(
+        sql`${userId} = ANY(${matches.participants})`,
+        inArray(matches.status, ['pending', 'confirmed'])
+      ))
+      .orderBy(desc(matches.createdAt))
+      .limit(1); // Only return the most recent active match
 
     const matchesWithUsers = await Promise.all(
       userMatches.map(async (match) => {

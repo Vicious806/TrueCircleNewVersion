@@ -178,26 +178,36 @@ export default function Home() {
           </Card>
         </div>
 
-        {/* Recent Activity */}
-        <Card className="border-gray-100">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Your Match History</h3>
-            {userMatches.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 text-sm">No matches yet. Request your first match above!</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {userMatches.slice(0, 3).map((match: any, index: number) => (
-                  <div key={match.id || index} className="p-3 border rounded-lg">
-                    <p className="text-sm text-gray-600">Match with {match.participants?.length || 0} people</p>
-                    <p className="text-xs text-gray-500">{match.suggestedLocation}</p>
+        {/* Current Active Match */}
+        {userMatches.length > 0 && (
+          <Card className="border-gray-100">
+            <CardContent className="p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Your Current Match</h3>
+              <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {userMatches[0].meetupType === '1v1' ? '1-on-1' : 'Group'} Match
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {userMatches[0].participants?.length || 0} participants • {userMatches[0].status}
+                    </p>
+                    {userMatches[0].suggestedLocation && (
+                      <p className="text-xs text-gray-500 mt-1">📍 {userMatches[0].suggestedLocation}</p>
+                    )}
                   </div>
-                ))}
+                  <Button 
+                    size="sm" 
+                    onClick={() => setLocation('/chat')}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    Chat
+                  </Button>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </main>
 
       <ProfileModal

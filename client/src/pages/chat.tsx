@@ -16,8 +16,7 @@ import ChatPinnedHeader from "@/components/ChatPinnedHeader";
 import type { ChatMessageWithUser, MeetupWithParticipants } from "@shared/schema";
 
 export default function Chat() {
-  const [, params] = useRoute('/chat/:id');
-  const matchId = parseInt(params?.id || '0');
+  const [, params] = useRoute('/chat/:id?');
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -25,6 +24,15 @@ export default function Chat() {
   const [message, setMessage] = useState('');
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Get user's current active match
+  const { data: userMatches = [] } = useQuery({
+    queryKey: ['/api/user/matches'],
+  });
+
+  const matches = Array.isArray(userMatches) ? userMatches : [];
+  const currentMatch = matches[0]; // Only one active match
+  const matchId = params?.id ? parseInt(params.id) : currentMatch?.id;
 
   const { data: match } = useQuery({
     queryKey: ['/api/matches', matchId],
@@ -45,6 +53,31 @@ export default function Chat() {
     },
     enabled: !!matchId,
   });
+
+  // If no active match, show no match message
+  if (!matchId && matches.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center">
+          <Link to="/">
+            <Button variant="ghost" size="sm" className="mr-2">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <h1 className="font-semibold text-gray-900">Chat</h1>
+        </header>
+        
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <p className="text-gray-500 mb-4">No active matches yet</p>
+            <Link to="/">
+              <Button>Find a Match</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // WebSocket setup
   useEffect(() => {
