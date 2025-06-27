@@ -56,6 +56,8 @@ export interface IStorage {
   // Chat operations
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   getChatMessages(meetupId: number): Promise<ChatMessageWithUser[]>;
+  getMatchChatMessages(matchId: number): Promise<ChatMessageWithUser[]>;
+  createMatchChatMessage(matchId: number, userId: number, message: string): Promise<ChatMessage>;
   
   // Survey operations
   createSurveyResponse(response: InsertSurveyResponse): Promise<SurveyResponse>;
@@ -345,6 +347,31 @@ export class DatabaseStorage implements IStorage {
       ...result.chat_messages,
       user: result.users!,
     }));
+  }
+
+  async getMatchChatMessages(matchId: number): Promise<ChatMessageWithUser[]> {
+    // Use meetupId field to store matchId for now (reusing existing table structure)
+    const results = await db
+      .select()
+      .from(chatMessages)
+      .leftJoin(users, eq(chatMessages.userId, users.id))
+      .where(eq(chatMessages.meetupId, matchId))
+      .orderBy(asc(chatMessages.createdAt));
+
+    return results.map(result => ({
+      ...result.chat_messages,
+      user: result.users!,
+    }));
+  }
+
+  async createMatchChatMessage(matchId: number, userId: number, message: string): Promise<ChatMessage> {
+    // Use meetupId field to store matchId (reusing existing table structure)
+    const [chatMessage] = await db.insert(chatMessages).values({
+      meetupId: matchId,
+      userId,
+      message,
+    }).returning();
+    return chatMessage;
   }
 
   // Survey operations

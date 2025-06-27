@@ -441,11 +441,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Chat routes
-  app.get('/api/meetups/:id/messages', isAuthenticated, async (req, res) => {
+  // Chat routes for matches
+  app.get('/api/matches/:id/messages', isAuthenticated, async (req, res) => {
     try {
-      const meetupId = parseInt(req.params.id);
-      const messages = await storage.getChatMessages(meetupId);
+      const matchId = parseInt(req.params.id);
+      const messages = await storage.getMatchChatMessages(matchId);
       res.json(messages);
     } catch (error) {
       console.error("Error fetching chat messages:", error);
@@ -466,17 +466,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const message = JSON.parse(data.toString());
         
         if (message.type === 'chat_message') {
-          const { meetupId, userId, message: messageText } = message;
+          const { matchId, userId, message: messageText } = message;
           
-          // Validate and save message
-          const chatMessage = await storage.createChatMessage({
-            meetupId,
-            userId,
-            message: messageText,
-          });
+          // Validate and save message for match
+          const chatMessage = await storage.createMatchChatMessage(matchId, userId, messageText);
           
           // Get full message with user info
-          const fullMessage = await storage.getChatMessages(meetupId);
+          const fullMessage = await storage.getMatchChatMessages(matchId);
           const newMessage = fullMessage[fullMessage.length - 1];
           
           // Broadcast to all connected clients
@@ -497,9 +493,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         if (message.type === 'join_room') {
-          const { meetupId } = message;
-          // Store meetup room info for this connection
-          (ws as any).meetupId = meetupId;
+          const { matchId } = message;
+          // Store match room info for this connection
+          (ws as any).matchId = matchId;
         }
         
       } catch (error) {

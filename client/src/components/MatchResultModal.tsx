@@ -16,10 +16,9 @@ export default function MatchResultModal({ isOpen, onClose, match }: MatchResult
   if (!match) return null;
 
   const handleStartChat = () => {
-    // For now, we'll show a coming soon message
-    // In the next step, we'll implement the actual chat system
-    alert("Chat feature coming soon! Your match has been saved.");
     onClose();
+    // Navigate to chat page with the match ID
+    window.location.href = `/chat/${match.id}`;
   };
 
   const getVenueIcon = () => {

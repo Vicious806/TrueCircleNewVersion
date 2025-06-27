@@ -27,7 +27,7 @@ export default function Matches() {
   };
 
   const handleStartChat = (matchId: number) => {
-    alert(`Chat feature coming soon! Match ID: ${matchId}`);
+    setLocation(`/chat/${matchId}`);
   };
 
   if (isLoading) {
