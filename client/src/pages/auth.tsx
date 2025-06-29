@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
@@ -20,12 +21,49 @@ import { loginSchema, registerSchema, emailVerificationSchema, type LoginData, t
 type LoginFormData = LoginData;
 type RegisterFormData = RegisterData;
 
+// Helper functions for date dropdowns
+const getMonths = () => [
+  { value: "01", label: "January" },
+  { value: "02", label: "February" },
+  { value: "03", label: "March" },
+  { value: "04", label: "April" },
+  { value: "05", label: "May" },
+  { value: "06", label: "June" },
+  { value: "07", label: "July" },
+  { value: "08", label: "August" },
+  { value: "09", label: "September" },
+  { value: "10", label: "October" },
+  { value: "11", label: "November" },
+  { value: "12", label: "December" }
+];
+
+const getDays = () => {
+  const days = [];
+  for (let i = 1; i <= 31; i++) {
+    const value = i.toString().padStart(2, '0');
+    days.push({ value, label: i.toString() });
+  }
+  return days;
+};
+
+const getYears = () => {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let i = currentYear - 18; i >= currentYear - 80; i--) {
+    years.push({ value: i.toString(), label: i.toString() });
+  }
+  return years;
+};
+
 export default function Auth() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("login");
   const [showVerification, setShowVerification] = useState(false);
   const [registrationEmail, setRegistrationEmail] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthDay, setBirthDay] = useState("");
+  const [birthYear, setBirthYear] = useState("");
 
   // Check for email verification status on mount
   useEffect(() => {
@@ -84,6 +122,14 @@ export default function Auth() {
       verifyForm.setValue("email", registrationEmail);
     }
   }, [registrationEmail, verifyForm]);
+
+  // Update dateOfBirth field when dropdown selections change
+  useEffect(() => {
+    if (birthMonth && birthDay && birthYear) {
+      const dateString = `${birthYear}-${birthMonth}-${birthDay}`;
+      registerForm.setValue("dateOfBirth", dateString);
+    }
+  }, [birthMonth, birthDay, birthYear, registerForm]);
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
@@ -581,13 +627,47 @@ export default function Auth() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</Label>
-                        <Input
-                          id="dateOfBirth"
-                          type="date"
-                          {...registerForm.register("dateOfBirth")}
-                          className="h-11 border-2 focus:border-blue-400"
-                        />
+                        <Label className="text-sm font-medium text-gray-700">Date of Birth</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                          <Select value={birthMonth} onValueChange={setBirthMonth}>
+                            <SelectTrigger className="h-11 border-2 focus:border-blue-400">
+                              <SelectValue placeholder="Month" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {getMonths().map((month) => (
+                                <SelectItem key={month.value} value={month.value}>
+                                  {month.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          
+                          <Select value={birthDay} onValueChange={setBirthDay}>
+                            <SelectTrigger className="h-11 border-2 focus:border-blue-400">
+                              <SelectValue placeholder="Day" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {getDays().map((day) => (
+                                <SelectItem key={day.value} value={day.value}>
+                                  {day.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          
+                          <Select value={birthYear} onValueChange={setBirthYear}>
+                            <SelectTrigger className="h-11 border-2 focus:border-blue-400">
+                              <SelectValue placeholder="Year" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {getYears().map((year) => (
+                                <SelectItem key={year.value} value={year.value}>
+                                  {year.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                         {registerForm.formState.errors.dateOfBirth && (
                           <p className="text-sm text-red-500">
                             {registerForm.formState.errors.dateOfBirth.message}
