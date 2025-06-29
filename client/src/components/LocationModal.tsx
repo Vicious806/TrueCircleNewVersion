@@ -40,7 +40,7 @@ export default function LocationModal({ isOpen, onClose, currentLocation }: Loca
     setIsLoadingSuggestions(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5&countrycodes=us,ca,gb,au`
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`
       );
       const data = await response.json();
       setSuggestions(data || []);

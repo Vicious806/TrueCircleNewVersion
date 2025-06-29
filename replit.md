@@ -134,6 +134,7 @@ Changelog:
 - June 29, 2025. Major platform transformation: Changed from Friday meetups for all adults (18+) to Saturday meetups exclusively for college students (18-24). Updated scheduling system from Friday cutoff to Saturday with Friday 10 PM cutoff. Added brunch option (11 AM) alongside lunch (1 PM) and dinner (6 PM). Transformed age requirements throughout registration, matching algorithms, and UI messaging to focus on college student community.
 - June 29, 2025. Fixed email delivery system with truecircle12@gmail.com integration. Configured Gmail SMTP with proper app password authentication. Verification emails now deliver successfully to student inboxes without spam issues. Enhanced pending registration system prevents username conflicts before email verification completion.
 - June 29, 2025. Removed 1-on-1 matching functionality completely to focus exclusively on group dining experiences. Updated frontend components, backend routes, database schema, and validation to support only group matching (2-4 college students). Simplified smart matching algorithm and user interface for better group social experiences.
+- June 29, 2025. Implemented global location support with reverse geocoding. "Use Current Location" button now converts GPS coordinates to actual street addresses worldwide using OpenStreetMap. Removed country restrictions from address search to enable international usage for college students globally.
 
 ## User Preferences
 
