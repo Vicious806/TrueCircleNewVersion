@@ -87,7 +87,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
   const [venueType, setVenueType] = useState(preselectedVenueType || '');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([5]);
-  const [ageRange, setAgeRange] = useState([18, 24]);
+  const [ageRange, setAgeRange] = useState([18, 25]);
   const [conflictInfo, setConflictInfo] = useState<any>(null);
   const [pendingRequest, setPendingRequest] = useState<MeetupRequestFormData | null>(null);
 
@@ -281,24 +281,24 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 </div>
                 <div
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 21 && ageRange[1] === 24
+                    ageRange[0] === 21 && ageRange[1] === 25
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setAgeRange([21, 24])}
+                  onClick={() => setAgeRange([21, 25])}
                 >
                   <div className="text-center">
-                    <h4 className="font-medium text-gray-900">21-24</h4>
+                    <h4 className="font-medium text-gray-900">21-25</h4>
                     <p className="text-xs text-gray-600">Juniors & Seniors</p>
                   </div>
                 </div>
                 <div
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 18 && ageRange[1] === 24
+                    ageRange[0] === 18 && ageRange[1] === 25
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setAgeRange([18, 24])}
+                  onClick={() => setAgeRange([18, 25])}
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">No Preference</h4>
@@ -312,13 +312,13 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                   value={ageRange}
                   onValueChange={setAgeRange}
                   min={18}
-                  max={24}
+                  max={25}
                   step={1}
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
                   <span>18</span>
-                  <span>24</span>
+                  <span>25</span>
                 </div>
                 <div className="text-center text-sm text-gray-700 mt-2">
                   Match with college students ages {ageRange[0]} - {ageRange[1]}

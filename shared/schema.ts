@@ -246,8 +246,8 @@ export const meetupRequestSchema = z.object({
   preferredTime: z.enum(['brunch', 'lunch', 'dinner']),
   preferredDate: z.string().min(1, "Date is required"),
   maxDistance: z.number().min(5).max(50).default(5),
-  ageRangeMin: z.number().min(18).max(24).optional(),
-  ageRangeMax: z.number().min(18).max(24).optional()
+  ageRangeMin: z.number().min(18).max(25).optional(),
+  ageRangeMax: z.number().min(18).max(25).optional()
 });
 
 // Registration schema with date of birth validation
@@ -262,9 +262,9 @@ export const registerSchema = insertUserSchema.extend({
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age = age - 1;
     }
-    return age >= 18 && age <= 24;
-  }, "You must be between 18-24 years old (college age) to join"),
-  age: z.number().min(18).max(24).optional(),
+    return age >= 18 && age <= 25;
+  }, "You must be between 18-25 years old (college age) to join"),
+  age: z.number().min(18).max(25).optional(),
 });
 
 // Login schema
