@@ -16,27 +16,15 @@ import {
   emailVerificationSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  type RegisterData,
   type LoginData,
   type EmailVerification,
   type ForgotPasswordData,
   type ResetPasswordData,
 } from "@shared/schema";
-import { z } from "zod";
 
-// Extended register schema with date handling
-const registerFormSchema = registerSchema.extend({
-  confirmPassword: z.string().min(6, "Password confirmation is required"),
-  dateOfBirth: z.object({
-    month: z.number().min(1).max(12),
-    day: z.number().min(1).max(31),
-    year: z.number().min(1900).max(2024),
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-type RegisterFormData = z.infer<typeof registerFormSchema>;
+type LoginFormData = LoginData;
+type RegisterFormData = RegisterData;
 
 export default function Auth() {
   const [, setLocation] = useLocation();
@@ -48,7 +36,7 @@ export default function Auth() {
   const [registrationEmail, setRegistrationEmail] = useState("");
 
   // Login form
-  const loginForm = useForm<LoginData>({
+  const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       usernameOrEmail: "",
@@ -58,7 +46,7 @@ export default function Auth() {
 
   // Register form
   const registerForm = useForm<RegisterFormData>({
-    resolver: zodResolver(registerFormSchema),
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
       email: "",
@@ -66,11 +54,7 @@ export default function Auth() {
       lastName: "",
       password: "",
       confirmPassword: "",
-      dateOfBirth: {
-        month: 1,
-        day: 1,
-        year: 2000,
-      },
+      dateOfBirth: "2000-01-01",
       isAdult: true,
     },
   });
@@ -98,12 +82,13 @@ export default function Auth() {
       email: "",
       code: "",
       newPassword: "",
+      confirmPassword: "",
     },
   });
 
   // Login mutation
   const loginMutation = useMutation({
-    mutationFn: async (data: LoginData) => {
+    mutationFn: async (data: LoginFormData) => {
       const response = await apiRequest("POST", "/api/auth/login", data);
       return response.json();
     },
@@ -122,16 +107,7 @@ export default function Auth() {
   // Register mutation
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
-      // Convert date object to string for API
-      const { month, day, year } = data.dateOfBirth;
-      const dateString = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-      
-      const payload = {
-        ...data,
-        dateOfBirth: dateString,
-      };
-      
-      const response = await apiRequest("POST", "/api/auth/register", payload);
+      const response = await apiRequest("POST", "/api/auth/register", data);
       return response.json();
     },
     onSuccess: (data) => {
@@ -242,7 +218,7 @@ export default function Auth() {
     },
   });
 
-  const onLoginSubmit = (data: LoginData) => {
+  const onLoginSubmit = (data: LoginFormData) => {
     loginMutation.mutate(data);
   };
 
@@ -334,6 +310,21 @@ export default function Auth() {
                   {resetPasswordForm.formState.errors.newPassword && (
                     <p className="text-sm text-red-500">
                       {resetPasswordForm.formState.errors.newPassword.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-new-password" className="text-sm font-medium text-gray-700">Confirm Password</Label>
+                  <Input
+                    id="confirm-new-password"
+                    type="password"
+                    {...resetPasswordForm.register("confirmPassword")}
+                    className="h-12 border-2 focus:border-primary"
+                  />
+                  {resetPasswordForm.formState.errors.confirmPassword && (
+                    <p className="text-sm text-red-500">
+                      {resetPasswordForm.formState.errors.confirmPassword.message}
                     </p>
                   )}
                 </div>
