@@ -424,7 +424,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
             disabled={createMatchingRequest.isPending || !venueType || !preferredDate || !preferredTime}
             className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
           >
-            {createMatchingRequest.isPending ? 'Finding Compatible People...' : 'Find Compatible People'}
+            {createMatchingRequest.isPending ? 'Finding Your True Circle...' : 'Find Your True Circle'}
           </Button>
         </div>
       </DialogContent>
