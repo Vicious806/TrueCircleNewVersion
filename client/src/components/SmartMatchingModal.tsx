@@ -18,10 +18,10 @@ interface SmartMatchingModalProps {
   isOpen: boolean;
   onClose: () => void;
   meetupType: 'group';
+  preselectedMealTime?: 'lunch' | 'dinner';
 }
 
 const timeOptions = [
-  { value: 'brunch', label: '11:00 AM (Brunch)', icon: '🥞' },
   { value: 'lunch', label: '1:00 PM (Lunch)', icon: '🍽️' },
   { value: 'dinner', label: '6:00 PM (Dinner)', icon: '🌆' },
 ];
@@ -76,13 +76,13 @@ function getNextSaturdays(count: number) {
   return saturdays;
 }
 
-export default function SmartMatchingModal({ isOpen, onClose, meetupType }: SmartMatchingModalProps) {
+export default function SmartMatchingModal({ isOpen, onClose, meetupType, preselectedMealTime }: SmartMatchingModalProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   const [preferredDate, setPreferredDate] = useState('');
-  const [preferredTime, setPreferredTime] = useState('');
+  const [preferredTime, setPreferredTime] = useState(preselectedMealTime || '');
   const [venueType, setVenueType] = useState('');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([10]);
@@ -234,8 +234,12 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
     createMatchingRequest.mutate(requestData);
   };
 
-  const modalTitle = 'Find Your Group Match';
-  const modalDescription = 'Join a group of college students for a fun Saturday dining experience.';
+  const modalTitle = preselectedMealTime === 'lunch' 
+    ? 'Find Your Group Lunch' 
+    : 'Find Your Group Dinner';
+  const modalDescription = preselectedMealTime === 'lunch'
+    ? 'Join college students for Saturday lunch at 1:00 PM.'
+    : 'Join college students for Saturday dinner at 6:00 PM.';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -351,6 +355,19 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
             </div>
           </div>
 
+          {/* Selected Meal Time Confirmation */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="flex items-center space-x-3">
+              <Clock className="w-5 h-5 text-blue-600" />
+              <div>
+                <h4 className="font-medium text-gray-900">Selected Time</h4>
+                <p className="text-sm text-gray-600">
+                  {preselectedMealTime === 'lunch' ? '🍽️ Saturday Lunch at 1:00 PM' : '🌆 Saturday Dinner at 6:00 PM'}
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Date Selection - Only Saturdays */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">
@@ -358,28 +375,13 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
               Which Saturday would you like to meet?
             </Label>
             <Select value={preferredDate} onValueChange={setPreferredDate}>
-              <SelectTrigger className="mb-3">
+              <SelectTrigger>
                 <SelectValue placeholder="Select a Saturday" />
               </SelectTrigger>
               <SelectContent>
                 {getNextSaturdays(2).map((saturday: { value: string; label: string }) => (
                   <SelectItem key={saturday.value} value={saturday.value}>
                     {saturday.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={preferredTime} onValueChange={setPreferredTime}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select preferred time" />
-              </SelectTrigger>
-              <SelectContent>
-                {timeOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className="flex items-center">
-                      <span className="mr-2">{option.icon}</span>
-                      {option.label}
-                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>
