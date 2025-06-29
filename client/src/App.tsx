@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -14,6 +14,12 @@ import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import WelcomeSurvey from "@/components/WelcomeSurvey";
 import type { User } from "@shared/schema";
+
+function RedirectToAuth() {
+  const [, setLocation] = useLocation();
+  setLocation('/auth');
+  return null;
+}
 
 function Router() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -43,6 +49,8 @@ function Router() {
         <>
           <Route path="/" component={Landing} />
           <Route path="/auth" component={Auth} />
+          <Route path="/signup" component={RedirectToAuth} />
+          <Route path="/login" component={RedirectToAuth} />
           <Route path="/terms" component={Terms} />
           <Route path="/privacy" component={Privacy} />
         </>
