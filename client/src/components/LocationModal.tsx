@@ -39,11 +39,51 @@ export default function LocationModal({ isOpen, onClose, currentLocation }: Loca
 
     setIsLoadingSuggestions(true);
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`
-      );
+      // Get user's approximate location to prioritize nearby results
+      let userLat: number | null = null;
+      let userLon: number | null = null;
+      
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000 });
+          });
+          userLat = position.coords.latitude;
+          userLon = position.coords.longitude;
+        } catch {
+          // Continue without user location if detection fails
+        }
+      }
+
+      // Build search URL with optional user location for better results
+      let searchUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=8`;
+      if (userLat !== null && userLon !== null) {
+        searchUrl += `&viewbox=${userLon-0.5},${userLat+0.5},${userLon+0.5},${userLat-0.5}&bounded=0`;
+      }
+
+      const response = await fetch(searchUrl);
       const data = await response.json();
-      setSuggestions(data || []);
+      
+      // Filter and prioritize results for better relevance
+      const filteredResults = (data || [])
+        .filter((item: any) => {
+          // Only show places that look like actual addresses or cities
+          const displayName = item.display_name?.toLowerCase() || '';
+          return displayName.includes('street') || 
+                 displayName.includes('avenue') || 
+                 displayName.includes('road') || 
+                 displayName.includes('drive') || 
+                 displayName.includes('lane') ||
+                 displayName.includes('boulevard') ||
+                 item.type === 'house' ||
+                 item.type === 'city' ||
+                 item.type === 'town' ||
+                 item.type === 'village' ||
+                 item.class === 'place';
+        })
+        .slice(0, 5); // Limit to 5 most relevant results
+      
+      setSuggestions(filteredResults);
     } catch (error) {
       console.error('Failed to fetch address suggestions:', error);
       setSuggestions([]);

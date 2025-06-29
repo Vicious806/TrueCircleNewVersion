@@ -56,12 +56,55 @@ export default function MeetupPinnedHeader({
 
     setIsLoadingLocationSuggestions(true);
     try {
+      // Get user's approximate location to prioritize nearby venues
+      let userLat: number | null = null;
+      let userLon: number | null = null;
+      
+      if (navigator.geolocation) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000 });
+          });
+          userLat = position.coords.latitude;
+          userLon = position.coords.longitude;
+        } catch {
+          // Continue without user location if detection fails
+        }
+      }
+
       const venueQuery = venueType === 'restaurant' ? 'restaurant' : 'cafe coffee';
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ' ' + venueQuery)}&format=json&addressdetails=1&limit=5&countrycodes=us,ca,gb,au`
-      );
+      
+      // Build search URL with optional user location for better results
+      let searchUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ' ' + venueQuery)}&format=json&addressdetails=1&limit=8`;
+      if (userLat !== null && userLon !== null) {
+        searchUrl += `&viewbox=${userLon-0.2},${userLat+0.2},${userLon+0.2},${userLat-0.2}&bounded=0`;
+      }
+
+      const response = await fetch(searchUrl);
       const data = await response.json();
-      setLocationSuggestions(data || []);
+      
+      // Filter results to show actual venues
+      const filteredResults = (data || [])
+        .filter((item: any) => {
+          const displayName = item.display_name?.toLowerCase() || '';
+          const itemType = item.type?.toLowerCase() || '';
+          const itemClass = item.class?.toLowerCase() || '';
+          
+          // Only show actual restaurants/cafes or relevant venues
+          return itemClass === 'amenity' || 
+                 itemType === 'restaurant' || 
+                 itemType === 'cafe' || 
+                 itemType === 'fast_food' ||
+                 itemType === 'bar' ||
+                 itemType === 'pub' ||
+                 displayName.includes('restaurant') ||
+                 displayName.includes('cafe') ||
+                 displayName.includes('coffee') ||
+                 displayName.includes('dining');
+        })
+        .slice(0, 5); // Limit to 5 most relevant results
+      
+      setLocationSuggestions(filteredResults);
     } catch (error) {
       console.error('Failed to fetch location suggestions:', error);
       setLocationSuggestions([]);
