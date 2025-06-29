@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck, Coffee, Utensils } from "lucide-react";
+import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751237338042.webp";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import SmartMatchingModal from "@/components/SmartMatchingModal";
 import MeetupCard from "@/components/MeetupCard";
 import ProfileModal from "@/components/ProfileModal";
 import LocationModal from "@/components/LocationModal";
+import LocationBanner from "@/components/LocationBanner";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { MeetupWithCreator, User } from "@shared/schema";
@@ -44,16 +46,23 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 page-container">
+    <div className="min-h-screen bg-white page-container">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
+      <header className="bg-white border-b border-gray-100">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            <div className="w-8 h-8">
+              <img 
+                src={truecircleLogo} 
+                alt="TrueCircle Logo" 
+                className="w-full h-full object-contain"
+              />
+            </div>
             <div>
               <h1 className="font-bold text-gray-900">
                 Hi, {userData?.firstName || 'there'}!
               </h1>
-              <p className="text-sm text-gray-500">Ready to meet fellow college students?</p>
+              <p className="text-sm text-gray-500">Ready to meet new people?</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -90,61 +99,32 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-lg mx-auto px-4 py-6">
-        {/* Location Banner */}
-        <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                  <MapPin className="text-blue-600 h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Current Location</h3>
-                  <p className="text-sm text-gray-600">
-                    {userData?.location || 'Set your location'}
-                  </p>
-                </div>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-blue-600 hover:text-blue-700"
-                onClick={() => setShowLocationModal(true)}
-              >
-                Edit
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Location Banner - only shows if user doesn't have location */}
+        <LocationBanner />
 
 
 
         {/* Meetup Options */}
         <div className="space-y-4 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Find Your Saturday Study Break</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Saturday Meetups</h2>
           
           {/* Group Cafe */}
           <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow border-gray-100"
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 border-gray-200 hover:border-primary/30"
             onClick={() => handleMeetupTypeSelect('group', 'cafe')}
           >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center">
-                    <Coffee className="text-white h-7 w-7" />
+                  <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+                    <Coffee className="text-white h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Cafe Group</h3>
-                    <p className="text-gray-600 text-sm">Meet college students at a cozy cafe this Saturday</p>
-                    <div className="flex items-center space-x-4 mt-2">
-                      <Badge variant="secondary" className="text-xs">
-                        ☕ Coffee & Casual
-                      </Badge>
-                    </div>
+                    <h3 className="font-semibold text-gray-900">Cafe Group</h3>
+                    <p className="text-gray-600 text-sm">Meet people at a cozy cafe this Saturday</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-primary">
                   →
                 </Button>
               </div>
@@ -153,26 +133,21 @@ export default function Home() {
 
           {/* Group Restaurant */}
           <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow border-gray-100"
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 border-gray-200 hover:border-primary/30"
             onClick={() => handleMeetupTypeSelect('group', 'restaurant')}
           >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center">
-                    <Utensils className="text-white h-7 w-7" />
+                  <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+                    <Utensils className="text-white h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Restaurant Group</h3>
-                    <p className="text-gray-600 text-sm">Join college students for a restaurant meal this Saturday</p>
-                    <div className="flex items-center space-x-4 mt-2">
-                      <Badge variant="secondary" className="text-xs">
-                        🍽️ Full Dining
-                      </Badge>
-                    </div>
+                    <h3 className="font-semibold text-gray-900">Restaurant Group</h3>
+                    <p className="text-gray-600 text-sm">Join others for a restaurant meal this Saturday</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-primary">
                   →
                 </Button>
               </div>
@@ -182,10 +157,10 @@ export default function Home() {
 
         {/* Current Active Match */}
         {userMatches.length > 0 && (
-          <Card className="border-gray-100">
+          <Card className="border-gray-200">
             <CardContent className="p-6">
               <h3 className="font-semibold text-gray-900 mb-4">Your Current Match</h3>
-              <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
+              <div className="p-4 border rounded-lg bg-primary/5 border-primary/20">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-900">

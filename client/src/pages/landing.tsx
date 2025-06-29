@@ -2,22 +2,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Utensils } from "lucide-react";
 import { useLocation } from "wouter";
+import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751237338042.webp";
 
 export default function Landing() {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-screen relative page-container">
-      {/* Professional background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-        {/* Subtle geometric pattern overlay */}
+    <div className="min-h-screen relative page-container bg-white">
+      {/* Clean white background with subtle pattern */}
+      <div className="absolute inset-0 bg-white">
+        {/* Very subtle pattern overlay */}
         <div 
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0 opacity-5"
           style={{
             backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(`
               <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fill-rule="evenodd">
-                  <g fill="#ffffff" fill-opacity="0.1">
+                  <g fill="#48b2b5" fill-opacity="0.1">
                     <circle cx="30" cy="30" r="2"/>
                     <circle cx="10" cy="10" r="1"/>
                     <circle cx="50" cy="10" r="1"/>
@@ -30,17 +31,18 @@ export default function Landing() {
             backgroundSize: '60px 60px'
           }}
         />
-        {/* Soft lighting effects */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/20 rounded-full filter blur-3xl"></div>
       </div>
       
       <div className="relative flex items-center justify-center min-h-screen p-4">
-        <Card className="w-full max-w-md mx-4 shadow-xl rounded-3xl bg-white/90 backdrop-blur-md border border-white/20">
+        <Card className="w-full max-w-md mx-4 shadow-xl rounded-3xl bg-white border border-gray-200">
           <CardContent className="pt-8 pb-8 px-8">
             <div className="text-center mb-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <Utensils className="text-white text-2xl" size={32} />
+              <div className="w-24 h-24 mx-auto mb-4">
+                <img 
+                  src={truecircleLogo} 
+                  alt="TrueCircle Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">TrueCircle</h1>
               <p className="text-gray-600">Saturday Meetups</p>
@@ -57,7 +59,7 @@ export default function Landing() {
 
             <Button 
               onClick={() => setLocation('/auth')}
-              className="w-full gradient-primary text-white py-3 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+              className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
             >
               Get Started
             </Button>
