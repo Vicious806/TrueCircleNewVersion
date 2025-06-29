@@ -276,7 +276,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">18-20</h4>
-                    <p className="text-xs text-gray-600 leading-tight">Freshmen<br/>& Sophomores</p>
+                    <p className="text-xs text-gray-600">Younger</p>
                   </div>
                 </div>
                 <div
@@ -289,7 +289,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">21-25</h4>
-                    <p className="text-xs text-gray-600">Juniors & Seniors</p>
+                    <p className="text-xs text-gray-600">Older</p>
                   </div>
                 </div>
                 <div
@@ -302,7 +302,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">No Preference</h4>
-                    <p className="text-xs text-gray-600">All College Ages</p>
+                    <p className="text-xs text-gray-600">All Ages</p>
                   </div>
                 </div>
               </div>
@@ -321,7 +321,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                   <span>25</span>
                 </div>
                 <div className="text-center text-sm text-gray-700 mt-2">
-                  Match with college students ages {ageRange[0]} - {ageRange[1]}
+                  Match with ages {ageRange[0]} - {ageRange[1]}
                 </div>
               </div>
             )}

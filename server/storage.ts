@@ -687,9 +687,8 @@ export class DatabaseStorage implements IStorage {
         
         if (!req.userAge) return null;
         
-        // Enforce college age limits (18-25) for all users
-        if (!req.userAge || req.userAge < 18 || req.userAge > 25) return null;
-        if (!currentUserAge || currentUserAge < 18 || currentUserAge > 25) return null;
+        // Basic age validation
+        if (!req.userAge || !currentUserAge) return null;
         
         // If current user has age preferences
         if (ageRangeMin !== undefined && ageRangeMax !== undefined) {
