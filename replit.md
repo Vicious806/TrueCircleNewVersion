@@ -132,6 +132,7 @@ Changelog:
 - June 27, 2025. Added leave match functionality with confirmation dialog. Users can now exit their current match via dropdown menu in chat header, which deletes the match and all associated chat messages, returning them to home screen to find new connections. Includes proper database cleanup and user feedback.
 - June 27, 2025. Implemented location-based distance matching using Haversine formula calculations. Smart matching now respects the selected address from autocomplete suggestions and filters potential matches within the specified radius (10-25 miles). Uses geocoding API to convert addresses to coordinates for accurate distance calculations between users.
 - June 29, 2025. Major platform transformation: Changed from Friday meetups for all adults (18+) to Saturday meetups exclusively for college students (18-24). Updated scheduling system from Friday cutoff to Saturday with Friday 10 PM cutoff. Added brunch option (11 AM) alongside lunch (1 PM) and dinner (6 PM). Transformed age requirements throughout registration, matching algorithms, and UI messaging to focus on college student community.
+- June 29, 2025. Fixed email delivery system with truecircle12@gmail.com integration. Configured Gmail SMTP with proper app password authentication. Verification emails now deliver successfully to student inboxes without spam issues. Enhanced pending registration system prevents username conflicts before email verification completion.
 
 ## User Preferences
 

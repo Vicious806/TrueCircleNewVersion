@@ -4,8 +4,8 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'truecirclesocial@gmail.com',
-    pass: 'nvwp wbje monl glxk'
+    user: 'truecircle12@gmail.com',
+    pass: process.env.GMAIL_APP_PASSWORD || 'nvwp wbje monl glxk'
   },
   debug: true,
   logger: true
@@ -24,7 +24,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     console.log('SMTP connection verified successfully');
 
     const mailOptions = {
-      from: 'truecirclesocial@gmail.com',
+      from: 'truecircle12@gmail.com',
       to: options.to,
       subject: options.subject,
       html: options.html,
