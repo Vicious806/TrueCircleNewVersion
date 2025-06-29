@@ -86,7 +86,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
   const [preferredTime, setPreferredTime] = useState('');
   const [venueType, setVenueType] = useState(preselectedVenueType || '');
   const [preferredLocation, setPreferredLocation] = useState('');
-  const [maxDistance, setMaxDistance] = useState([10]);
+  const [maxDistance, setMaxDistance] = useState([5]);
   const [ageRange, setAgeRange] = useState([18, 24]);
   const [conflictInfo, setConflictInfo] = useState<any>(null);
   const [pendingRequest, setPendingRequest] = useState<MeetupRequestFormData | null>(null);
@@ -393,12 +393,12 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
               value={maxDistance}
               onValueChange={setMaxDistance}
               max={25}
-              min={10}
+              min={5}
               step={1}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>10 miles</span>
+              <span>5 miles</span>
               <span>25 miles</span>
             </div>
           </div>

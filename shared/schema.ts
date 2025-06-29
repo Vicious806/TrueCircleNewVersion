@@ -77,7 +77,7 @@ export const meetupRequests = pgTable("meetup_requests", {
   venueType: varchar("venue_type").notNull(),
   preferredTime: varchar("preferred_time"),
   preferredDate: varchar("preferred_date"),
-  maxDistance: integer("max_distance").default(10),
+  maxDistance: integer("max_distance").default(5),
   ageRangeMin: integer("age_range_min"),
   ageRangeMax: integer("age_range_max"),
   status: varchar("status").default("active").notNull(),
@@ -245,7 +245,7 @@ export const meetupRequestSchema = z.object({
   venueType: z.enum(['restaurant', 'cafe']),
   preferredTime: z.enum(['brunch', 'lunch', 'dinner']),
   preferredDate: z.string().min(1, "Date is required"),
-  maxDistance: z.number().min(1).max(50).default(10),
+  maxDistance: z.number().min(5).max(50).default(5),
   ageRangeMin: z.number().min(18).max(24).optional(),
   ageRangeMax: z.number().min(18).max(24).optional()
 });
