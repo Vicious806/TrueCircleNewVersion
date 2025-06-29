@@ -72,7 +72,7 @@ export function generateVerificationEmail(username: string, verificationCode: st
         
         <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
         <p style="color: #666; font-size: 12px;">
-          This is an automated message from FriendMeet.<br>
+          This is an automated message from TrueCircle.<br>
           Please do not reply to this email.
         </p>
       </div>

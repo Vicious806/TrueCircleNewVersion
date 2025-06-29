@@ -85,11 +85,32 @@ export default function Auth() {
       setLocation("/");
     },
     onError: (error: Error) => {
-      toast({
-        title: "Login failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Check if error is about unverified email
+      if (error.message.includes("verify your email") || error.message.includes("email address")) {
+        // Extract email from login form to enable resend
+        const email = loginForm.getValues("usernameOrEmail");
+        if (email.includes("@")) {
+          setRegistrationEmail(email);
+          setShowVerification(true);
+          toast({
+            title: "Email not verified",
+            description: "Please verify your email address. A new code has been provided below.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Email verification required",
+            description: "Please verify your email address before logging in.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Login failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     },
   });
 
@@ -156,6 +177,37 @@ export default function Auth() {
     onError: (error: Error) => {
       toast({
         title: "Verification failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resendMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await apiRequest("POST", "/api/resend-verification", { email });
+      return response.json();
+    },
+    onSuccess: (result) => {
+      toast({
+        title: "Code resent!",
+        description: "Check your email for the new verification code.",
+      });
+      
+      // In development, show the verification code for manual testing
+      if (result.verificationCode) {
+        setTimeout(() => {
+          toast({
+            title: "Development Mode",
+            description: `Verification code: ${result.verificationCode}`,
+            variant: "default",
+          });
+        }, 1000);
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to resend",
         description: error.message,
         variant: "destructive",
       });
@@ -255,14 +307,26 @@ export default function Auth() {
                     {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
                   </Button>
 
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => setShowVerification(false)}
-                  >
-                    Back to Login
-                  </Button>
+                  <div className="flex space-x-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => resendMutation.mutate(registrationEmail)}
+                      disabled={resendMutation.isPending}
+                    >
+                      {resendMutation.isPending ? "Sending..." : "Resend Code"}
+                    </Button>
+
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => setShowVerification(false)}
+                    >
+                      Back to Login
+                    </Button>
+                  </div>
                 </form>
               </CardContent>
             </Card>

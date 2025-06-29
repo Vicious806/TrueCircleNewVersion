@@ -6,6 +6,7 @@ import {
   userSurveyResponses,
   meetupRequests,
   matches,
+  pendingRegistrations,
   type User,
   type UpsertUser,
   type InsertUser,
@@ -25,6 +26,8 @@ import {
   type InsertMeetupRequest,
   type Match,
   type MatchWithUsers,
+  type InsertPendingRegistration,
+  type PendingRegistration,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, inArray, desc, asc, sql, not } from "drizzle-orm";
@@ -38,7 +41,13 @@ export interface IStorage {
   getUserByUsernameOrEmail(usernameOrEmail: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, updates: Partial<User>): Promise<User | undefined>;
-  verifyEmailWithCode(email: string, code: string): Promise<boolean>;
+  
+  // Pending registration operations
+  createPendingRegistration(registration: InsertPendingRegistration): Promise<PendingRegistration>;
+  getPendingRegistrationByEmail(email: string): Promise<PendingRegistration | undefined>;
+  updatePendingRegistrationCode(email: string, code: string, expiry: Date): Promise<boolean>;
+  verifyEmailAndCreateUser(email: string, code: string): Promise<User | null>;
+  deletePendingRegistration(email: string): Promise<boolean>;
   
   // Meetup operations
   createMeetup(meetup: InsertMeetup): Promise<Meetup>;
@@ -134,40 +143,75 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async verifyEmailWithCode(email: string, code: string): Promise<boolean> {
-    try {
+  // Pending registration operations
+  async createPendingRegistration(registration: InsertPendingRegistration): Promise<PendingRegistration> {
+    // Delete any existing pending registration with same email
+    await this.deletePendingRegistration(registration.email);
+    
+    const [pendingReg] = await db
+      .insert(pendingRegistrations)
+      .values(registration)
+      .returning();
+    return pendingReg;
+  }
+
+  async getPendingRegistrationByEmail(email: string): Promise<PendingRegistration | undefined> {
+    const [pendingReg] = await db
+      .select()
+      .from(pendingRegistrations)
+      .where(eq(pendingRegistrations.email, email));
+    return pendingReg;
+  }
+
+  async updatePendingRegistrationCode(email: string, code: string, expiry: Date): Promise<boolean> {
+    const result = await db
+      .update(pendingRegistrations)
+      .set({
+        verificationCode: code,
+        verificationExpiry: expiry,
+      })
+      .where(eq(pendingRegistrations.email, email));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async verifyEmailAndCreateUser(email: string, code: string): Promise<User | null> {
+    const pendingReg = await this.getPendingRegistrationByEmail(email);
+    if (!pendingReg) return null;
+
+    // Check if the verification code matches and hasn't expired
+    if (
+      pendingReg.verificationCode === code &&
+      new Date() < pendingReg.verificationExpiry
+    ) {
+      // Create the actual user account
       const [user] = await db
-        .select()
-        .from(users)
-        .where(and(
-          eq(users.email, email),
-          eq(users.emailVerificationCode, code)
-        ));
-
-      if (!user) {
-        return false;
-      }
-
-      // Check if code has expired (15 minutes)
-      if (user.emailVerificationExpiry && new Date() > user.emailVerificationExpiry) {
-        return false;
-      }
-
-      await db
-        .update(users)
-        .set({
+        .insert(users)
+        .values({
+          username: pendingReg.username,
+          email: pendingReg.email,
+          password: pendingReg.password,
+          firstName: pendingReg.firstName,
+          lastName: pendingReg.lastName,
+          dateOfBirth: pendingReg.dateOfBirth,
+          age: pendingReg.age,
           isEmailVerified: true,
-          emailVerificationCode: null,
-          emailVerificationExpiry: null,
-          updatedAt: new Date(),
         })
-        .where(eq(users.id, user.id));
+        .returning();
 
-      return true;
-    } catch (error) {
-      console.error("Error verifying email with code:", error);
-      return false;
+      // Delete the pending registration
+      await this.deletePendingRegistration(email);
+
+      return user;
     }
+    
+    return null;
+  }
+
+  async deletePendingRegistration(email: string): Promise<boolean> {
+    const result = await db
+      .delete(pendingRegistrations)
+      .where(eq(pendingRegistrations.email, email));
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Meetup operations

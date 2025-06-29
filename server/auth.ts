@@ -115,14 +115,12 @@ export function setupAuth(app: Express) {
         calculatedAge = calculatedAge - 1;
       }
 
-
-
-      // Validate age requirement
-      if (calculatedAge < 18) {
-        return res.status(400).json({ message: "You must be at least 18 years old to join" });
+      // Validate age requirement (college students 18-24)
+      if (calculatedAge < 18 || calculatedAge > 24) {
+        return res.status(400).json({ message: "You must be between 18-24 years old (college age) to join" });
       }
 
-      // Check if username or email already exists
+      // Check if username or email already exists in confirmed users
       const existingByUsername = await storage.getUserByUsername(username);
       if (existingByUsername) {
         return res.status(400).json({ message: "Username already exists" });
@@ -137,7 +135,8 @@ export function setupAuth(app: Express) {
       const verificationCode = generateVerificationCode();
       const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
 
-      const user = await storage.createUser({
+      // Create pending registration instead of actual user
+      await storage.createPendingRegistration({
         username,
         email,
         password: hashedPassword,
@@ -145,15 +144,15 @@ export function setupAuth(app: Express) {
         lastName,
         dateOfBirth: new Date(dateOfBirth),
         age: calculatedAge,
-        emailVerificationCode: verificationCode,
-        emailVerificationExpiry: expiryTime
+        verificationCode: verificationCode,
+        verificationExpiry: expiryTime
       });
 
       // Send verification email with code
       const emailHtml = generateVerificationEmail(username, verificationCode);
       const emailSent = await sendEmail({
         to: email,
-        subject: 'Email Verification Code',
+        subject: 'TrueCircle Email Verification Code',
         html: emailHtml
       });
 
@@ -186,16 +185,66 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Email and verification code are required" });
       }
 
-      const verified = await storage.verifyEmailWithCode(email, code);
+      const user = await storage.verifyEmailAndCreateUser(email, code);
       
-      if (verified) {
-        res.json({ message: "Email verified successfully", verified: true });
+      if (user) {
+        res.json({ message: "Email verified successfully! You can now log in.", verified: true });
       } else {
         res.status(400).json({ message: "Invalid or expired verification code", verified: false });
       }
     } catch (error) {
       console.error("Email verification error:", error);
       res.status(500).json({ message: "Verification failed", verified: false });
+    }
+  });
+
+  // Resend verification code route
+  app.post("/api/resend-verification", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Check if there's a pending registration for this email
+      const pendingReg = await storage.getPendingRegistrationByEmail(email);
+      if (!pendingReg) {
+        return res.status(404).json({ message: "No pending registration found for this email" });
+      }
+
+      // Generate new verification code
+      const verificationCode = generateVerificationCode();
+      const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+      // Update the pending registration with new code
+      await storage.updatePendingRegistrationCode(email, verificationCode, expiryTime);
+
+      // Send verification email with new code
+      const emailHtml = generateVerificationEmail(pendingReg.username || 'User', verificationCode);
+      const emailSent = await sendEmail({
+        to: email,
+        subject: 'TrueCircle Email Verification Code (Resent)',
+        html: emailHtml
+      });
+
+      if (!emailSent) {
+        console.error('Failed to resend verification email to:', email);
+      }
+
+      // For development, also log the verification code for manual testing
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`New verification code for ${email}: ${verificationCode}`);
+      }
+
+      res.json({ 
+        message: "Verification code resent! Please check your email.",
+        emailSent: emailSent,
+        verificationCode: process.env.NODE_ENV === 'development' ? verificationCode : undefined
+      });
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      res.status(500).json({ message: "Failed to resend verification code" });
     }
   });
 

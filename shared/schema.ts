@@ -25,6 +25,21 @@ export const sessions = pgTable(
 );
 
 // User storage table
+// Pending registrations table for unverified accounts
+export const pendingRegistrations = pgTable("pending_registrations", {
+  id: serial("id").primaryKey(),
+  username: varchar("username").notNull(),
+  email: varchar("email").unique().notNull(),
+  password: varchar("password").notNull(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  dateOfBirth: timestamp("date_of_birth"),
+  age: integer("age"),
+  verificationCode: varchar("verification_code").notNull(),
+  verificationExpiry: timestamp("verification_expiry").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: varchar("username").unique().notNull(),
@@ -35,10 +50,8 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   dateOfBirth: timestamp("date_of_birth"),
   age: integer("age"),
-  isEmailVerified: boolean("is_email_verified").default(false).notNull(),
+  isEmailVerified: boolean("is_email_verified").default(true).notNull(),
   hasTakenSurvey: boolean("has_taken_survey").default(false).notNull(),
-  emailVerificationCode: varchar("email_verification_code"),
-  emailVerificationExpiry: timestamp("email_verification_expiry"),
   bio: text("bio"),
   interests: text("interests").array(),
   location: varchar("location"),
@@ -212,6 +225,11 @@ export const insertMeetupRequestSchema = createInsertSchema(meetupRequests).omit
   updatedAt: true
 });
 
+export const insertPendingRegistrationSchema = createInsertSchema(pendingRegistrations).omit({
+  id: true,
+  createdAt: true
+});
+
 // Survey response schema with validation
 export const surveyResponseSchema = z.object({
   favoriteConversationTopic: z.enum(['travel', 'food', 'career', 'hobbies', 'current_events']),
@@ -301,3 +319,5 @@ export type MeetupRequest = typeof meetupRequests.$inferSelect;
 export type MeetupRequestFormData = z.infer<typeof meetupRequestSchema>;
 export type Match = typeof matches.$inferSelect;
 export type MatchWithUsers = Match & { users: User[] };
+export type InsertPendingRegistration = z.infer<typeof insertPendingRegistrationSchema>;
+export type PendingRegistration = typeof pendingRegistrations.$inferSelect;
