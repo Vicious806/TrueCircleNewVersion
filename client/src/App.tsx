@@ -10,6 +10,8 @@ import Home from "@/pages/home";
 import Chat from "@/pages/chat";
 import Auth from "@/pages/auth";
 import Matches from "@/pages/matches";
+import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
 import WelcomeSurvey from "@/components/WelcomeSurvey";
 import type { User } from "@shared/schema";
 
@@ -41,6 +43,8 @@ function Router() {
         <>
           <Route path="/" component={Landing} />
           <Route path="/auth" component={Auth} />
+          <Route path="/terms" component={Terms} />
+          <Route path="/privacy" component={Privacy} />
         </>
       ) : (
         <>
@@ -48,6 +52,8 @@ function Router() {
           <Route path="/matches" component={Matches} />
           <Route path="/chat/:id?" component={Chat} />
           <Route path="/chat" component={Chat} />
+          <Route path="/terms" component={Terms} />
+          <Route path="/privacy" component={Privacy} />
         </>
       )}
       <Route component={NotFound} />

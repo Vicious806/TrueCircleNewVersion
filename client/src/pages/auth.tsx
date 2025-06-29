@@ -971,14 +971,25 @@ export default function Auth() {
                         )}
                       </div>
 
-                      <div className="flex items-center space-x-2 p-4 bg-amber-50/80 rounded-lg border border-amber-200">
-                        <Checkbox
-                          id="isAdult"
-                          className="border-2 border-amber-400"
-                        />
-                        <Label htmlFor="isAdult" className="text-sm font-medium text-amber-900 leading-tight">
-                          I confirm that I am 18+ years old
-                        </Label>
+                      <div className="text-center">
+                        <p className="text-xs text-gray-500">
+                          By creating an account, you agree to our{' '}
+                          <button 
+                            type="button"
+                            onClick={() => setLocation('/terms')}
+                            className="text-blue-600 hover:text-blue-700 underline"
+                          >
+                            Terms of Service
+                          </button>
+                          {' '}and{' '}
+                          <button 
+                            type="button"
+                            onClick={() => setLocation('/privacy')}
+                            className="text-blue-600 hover:text-blue-700 underline"
+                          >
+                            Privacy Policy
+                          </button>
+                        </p>
                       </div>
 
                       <Button 

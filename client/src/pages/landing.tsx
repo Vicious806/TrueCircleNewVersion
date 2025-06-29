@@ -64,7 +64,20 @@ export default function Landing() {
 
             <div className="text-center">
               <p className="text-xs text-gray-500">
-                By signing in, you agree to our Terms of Service and Privacy Policy
+                By signing in, you agree to our{' '}
+                <button 
+                  onClick={() => setLocation('/terms')}
+                  className="text-blue-600 hover:text-blue-700 underline"
+                >
+                  Terms of Service
+                </button>
+                {' '}and{' '}
+                <button 
+                  onClick={() => setLocation('/privacy')}
+                  className="text-blue-600 hover:text-blue-700 underline"
+                >
+                  Privacy Policy
+                </button>
               </p>
             </div>
           </div>
