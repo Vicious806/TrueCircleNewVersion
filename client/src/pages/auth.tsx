@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useQueryClient } from "@tanstack/react-query";
 import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751237338042.webp";
 import {
   registerSchema,
@@ -41,6 +42,7 @@ type RegisterFormData = z.infer<typeof registerFormSchema>;
 export default function Auth() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isLogin, setIsLogin] = useState(true);
   const [showVerification, setShowVerification] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -108,7 +110,9 @@ export default function Auth() {
       return response.json();
     },
     onSuccess: () => {
-      setLocation("/");
+      // Force refresh user data and redirect
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      window.location.href = "/";
     },
     onError: (error: Error) => {
       toast({
