@@ -202,8 +202,8 @@ export default function Auth() {
     },
     onSuccess: (data) => {
       toast({
-        title: "Check your email!",
-        description: "We've sent you a verification code to complete your registration.",
+        title: "Check email",
+        description: "Verification code sent",
       });
       setRegistrationEmail(registerForm.getValues("email"));
       setShowVerification(true);
@@ -238,8 +238,8 @@ export default function Auth() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       toast({
-        title: "Email verified!",
-        description: "Your account has been created successfully.",
+        title: "Account created",
+        description: "You can now sign in",
       });
       setLocation('/');
     },
@@ -272,8 +272,8 @@ export default function Auth() {
     },
     onSuccess: () => {
       toast({
-        title: "Code sent!",
-        description: "A new verification code has been sent to your email.",
+        title: "Code sent",
+        description: "Check email",
       });
     },
     onError: (error: Error) => {
@@ -469,7 +469,7 @@ export default function Auth() {
                       className="flex-1 h-12 bg-blue-600 hover:bg-blue-700"
                       disabled={forgotPasswordMutation.isPending}
                     >
-                      {forgotPasswordMutation.isPending ? "Sending..." : "Send Reset Code"}
+                      {forgotPasswordMutation.isPending ? "Sending..." : "Send Code"}
                     </Button>
                   </div>
                 </form>
@@ -507,15 +507,15 @@ export default function Auth() {
         <div className="relative flex min-h-screen items-center justify-center px-4">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white">Create New Password</h1>
-              <p className="text-blue-100 mt-2">Enter the code from your email</p>
+              <h1 className="text-3xl font-bold text-white">Reset Password</h1>
+              <p className="text-blue-100 mt-2">Enter code from email</p>
             </div>
 
             <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-xl text-gray-900">Reset Your Password</CardTitle>
+                <CardTitle className="text-xl text-gray-900">Reset Password</CardTitle>
                 <CardDescription className="text-base text-gray-600">
-                  Enter the 6-digit code sent to <span className="font-semibold text-blue-600">{resetEmail}</span>
+                  Enter 6-digit code sent to <span className="font-semibold text-blue-600">{resetEmail}</span>
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -614,15 +614,15 @@ export default function Auth() {
         <div className="relative flex min-h-screen items-center justify-center px-4">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-white">Almost There!</h1>
-              <p className="text-blue-100 mt-2">Check your email for the verification code</p>
+              <h1 className="text-3xl font-bold text-white">Check Email</h1>
+              <p className="text-blue-100 mt-2">Enter verification code</p>
             </div>
 
             <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-xl text-gray-900">Verify Your Email</CardTitle>
+                <CardTitle className="text-xl text-gray-900">Verify Email</CardTitle>
                 <CardDescription className="text-base text-gray-600">
-                  We sent a 6-digit code to <span className="font-semibold text-blue-600">{registrationEmail}</span>
+                  Code sent to <span className="font-semibold text-blue-600">{registrationEmail}</span>
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -653,7 +653,7 @@ export default function Auth() {
                     className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-lg font-medium"
                     disabled={verifyMutation.isPending}
                   >
-                    {verifyMutation.isPending ? "Verifying..." : "Verify & Continue"}
+                    {verifyMutation.isPending ? "Verifying..." : "Verify"}
                   </Button>
 
                   <div className="flex space-x-3">
@@ -664,7 +664,7 @@ export default function Auth() {
                       onClick={() => resendMutation.mutate(registrationEmail)}
                       disabled={resendMutation.isPending}
                     >
-                      {resendMutation.isPending ? "Sending..." : "Resend Code"}
+                      {resendMutation.isPending ? "Sending..." : "Resend"}
                     </Button>
                     <Button 
                       type="button" 
@@ -672,7 +672,7 @@ export default function Auth() {
                       className="flex-1 h-10"
                       onClick={() => setShowVerification(false)}
                     >
-                      Back to Login
+                      Back
                     </Button>
                   </div>
                 </form>
@@ -769,9 +769,9 @@ export default function Auth() {
               <TabsContent value="login">
                 <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-2xl text-center text-gray-900">Welcome Back!</CardTitle>
+                    <CardTitle className="text-2xl text-center text-gray-900">Welcome Back</CardTitle>
                     <CardDescription className="text-center text-base text-gray-600">
-                      Ready to meet new friends this Saturday?
+                      Ready for Saturday meetups?
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -782,7 +782,7 @@ export default function Auth() {
                           id="usernameOrEmail"
                           type="text"
                           {...loginForm.register("usernameOrEmail")}
-                          placeholder="Enter your username or email"
+                          placeholder="Username or email"
                           className="h-11 border-2 focus:border-blue-400"
                         />
                         {loginForm.formState.errors.usernameOrEmail && (
@@ -798,7 +798,7 @@ export default function Auth() {
                           id="password"
                           type="password"
                           {...loginForm.register("password")}
-                          placeholder="Enter your password"
+                          placeholder="Password"
                           className="h-11 border-2 focus:border-blue-400"
                         />
                         {loginForm.formState.errors.password && (
@@ -814,7 +814,7 @@ export default function Auth() {
                           onClick={() => setShowForgotPassword(true)}
                           className="text-sm text-blue-600 hover:text-blue-700 underline"
                         >
-                          Forgot your password?
+                          Forgot password?
                         </button>
                       </div>
 
@@ -835,7 +835,7 @@ export default function Auth() {
                   <CardHeader className="pb-4">
                     <CardTitle className="text-2xl text-center text-gray-900">Join TrueCircle</CardTitle>
                     <CardDescription className="text-center text-base text-gray-600">
-                      Start making real connections with people in your area
+                      Make real connections in your area
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -880,7 +880,7 @@ export default function Auth() {
                           id="username"
                           type="text"
                           {...registerForm.register("username")}
-                          placeholder="Choose a username"
+                          placeholder="Username"
                           className="h-11 border-2 focus:border-blue-400"
                         />
                         {registerForm.formState.errors.username && (
@@ -896,7 +896,7 @@ export default function Auth() {
                           id="email"
                           type="email"
                           {...registerForm.register("email")}
-                          placeholder="Your email address"
+                          placeholder="Email"
                           className="h-11 border-2 focus:border-blue-400"
                         />
                         {registerForm.formState.errors.email && (
@@ -912,7 +912,7 @@ export default function Auth() {
                           id="password"
                           type="password"
                           {...registerForm.register("password")}
-                          placeholder="Create a password"
+                          placeholder="Password"
                           className="h-11 border-2 focus:border-blue-400"
                         />
                         {registerForm.formState.errors.password && (

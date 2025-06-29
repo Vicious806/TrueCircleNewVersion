@@ -154,8 +154,13 @@ export class DatabaseStorage implements IStorage {
 
   // Pending registration operations
   async createPendingRegistration(registration: InsertPendingRegistration): Promise<PendingRegistration> {
-    // Delete any existing pending registration with same email
+    // Delete any existing pending registration with same email or username
     await this.deletePendingRegistration(registration.email);
+    
+    // Also delete any pending registration with same username
+    await db
+      .delete(pendingRegistrations)
+      .where(eq(pendingRegistrations.username, registration.username));
     
     const [pendingReg] = await db
       .insert(pendingRegistrations)

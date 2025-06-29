@@ -115,21 +115,24 @@ export function setupAuth(app: Express) {
         calculatedAge = calculatedAge - 1;
       }
 
-      // Validate age requirement (college students 18-25)
+      // Validate age requirement (18-25)
       if (calculatedAge < 18 || calculatedAge > 25) {
-        return res.status(400).json({ message: "You must be between 18-25 years old (college age) to join" });
+        return res.status(400).json({ message: "Must be 18-25 years old" });
       }
 
       // Check if username or email already exists in confirmed users
       const existingByUsername = await storage.getUserByUsername(username);
       if (existingByUsername) {
-        return res.status(400).json({ message: "Username already exists" });
+        return res.status(400).json({ message: "Username taken" });
       }
 
       const existingByEmail = await storage.getUserByEmail(email);
       if (existingByEmail) {
-        return res.status(400).json({ message: "Email already exists" });
+        return res.status(400).json({ message: "Email in use" });
       }
+
+      // Clean up any expired or failed pending registrations
+      await storage.deletePendingRegistration(email);
 
       const hashedPassword = await hashPassword(password);
       const verificationCode = generateVerificationCode();
@@ -166,7 +169,7 @@ export function setupAuth(app: Express) {
       }
 
       res.status(201).json({ 
-        message: "Registration successful! Please check your email for your verification code.",
+        message: "Check email for verification code",
         emailSent: emailSent,
         verificationCode: process.env.NODE_ENV === 'development' ? verificationCode : undefined
       });
@@ -188,9 +191,9 @@ export function setupAuth(app: Express) {
       const user = await storage.verifyEmailAndCreateUser(email, code);
       
       if (user) {
-        res.json({ message: "Email verified successfully! You can now log in.", verified: true });
+        res.json({ message: "Email verified! You can now log in.", verified: true });
       } else {
-        res.status(400).json({ message: "Invalid or expired verification code", verified: false });
+        res.status(400).json({ message: "Invalid code", verified: false });
       }
     } catch (error) {
       console.error("Email verification error:", error);

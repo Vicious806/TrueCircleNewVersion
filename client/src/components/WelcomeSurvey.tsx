@@ -29,8 +29,8 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       toast({
-        title: "Welcome to TrueCircle!",
-        description: "Your preferences have been saved. Let's find your perfect dining companions!",
+        title: "Welcome to TrueCircle",
+        description: "Preferences saved",
       });
       onComplete();
     },
@@ -47,7 +47,7 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
     {
       id: 'favoriteConversationTopic',
       title: "What's your favorite conversation topic?",
-      description: "This helps us match you with like-minded people",
+      description: "Helps us match you with similar people",
       icon: MessageCircle,
       options: [
         { value: 'travel', label: 'Travel & Adventures', description: 'Share stories from around the world' },
@@ -60,7 +60,7 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
     {
       id: 'favoriteMusic',
       title: "What's your favorite music genre?",
-      description: "Music taste reveals a lot about personality and creates great conversations",
+      description: "Music creates great conversations",
       icon: MapPin,
       options: [
         { value: 'pop', label: 'Pop & Top 40', description: 'Love the latest hits and mainstream favorites' },
@@ -73,7 +73,7 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
     {
       id: 'favoriteShow',
       title: "What type of TV shows or movies do you love?",
-      description: "Entertainment preferences spark great discussions and recommendations",
+      description: "Shared entertainment creates discussions",
       icon: Users,
       options: [
         { value: 'comedy', label: 'Comedy & Sitcoms', description: 'Love to laugh and share funny moments' },
@@ -86,7 +86,7 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
     {
       id: 'personalityType',
       title: "How would you describe your personality?",
-      description: "Understanding personality helps create compatible connections",
+      description: "Helps create compatible connections",
       icon: Zap,
       options: [
         { value: 'outgoing', label: 'Outgoing & Social', description: 'Love meeting new people and being around others' },
@@ -99,7 +99,7 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
     {
       id: 'hobbies',
       title: "What's your main hobby or interest?",
-      description: "Shared hobbies create instant connections and talking points",
+      description: "Shared hobbies create connections",
       icon: Calendar,
       options: [
         { value: 'fitness', label: 'Fitness & Sports', description: 'Working out, yoga, running, or team sports' },
