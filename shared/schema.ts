@@ -93,7 +93,7 @@ export const matches = pgTable("matches", {
   suggestedTime: varchar("suggested_time"),
   suggestedDate: varchar("suggested_date"),
   matchScore: integer("match_score").default(0),
-  sharedInterest: varchar("shared_interest"), // What they have in common for 1v1
+  suggestedLocation: varchar("suggested_location"), // Group meetup location
   status: varchar("status").default("pending").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -239,9 +239,9 @@ export const surveyResponseSchema = z.object({
   hobbies: z.enum(['fitness', 'creative', 'tech', 'nature', 'learning'])
 });
 
-// Meetup request schema
+// Meetup request schema - group matching only
 export const meetupRequestSchema = z.object({
-  meetupType: z.enum(['1v1', 'group']),
+  meetupType: z.enum(['group']),
   venueType: z.enum(['restaurant', 'cafe']),
   preferredTime: z.enum(['brunch', 'lunch', 'dinner']),
   preferredDate: z.string().min(1, "Date is required"),

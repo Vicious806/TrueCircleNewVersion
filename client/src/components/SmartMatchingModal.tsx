@@ -17,7 +17,7 @@ import type { MeetupRequestFormData } from "@shared/schema";
 interface SmartMatchingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  meetupType: '1v1' | 'group';
+  meetupType: 'group';
 }
 
 const timeOptions = [
@@ -234,15 +234,8 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
     createMatchingRequest.mutate(requestData);
   };
 
-  const modalTitles = {
-    '1v1': 'Find Your Perfect 1-on-1 Match',
-    'group': 'Find Your Group Match'
-  };
-
-  const modalDescriptions = {
-    '1v1': 'Our smart matching will find someone compatible based on your survey responses and preferences.',
-    'group': 'Join a larger group of like-minded people for a fun dining experience.'
-  };
+  const modalTitle = 'Find Your Group Match';
+  const modalDescription = 'Join a group of college students for a fun Saturday dining experience.';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -252,10 +245,10 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
             <Sparkles className="text-white h-8 w-8" />
           </div>
           <DialogTitle className="text-xl font-bold text-gray-900 text-center">
-            {modalTitles[meetupType]}
+            {modalTitle}
           </DialogTitle>
           <DialogDescription className="text-center">
-            {modalDescriptions[meetupType]}
+            {modalDescription}
           </DialogDescription>
         </DialogHeader>
 

@@ -20,8 +20,8 @@ interface ChatPinnedHeaderProps {
 export default function ChatPinnedHeader({ 
   matchId,
   venueType = 'restaurant',
-  meetupType = '1v1',
-  participantCount = 2,
+  meetupType = 'group',
+  participantCount = 3,
   canEdit = true,
   suggestedDate,
   suggestedTime

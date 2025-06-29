@@ -312,57 +312,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (potentialMatches.length > 0) {
         let match;
         
-        if (requestData.meetupType === '1v1') {
-          // 1v1 matching - pair with one person
-          const participants = [userId, potentialMatches[0]];
-          const sharedInterest = await storage.findSharedInterest(userId, potentialMatches[0]);
+        // Group matching - add to existing group or create new one
+        if (potentialMatches.length >= 1) {
+          // Check if this is joining an existing group or forming a new one
+          const isExistingGroup = potentialMatches.length >= 2; // Existing group has multiple members
           
-          match = await storage.createMatch({
-            participants,
-            meetupType: requestData.meetupType,
-            venueType: requestData.venueType,
-            suggestedTime: requestData.preferredTime,
-            suggestedDate: requestData.preferredDate,
-            matchScore: 75,
-            sharedInterest,
-          });
-        } else if (requestData.meetupType === 'group') {
-          // Group matching - add to existing group or create new one
-          if (potentialMatches.length >= 1) {
-            // Check if this is joining an existing group or forming a new one
-            const isExistingGroup = potentialMatches.length >= 2; // Existing group has multiple members
-            
-            if (isExistingGroup) {
-              // Add user to existing group by updating the match
-              const existingMatch = await storage.getUserMatches(potentialMatches[0]);
-              if (existingMatch.length > 0) {
-                const groupMatch = existingMatch.find(m => 
-                  m.meetupType === 'group' && 
-                  m.status === 'active' &&
-                  m.venueType === requestData.venueType
-                );
-                
-                if (groupMatch) {
-                  const updatedParticipants = [...groupMatch.users.map(u => u.id), userId];
-                  match = await storage.updateMatch(groupMatch.id, {
-                    participants: updatedParticipants
-                  });
-                }
-              }
-            } else {
-              // Create new group with available users (up to 4 total including current user)
-              const participants = [userId, ...potentialMatches.slice(0, 3)]; // Max 4 people
+          if (isExistingGroup) {
+            // Add user to existing group by updating the match
+            const existingMatch = await storage.getUserMatches(potentialMatches[0]);
+            if (existingMatch.length > 0) {
+              const groupMatch = existingMatch.find(m => 
+                m.meetupType === 'group' && 
+                m.status === 'active' &&
+                m.venueType === requestData.venueType
+              );
               
-              match = await storage.createMatch({
-                participants,
-                meetupType: requestData.meetupType,
-                venueType: requestData.venueType,
-                suggestedTime: requestData.preferredTime,
-                suggestedDate: requestData.preferredDate,
-                matchScore: 70,
-                sharedInterest: null, // Groups don't require shared interests
-              });
+              if (groupMatch) {
+                const updatedParticipants = [...groupMatch.users.map(u => u.id), userId];
+                match = await storage.updateMatch(groupMatch.id, {
+                  participants: updatedParticipants
+                });
+              }
             }
+          } else {
+            // Create new group with available users (up to 4 total including current user)
+            const participants = [userId, ...potentialMatches.slice(0, 3)]; // Max 4 people
+            
+            match = await storage.createMatch({
+              participants,
+              meetupType: requestData.meetupType,
+              venueType: requestData.venueType,
+              suggestedTime: requestData.preferredTime,
+              suggestedDate: requestData.preferredDate,
+              matchScore: 70,
+            });
           }
         }
         
