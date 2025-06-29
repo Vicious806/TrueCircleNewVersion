@@ -276,7 +276,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">18-20</h4>
-                    <p className="text-xs text-gray-600">Freshmen/Soph</p>
+                    <p className="text-xs text-gray-600 leading-tight">Freshmen<br/>& Sophomores</p>
                   </div>
                 </div>
                 <div
@@ -289,7 +289,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">21-24</h4>
-                    <p className="text-xs text-gray-600">Junior/Senior</p>
+                    <p className="text-xs text-gray-600">Juniors & Seniors</p>
                   </div>
                 </div>
                 <div
