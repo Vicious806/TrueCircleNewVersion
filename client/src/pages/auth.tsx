@@ -757,7 +757,7 @@ export default function Auth() {
           <div className="w-full max-w-md">
             <div className="text-center mb-8 lg:hidden">
               <h1 className="text-2xl font-bold text-white">TrueCircle</h1>
-              <p className="text-gray-200 mt-1">Saturday meetups for adults 18+</p>
+              <p className="text-gray-200 mt-1">Saturday meetups</p>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
