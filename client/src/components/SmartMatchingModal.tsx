@@ -21,8 +21,9 @@ interface SmartMatchingModalProps {
 }
 
 const timeOptions = [
+  { value: 'brunch', label: '11:00 AM (Brunch)', icon: '🥞' },
   { value: 'lunch', label: '1:00 PM (Lunch)', icon: '🍽️' },
-  { value: 'dinner', label: '5:30 PM (Dinner)', icon: '🌆' },
+  { value: 'dinner', label: '6:00 PM (Dinner)', icon: '🌆' },
 ];
 
 const venueOptions = [
@@ -31,29 +32,28 @@ const venueOptions = [
 ];
 
 // Helper function to get the next few Fridays
-function getNextFridays(count: number) {
-  const fridays = [];
+function getNextSaturdays(count: number) {
+  const saturdays = [];
   const today = new Date();
   let currentDate = new Date(today);
   
-  // Find the next Friday
-  const daysUntilFriday = (5 - currentDate.getDay() + 7) % 7;
+  // Find the next Saturday
+  const daysUntilSaturday = (6 - currentDate.getDay() + 7) % 7;
   
-  // Skip current Friday if it's Thursday after 10 PM or later
-  const shouldSkipCurrentFriday = 
-    (currentDate.getDay() === 4 && currentDate.getHours() >= 22) || // Thursday 10 PM or later
-    (currentDate.getDay() === 5) || // Friday (any time)
-    (currentDate.getDay() === 6) || // Saturday
+  // Skip current Saturday if it's Friday after 10 PM or later
+  const shouldSkipCurrentSaturday = 
+    (currentDate.getDay() === 5 && currentDate.getHours() >= 22) || // Friday 10 PM or later
+    (currentDate.getDay() === 6) || // Saturday (any time)
     (currentDate.getDay() === 0); // Sunday
   
-  if (shouldSkipCurrentFriday || daysUntilFriday === 0) {
-    // Start from next Friday
-    currentDate.setDate(currentDate.getDate() + 7 - daysUntilFriday);
-    if (daysUntilFriday === 0) {
+  if (shouldSkipCurrentSaturday || daysUntilSaturday === 0) {
+    // Start from next Saturday
+    currentDate.setDate(currentDate.getDate() + 7 - daysUntilSaturday);
+    if (daysUntilSaturday === 0) {
       currentDate.setDate(currentDate.getDate() + 7);
     }
   } else {
-    currentDate.setDate(currentDate.getDate() + daysUntilFriday);
+    currentDate.setDate(currentDate.getDate() + daysUntilSaturday);
   }
   
   for (let i = 0; i < count; i++) {
@@ -64,16 +64,16 @@ function getNextFridays(count: number) {
       day: 'numeric' 
     });
     
-    fridays.push({
+    saturdays.push({
       value: dateStr,
       label: formatted
     });
     
-    // Move to next Friday
+    // Move to next Saturday
     currentDate.setDate(currentDate.getDate() + 7);
   }
   
-  return fridays;
+  return saturdays;
 }
 
 export default function SmartMatchingModal({ isOpen, onClose, meetupType }: SmartMatchingModalProps) {
@@ -86,7 +86,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
   const [venueType, setVenueType] = useState('');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([10]);
-  const [ageRange, setAgeRange] = useState([18, 50]);
+  const [ageRange, setAgeRange] = useState([18, 24]);
   const [conflictInfo, setConflictInfo] = useState<any>(null);
   const [pendingRequest, setPendingRequest] = useState<MeetupRequestFormData | null>(null);
 
@@ -270,41 +270,41 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
               <div className="grid grid-cols-3 gap-3">
                 <div
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 18 && ageRange[1] === 28
+                    ageRange[0] === 18 && ageRange[1] === 20
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setAgeRange([18, 28])}
+                  onClick={() => setAgeRange([18, 20])}
                 >
                   <div className="text-center">
-                    <h4 className="font-medium text-gray-900">18-28</h4>
-                    <p className="text-sm text-gray-600">Young Adults</p>
+                    <h4 className="font-medium text-gray-900">18-20</h4>
+                    <p className="text-sm text-gray-600">Freshmen/Sophomore</p>
                   </div>
                 </div>
                 <div
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 28 && ageRange[1] === 50
+                    ageRange[0] === 21 && ageRange[1] === 24
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setAgeRange([28, 50])}
+                  onClick={() => setAgeRange([21, 24])}
                 >
                   <div className="text-center">
-                    <h4 className="font-medium text-gray-900">28-50+</h4>
-                    <p className="text-sm text-gray-600">Professionals</p>
+                    <h4 className="font-medium text-gray-900">21-24</h4>
+                    <p className="text-sm text-gray-600">Junior/Senior</p>
                   </div>
                 </div>
                 <div
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 18 && ageRange[1] === 50
+                    ageRange[0] === 18 && ageRange[1] === 24
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setAgeRange([18, 50])}
+                  onClick={() => setAgeRange([18, 24])}
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">No Preference</h4>
-                    <p className="text-sm text-gray-600">All Ages</p>
+                    <p className="text-sm text-gray-600">All College Ages</p>
                   </div>
                 </div>
               </div>
@@ -314,16 +314,16 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
                   value={ageRange}
                   onValueChange={setAgeRange}
                   min={18}
-                  max={50}
-                  step={3}
+                  max={24}
+                  step={1}
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
                   <span>18</span>
-                  <span>50+</span>
+                  <span>24</span>
                 </div>
                 <div className="text-center text-sm text-gray-700 mt-2">
-                  Match with people ages {ageRange[0]} - {ageRange[1] === 50 ? '50+' : ageRange[1]}
+                  Match with college students ages {ageRange[0]} - {ageRange[1]}
                 </div>
               </div>
             )}
@@ -358,20 +358,20 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType }: Smar
             </div>
           </div>
 
-          {/* Date Selection - Only Fridays */}
+          {/* Date Selection - Only Saturdays */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">
               <Clock className="w-4 h-4 mr-2" />
-              Which Friday would you like to meet?
+              Which Saturday would you like to meet?
             </Label>
             <Select value={preferredDate} onValueChange={setPreferredDate}>
               <SelectTrigger className="mb-3">
-                <SelectValue placeholder="Select a Friday" />
+                <SelectValue placeholder="Select a Saturday" />
               </SelectTrigger>
               <SelectContent>
-                {getNextFridays(2).map((friday: { value: string; label: string }) => (
-                  <SelectItem key={friday.value} value={friday.value}>
-                    {friday.label}
+                {getNextSaturdays(2).map((saturday: { value: string; label: string }) => (
+                  <SelectItem key={saturday.value} value={saturday.value}>
+                    {saturday.label}
                   </SelectItem>
                 ))}
               </SelectContent>

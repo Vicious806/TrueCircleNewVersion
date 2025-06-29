@@ -1,8 +1,8 @@
-# TrueCircle - Social Dining Application
+# TrueCircle - College Student Saturday Meetups
 
 ## Overview
 
-TrueCircle is a social dining platform that connects food lovers to make new friends over meals. The application allows users to create and join meetups of different sizes (1-on-1, 3 people, or group), chat with participants, and coordinate dining experiences at restaurants and cafes.
+TrueCircle is a social dining platform exclusively for college students (ages 18-24) to meet every Saturday for meals. The application uses smart matching to connect students for 1-on-1 or group meetups at restaurants and cafes, with scheduling options for brunch (11 AM), lunch (1 PM), or dinner (6 PM).
 
 ## System Architecture
 
@@ -131,12 +131,16 @@ Changelog:
 - June 27, 2025. Implemented address autocomplete functionality using OpenStreetMap Nominatim API. Added smart address suggestions to LocationModal for user location setting and MeetupPinnedHeader for restaurant/cafe location coordination. Features debounced search, real-time suggestions dropdown, and venue-specific filtering (restaurants vs cafes).
 - June 27, 2025. Added leave match functionality with confirmation dialog. Users can now exit their current match via dropdown menu in chat header, which deletes the match and all associated chat messages, returning them to home screen to find new connections. Includes proper database cleanup and user feedback.
 - June 27, 2025. Implemented location-based distance matching using Haversine formula calculations. Smart matching now respects the selected address from autocomplete suggestions and filters potential matches within the specified radius (10-25 miles). Uses geocoding API to convert addresses to coordinates for accurate distance calculations between users.
+- June 29, 2025. Major platform transformation: Changed from Friday meetups for all adults (18+) to Saturday meetups exclusively for college students (18-24). Updated scheduling system from Friday cutoff to Saturday with Friday 10 PM cutoff. Added brunch option (11 AM) alongside lunch (1 PM) and dinner (6 PM). Transformed age requirements throughout registration, matching algorithms, and UI messaging to focus on college student community.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Target audience: College students only (ages 18-24).
+Meeting schedule: Saturday meetups only with Friday 10 PM cutoff.
+Time options: Brunch (11 AM), lunch (1 PM), dinner (6 PM) to accommodate college schedules.
 App scope: Meetups are for both restaurants and cafes (not just restaurants).
 Minimum distance setting: 10 miles minimum for all smart matching requests.
 Smart matching requirement: Only match users with same meetup type (1v1 with 1v1, group with group). Removed 3-people option entirely from the app.
 Maximum group size: 4 people for optimal group dynamics and conversation quality.
-Age range matching: Group matches use broader age brackets (18-28 Young Adults, 28-50+ Professionals) while 1v1 matches use flexible slider (18-50+). Individual ages stored for matching purposes with 18+ verification requirement.
+Age range matching: College-focused age brackets (18-20 Freshmen/Sophomore, 21-24 Junior/Senior) for groups while 1v1 matches use flexible slider (18-24). Strict age verification requirement during registration.

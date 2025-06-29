@@ -12,18 +12,18 @@ export default function Landing() {
               <Utensils className="text-white text-2xl" size={32} />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">TrueCircle</h1>
-            <p className="text-gray-600">Connect & Dine Together</p>
+            <p className="text-gray-600">College Students Connect Every Saturday</p>
           </div>
 
           <div className="space-y-6">
             <div className="text-center space-y-4">
               <p className="text-gray-600 text-sm">
-                Join our community of food lovers and make new friends over amazing meals.
+                Meet fellow college students every Saturday for brunch, lunch, or dinner at local restaurants and cafes.
               </p>
               
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                 <p className="text-sm text-gray-700 font-medium">
-                  <strong>18+ Only:</strong> This platform is exclusively for adults aged 18 and over.
+                  <strong>College Students Only:</strong> This platform is exclusively for students aged 18-24.
                 </p>
               </div>
             </div>

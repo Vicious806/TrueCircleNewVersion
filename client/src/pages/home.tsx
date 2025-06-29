@@ -50,7 +50,7 @@ export default function Home() {
               <h1 className="font-bold text-gray-900">
                 Hi, {userData?.firstName || 'there'}!
               </h1>
-              <p className="text-sm text-gray-500">Ready to make new friends?</p>
+              <p className="text-sm text-gray-500">Ready to meet fellow college students?</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -118,7 +118,7 @@ export default function Home() {
 
         {/* Meetup Options */}
         <div className="space-y-4 mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Get Smart Matched</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Find Your Saturday Study Break</h2>
           
           {/* 1-on-1 Meetup */}
           <Card 
@@ -133,7 +133,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 text-lg">1-on-1 Match</h3>
-                    <p className="text-gray-600 text-sm">Get matched with one compatible person</p>
+                    <p className="text-gray-600 text-sm">Meet one fellow college student this Saturday</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
                         <Star className="w-3 h-3 mr-1" />
@@ -162,7 +162,7 @@ export default function Home() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900 text-lg">Group Match</h3>
-                    <p className="text-gray-600 text-sm">Join a larger compatible group</p>
+                    <p className="text-gray-600 text-sm">Join a group of college students this Saturday</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
                         ⚡ Faster Matching

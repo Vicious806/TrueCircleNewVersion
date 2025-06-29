@@ -541,8 +541,12 @@ export class DatabaseStorage implements IStorage {
     
     const compatibleUsers = await Promise.all(
       potentialRequests.map(async (req) => {
-        // Age compatibility check
+        // Age compatibility check - college students only (18-24)
         if (ageRangeMin !== undefined && ageRangeMax !== undefined && req.userAge) {
+          // Enforce college age limits
+          if (req.userAge < 18 || req.userAge > 24) return null;
+          if (currentUserAge && (currentUserAge < 18 || currentUserAge > 24)) return null;
+          
           const theirAgeInMyRange = req.userAge >= ageRangeMin && req.userAge <= ageRangeMax;
           let myAgeInTheirRange = true;
           if (req.ageRangeMin && req.ageRangeMax && currentUserAge) {
@@ -659,6 +663,10 @@ export class DatabaseStorage implements IStorage {
         }
         
         if (!req.userAge) return null;
+        
+        // Enforce college age limits (18-24) for all users
+        if (!req.userAge || req.userAge < 18 || req.userAge > 24) return null;
+        if (!currentUserAge || currentUserAge < 18 || currentUserAge > 24) return null;
         
         // If current user has age preferences
         if (ageRangeMin !== undefined && ageRangeMax !== undefined) {
