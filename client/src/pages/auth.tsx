@@ -260,9 +260,27 @@ export default function Auth() {
 
   if (showVerification) {
     return (
-      <div className="min-h-screen relative bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800">
-        {/* Background overlay */}
-        <div className="absolute inset-0 bg-black/30"></div>
+      <div className="min-h-screen relative bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        {/* Subtle pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(`
+              <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+                <g fill="none" fill-rule="evenodd">
+                  <g fill="#ffffff" fill-opacity="0.1">
+                    <circle cx="30" cy="30" r="2"/>
+                    <circle cx="10" cy="10" r="1"/>
+                    <circle cx="50" cy="10" r="1"/>
+                    <circle cx="10" cy="50" r="1"/>
+                    <circle cx="50" cy="50" r="1"/>
+                  </g>
+                </g>
+              </svg>
+            `)})`,
+            backgroundSize: '60px 60px'
+          }}
+        />
         
         <div className="relative flex min-h-screen items-center justify-center px-4">
           <div className="w-full max-w-md">
@@ -339,41 +357,32 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen relative">
-      {/* Background with warm dining atmosphere */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("data:image/svg+xml,${encodeURIComponent(`
-            <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <radialGradient id="warmGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.8"/>
-                  <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0.4"/>
-                </radialGradient>
-              </defs>
-              <rect width="1200" height="800" fill="#1e3a8a"/>
-              <circle cx="200" cy="150" r="80" fill="url(#warmGlow)" opacity="0.6"/>
-              <circle cx="600" cy="200" r="100" fill="url(#warmGlow)" opacity="0.4"/>
-              <circle cx="1000" cy="300" r="90" fill="url(#warmGlow)" opacity="0.5"/>
-              <circle cx="300" cy="500" r="70" fill="url(#warmGlow)" opacity="0.3"/>
-              <circle cx="800" cy="600" r="85" fill="url(#warmGlow)" opacity="0.4"/>
-              <!-- Table suggestions -->
-              <ellipse cx="300" cy="400" rx="60" ry="25" fill="#8b5cf6" opacity="0.3"/>
-              <ellipse cx="700" cy="350" rx="50" ry="20" fill="#8b5cf6" opacity="0.2"/>
-              <ellipse cx="900" cy="500" rx="55" ry="22" fill="#8b5cf6" opacity="0.3"/>
-              <!-- People silhouettes around tables -->
-              <circle cx="320" cy="390" r="8" fill="#f3f4f6" opacity="0.6"/>
-              <circle cx="340" cy="395" r="8" fill="#f3f4f6" opacity="0.6"/>
-              <circle cx="280" cy="405" r="8" fill="#f3f4f6" opacity="0.6"/>
-              <circle cx="720" cy="340" r="8" fill="#f3f4f6" opacity="0.5"/>
-              <circle cx="740" cy="345" r="8" fill="#f3f4f6" opacity="0.5"/>
-              <circle cx="920" cy="490" r="8" fill="#f3f4f6" opacity="0.6"/>
-              <circle cx="940" cy="495" r="8" fill="#f3f4f6" opacity="0.6"/>
-              <circle cx="900" cy="505" r="8" fill="#f3f4f6" opacity="0.6"/>
-            </svg>
-          `)}")`
-        }}
-      />
+      {/* Professional background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        {/* Subtle geometric pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(`
+              <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+                <g fill="none" fill-rule="evenodd">
+                  <g fill="#ffffff" fill-opacity="0.1">
+                    <circle cx="30" cy="30" r="2"/>
+                    <circle cx="10" cy="10" r="1"/>
+                    <circle cx="50" cy="10" r="1"/>
+                    <circle cx="10" cy="50" r="1"/>
+                    <circle cx="50" cy="50" r="1"/>
+                  </g>
+                </g>
+              </svg>
+            `)})`,
+            backgroundSize: '60px 60px'
+          }}
+        />
+        {/* Soft lighting effects */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/20 rounded-full filter blur-3xl"></div>
+      </div>
       
       <div className="relative flex min-h-screen">
         {/* Left side - Welcome content */}
