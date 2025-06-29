@@ -134,7 +134,7 @@ export default function Home() {
                     <Coffee className="text-white h-7 w-7" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Group Cafe</h3>
+                    <h3 className="font-semibold text-gray-900 text-lg">Cafe Group</h3>
                     <p className="text-gray-600 text-sm">Meet college students at a cozy cafe this Saturday</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
@@ -162,7 +162,7 @@ export default function Home() {
                     <Utensils className="text-white h-7 w-7" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Group Restaurant</h3>
+                    <h3 className="font-semibold text-gray-900 text-lg">Restaurant Group</h3>
                     <p className="text-gray-600 text-sm">Join college students for a restaurant meal this Saturday</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">

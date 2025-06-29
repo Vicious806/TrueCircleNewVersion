@@ -236,8 +236,8 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
   };
 
   const modalTitle = preselectedVenueType === 'cafe' 
-    ? 'Find Your Group Cafe' 
-    : 'Find Your Group Restaurant';
+    ? 'Find Your Cafe Group' 
+    : 'Find Your Restaurant Group';
   const modalDescription = preselectedVenueType === 'cafe'
     ? 'Join college students at a cozy cafe this Saturday.'
     : 'Join college students for a restaurant meal this Saturday.';
