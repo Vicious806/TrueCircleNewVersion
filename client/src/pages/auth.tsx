@@ -260,23 +260,26 @@ export default function Auth() {
 
   if (showVerification) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100">
-        <div className="flex min-h-screen items-center justify-center px-4">
+      <div className="min-h-screen relative bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800">
+        {/* Background overlay */}
+        <div className="absolute inset-0 bg-black/30"></div>
+        
+        <div className="relative flex min-h-screen items-center justify-center px-4">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <img 
                 src={truecircleLogo} 
                 alt="TrueCircle" 
-                className="mx-auto h-24 w-24 mb-4"
+                className="mx-auto h-24 w-24 mb-4 brightness-0 invert"
               />
-              <h1 className="text-3xl font-bold text-gray-900">Almost There!</h1>
-              <p className="text-gray-600 mt-2">Check your email for the verification code</p>
+              <h1 className="text-3xl font-bold text-white">Almost There!</h1>
+              <p className="text-blue-100 mt-2">Check your email for the verification code</p>
             </div>
 
-            <Card className="shadow-xl border-0">
+            <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-xl">Verify Your Email</CardTitle>
-                <CardDescription className="text-base">
+                <CardTitle className="text-xl text-gray-900">Verify Your Email</CardTitle>
+                <CardDescription className="text-base text-gray-600">
                   We sent a 6-digit code to <span className="font-semibold text-blue-600">{registrationEmail}</span>
                 </CardDescription>
               </CardHeader>
@@ -287,7 +290,7 @@ export default function Auth() {
                     {...verifyForm.register("email")} 
                   />
                   <div className="space-y-2">
-                    <Label htmlFor="code" className="text-sm font-medium">Verification Code</Label>
+                    <Label htmlFor="code" className="text-sm font-medium text-gray-700">Verification Code</Label>
                     <Input
                       id="code"
                       type="text"
@@ -340,10 +343,46 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100">
-      <div className="flex min-h-screen">
+    <div className="min-h-screen relative">
+      {/* Background with warm dining atmosphere */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("data:image/svg+xml,${encodeURIComponent(`
+            <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <radialGradient id="warmGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.8"/>
+                  <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:0.4"/>
+                </radialGradient>
+              </defs>
+              <rect width="1200" height="800" fill="#1e3a8a"/>
+              <circle cx="200" cy="150" r="80" fill="url(#warmGlow)" opacity="0.6"/>
+              <circle cx="600" cy="200" r="100" fill="url(#warmGlow)" opacity="0.4"/>
+              <circle cx="1000" cy="300" r="90" fill="url(#warmGlow)" opacity="0.5"/>
+              <circle cx="300" cy="500" r="70" fill="url(#warmGlow)" opacity="0.3"/>
+              <circle cx="800" cy="600" r="85" fill="url(#warmGlow)" opacity="0.4"/>
+              <!-- Table suggestions -->
+              <ellipse cx="300" cy="400" rx="60" ry="25" fill="#8b5cf6" opacity="0.3"/>
+              <ellipse cx="700" cy="350" rx="50" ry="20" fill="#8b5cf6" opacity="0.2"/>
+              <ellipse cx="900" cy="500" rx="55" ry="22" fill="#8b5cf6" opacity="0.3"/>
+              <!-- People silhouettes around tables -->
+              <circle cx="320" cy="390" r="8" fill="#f3f4f6" opacity="0.6"/>
+              <circle cx="340" cy="395" r="8" fill="#f3f4f6" opacity="0.6"/>
+              <circle cx="280" cy="405" r="8" fill="#f3f4f6" opacity="0.6"/>
+              <circle cx="720" cy="340" r="8" fill="#f3f4f6" opacity="0.5"/>
+              <circle cx="740" cy="345" r="8" fill="#f3f4f6" opacity="0.5"/>
+              <circle cx="920" cy="490" r="8" fill="#f3f4f6" opacity="0.6"/>
+              <circle cx="940" cy="495" r="8" fill="#f3f4f6" opacity="0.6"/>
+              <circle cx="900" cy="505" r="8" fill="#f3f4f6" opacity="0.6"/>
+            </svg>
+          `)}")`
+        }}
+      />
+      
+      <div className="relative flex min-h-screen">
         {/* Left side - Welcome content */}
-        <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12 bg-gradient-to-br from-blue-600 to-indigo-700">
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12">
           <div className="max-w-md">
             <img 
               src={truecircleLogo} 
@@ -353,27 +392,34 @@ export default function Auth() {
             <h1 className="text-4xl font-bold text-white mb-6">
               Find Your True Circle
             </h1>
-            <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-              Connect with fellow college students every Saturday for meaningful meals and authentic conversations.
+            <p className="text-xl text-gray-100 mb-8 leading-relaxed">
+              Join college students across the world for authentic Saturday dining experiences. Real people, real conversations, real friendships.
             </p>
             
             <div className="space-y-4">
-              <div className="flex items-center text-blue-100">
-                <Users className="h-5 w-5 mr-3 text-blue-300" />
+              <div className="flex items-center text-gray-100">
+                <Users className="h-5 w-5 mr-3 text-amber-300" />
                 <span>Meet 2-4 students in your area</span>
               </div>
-              <div className="flex items-center text-blue-100">
-                <Coffee className="h-5 w-5 mr-3 text-blue-300" />
-                <span>Enjoy cafes and restaurants together</span>
+              <div className="flex items-center text-gray-100">
+                <Coffee className="h-5 w-5 mr-3 text-amber-300" />
+                <span>Discover amazing cafes and restaurants</span>
               </div>
-              <div className="flex items-center text-blue-100">
-                <Calendar className="h-5 w-5 mr-3 text-blue-300" />
+              <div className="flex items-center text-gray-100">
+                <Calendar className="h-5 w-5 mr-3 text-amber-300" />
                 <span>Every Saturday: brunch, lunch, or dinner</span>
               </div>
-              <div className="flex items-center text-blue-100">
-                <Heart className="h-5 w-5 mr-3 text-blue-300" />
+              <div className="flex items-center text-gray-100">
+                <Heart className="h-5 w-5 mr-3 text-amber-300" />
                 <span>Build genuine friendships that last</span>
               </div>
+            </div>
+            
+            <div className="mt-8 p-4 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+              <p className="text-sm text-gray-200 italic">
+                "I've met some of my closest friends through TrueCircle Saturday dinners. It's amazing how sharing a meal can create such deep connections!"
+              </p>
+              <p className="text-xs text-amber-300 mt-2">- Sarah, UCLA Student</p>
             </div>
           </div>
         </div>
@@ -385,30 +431,30 @@ export default function Auth() {
               <img 
                 src={truecircleLogo} 
                 alt="TrueCircle" 
-                className="mx-auto h-20 w-20 mb-4"
+                className="mx-auto h-20 w-20 mb-4 brightness-0 invert"
               />
-              <h1 className="text-2xl font-bold text-gray-900">TrueCircle</h1>
-              <p className="text-gray-600 mt-1">College student meetups every Saturday</p>
+              <h1 className="text-2xl font-bold text-white">TrueCircle</h1>
+              <p className="text-gray-200 mt-1">College student meetups every Saturday</p>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6 h-12">
+              <TabsList className="grid w-full grid-cols-2 mb-6 h-12 bg-white/90 backdrop-blur-sm">
                 <TabsTrigger value="login" className="text-base font-medium">Sign In</TabsTrigger>
                 <TabsTrigger value="register" className="text-base font-medium">Join Now</TabsTrigger>
               </TabsList>
 
               <TabsContent value="login">
-                <Card className="shadow-lg border-0">
+                <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-2xl text-center">Welcome Back!</CardTitle>
-                    <CardDescription className="text-center text-base">
+                    <CardTitle className="text-2xl text-center text-gray-900">Welcome Back!</CardTitle>
+                    <CardDescription className="text-center text-base text-gray-600">
                       Ready to meet new friends this Saturday?
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-5">
                       <div className="space-y-2">
-                        <Label htmlFor="usernameOrEmail" className="text-sm font-medium">Username or Email</Label>
+                        <Label htmlFor="usernameOrEmail" className="text-sm font-medium text-gray-700">Username or Email</Label>
                         <Input
                           id="usernameOrEmail"
                           type="text"
@@ -424,7 +470,7 @@ export default function Auth() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                        <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
                         <Input
                           id="password"
                           type="password"
@@ -452,10 +498,10 @@ export default function Auth() {
               </TabsContent>
 
               <TabsContent value="register">
-                <Card className="shadow-lg border-0">
+                <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-2xl text-center">Join TrueCircle</CardTitle>
-                    <CardDescription className="text-center text-base">
+                    <CardTitle className="text-2xl text-center text-gray-900">Join TrueCircle</CardTitle>
+                    <CardDescription className="text-center text-base text-gray-600">
                       Start making real connections with college students
                     </CardDescription>
                   </CardHeader>
@@ -463,7 +509,7 @@ export default function Auth() {
                     <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-2">
-                          <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
+                          <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</Label>
                           <Input
                             id="firstName"
                             type="text"
@@ -479,7 +525,7 @@ export default function Auth() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="lastName" className="text-sm font-medium">Last Name</Label>
+                          <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last Name</Label>
                           <Input
                             id="lastName"
                             type="text"
@@ -496,7 +542,7 @@ export default function Auth() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="username" className="text-sm font-medium">Username</Label>
+                        <Label htmlFor="username" className="text-sm font-medium text-gray-700">Username</Label>
                         <Input
                           id="username"
                           type="text"
@@ -512,7 +558,7 @@ export default function Auth() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
                         <Input
                           id="email"
                           type="email"
@@ -528,7 +574,7 @@ export default function Auth() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                        <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
                         <Input
                           id="password"
                           type="password"
@@ -544,7 +590,7 @@ export default function Auth() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="dateOfBirth" className="text-sm font-medium">Date of Birth</Label>
+                        <Label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700">Date of Birth</Label>
                         <Input
                           id="dateOfBirth"
                           type="date"
@@ -558,13 +604,13 @@ export default function Auth() {
                         )}
                       </div>
 
-                      <div className="flex items-center space-x-2 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center space-x-2 p-4 bg-amber-50/80 rounded-lg border border-amber-200">
                         <Checkbox
                           id="isAdult"
-                          className="border-2 border-blue-400"
+                          className="border-2 border-amber-400"
                         />
-                        <Label htmlFor="isAdult" className="text-sm font-medium text-blue-900 leading-tight">
-                          I confirm that I am 18 years of age or older and currently enrolled as a college student
+                        <Label htmlFor="isAdult" className="text-sm font-medium text-amber-900 leading-tight">
+                          I confirm that I am 18+ years old and currently enrolled as a college student
                         </Label>
                       </div>
 

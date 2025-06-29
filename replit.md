@@ -135,6 +135,7 @@ Changelog:
 - June 29, 2025. Fixed email delivery system with truecircle12@gmail.com integration. Configured Gmail SMTP with proper app password authentication. Verification emails now deliver successfully to student inboxes without spam issues. Enhanced pending registration system prevents username conflicts before email verification completion.
 - June 29, 2025. Removed 1-on-1 matching functionality completely to focus exclusively on group dining experiences. Updated frontend components, backend routes, database schema, and validation to support only group matching (2-4 college students). Simplified smart matching algorithm and user interface for better group social experiences.
 - June 29, 2025. Implemented global location support with reverse geocoding. "Use Current Location" button now converts GPS coordinates to actual street addresses worldwide using OpenStreetMap. Removed country restrictions from address search to enable international usage for college students globally.
+- June 29, 2025. Redesigned authentication pages with TrueCircle logo and welcoming design. Removed sterile white backgrounds, added warm dining atmosphere background with visual suggestions of people eating together. Improved copy to emphasize authentic connections and real friendships. Added student testimonial and professional styling to establish trust and credibility.
 
 ## User Preferences
 
