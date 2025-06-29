@@ -132,15 +132,25 @@ export default function LocationModal({ isOpen, onClose, currentLocation }: Loca
           // Use reverse geocoding to get address from coordinates
           const { latitude, longitude } = position.coords;
           
-          // For now, we'll use a simple format. In production, you'd use a geocoding service
-          const detectedLocation = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          // Use Nominatim reverse geocoding to get actual address
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`
+          );
           
-          setAddress(detectedLocation);
+          if (!response.ok) {
+            throw new Error('Reverse geocoding failed');
+          }
+          
+          const data = await response.json();
+          const detectedAddress = data.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          
+          setAddress(detectedAddress);
           toast({
             title: "Location Detected",
             description: "Your current location has been detected. You can edit it if needed.",
           });
         } catch (error) {
+          console.error('Location detection error:', error);
           toast({
             title: "Detection Failed",
             description: "Could not determine your address. Please enter it manually.",
