@@ -46,6 +46,41 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   }
 }
 
+export function generatePasswordResetEmail(username: string, resetCode: string): string {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Password Reset</title>
+    </head>
+    <body style="font-family: Arial, sans-serif; color: #333; margin: 0; padding: 20px;">
+      <div style="max-width: 500px; margin: 0 auto;">
+        <h2>Password Reset</h2>
+        
+        <p>Hello ${username},</p>
+        
+        <p>Please enter this reset code to create a new password:</p>
+        
+        <div style="background: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 5px;">
+          <div style="font-size: 32px; font-weight: bold; letter-spacing: 4px; font-family: monospace;">${resetCode}</div>
+        </div>
+        
+        <p>This code expires in 15 minutes.</p>
+        
+        <p>If you did not request this password reset, please ignore this email.</p>
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+        <p style="color: #666; font-size: 12px;">
+          This is an automated message from TrueCircle.<br>
+          Please do not reply to this email.
+        </p>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 export function generateVerificationEmail(username: string, verificationCode: string): string {
   return `
     <!DOCTYPE html>

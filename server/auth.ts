@@ -7,7 +7,7 @@ import { promisify } from "util";
 import { storage } from "./storage";
 import type { User } from "@shared/schema";
 import connectPg from "connect-pg-simple";
-import { sendEmail, generateVerificationEmail } from "./emailService";
+import { sendEmail, generateVerificationEmail, generatePasswordResetEmail } from "./emailService";
 
 declare global {
   namespace Express {
@@ -284,6 +284,80 @@ export function setupAuth(app: Express) {
     });
   });
 
+  // Forgot password route
+  app.post("/api/auth/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Check if user exists
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Return success anyway to avoid email enumeration
+        return res.json({ message: "If an account with that email exists, you will receive a password reset email." });
+      }
+
+      // Generate reset code and expiry
+      const resetCode = generateVerificationCode();
+      const resetExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+      // Store reset code
+      await storage.createPasswordReset({
+        email: email,
+        resetCode: resetCode,
+        resetExpiry: resetExpiry,
+      });
+
+      // Send reset email
+      const emailSent = await sendEmail({
+        to: email,
+        subject: "TrueCircle Password Reset",
+        html: generatePasswordResetEmail(user.firstName || 'User', resetCode),
+      });
+
+      if (!emailSent) {
+        return res.status(500).json({ message: "Failed to send reset email" });
+      }
+
+      res.json({ message: "If an account with that email exists, you will receive a password reset email." });
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Failed to process password reset request" });
+    }
+  });
+
+  // Reset password route
+  app.post("/api/auth/reset-password", async (req, res) => {
+    try {
+      const { email, code, newPassword } = req.body;
+      
+      if (!email || !code || !newPassword) {
+        return res.status(400).json({ message: "Email, code, and new password are required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+
+      // Hash the new password
+      const hashedPassword = await hashPassword(newPassword);
+
+      // Verify reset code and update password
+      const success = await storage.verifyResetCodeAndUpdatePassword(email, code, hashedPassword);
+
+      if (!success) {
+        return res.status(400).json({ message: "Invalid or expired reset code" });
+      }
+
+      res.json({ message: "Password reset successful. You can now log in with your new password." });
+    } catch (error) {
+      console.error("Reset password error:", error);
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
 
 }
 

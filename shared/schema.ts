@@ -24,7 +24,15 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table
+// Password reset table for reset codes
+export const passwordResets = pgTable("password_resets", {
+  id: serial("id").primaryKey(),
+  email: varchar("email").notNull(),
+  resetCode: varchar("reset_code").notNull(),
+  resetExpiry: timestamp("reset_expiry").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Pending registrations table for unverified accounts
 export const pendingRegistrations = pgTable("pending_registrations", {
   id: serial("id").primaryKey(),
@@ -230,6 +238,11 @@ export const insertPendingRegistrationSchema = createInsertSchema(pendingRegistr
   createdAt: true
 });
 
+export const insertPasswordResetSchema = createInsertSchema(passwordResets).omit({
+  id: true,
+  createdAt: true
+});
+
 // Survey response schema with validation
 export const surveyResponseSchema = z.object({
   favoriteConversationTopic: z.enum(['travel', 'food', 'career', 'hobbies', 'current_events']),
@@ -280,6 +293,17 @@ export const emailVerificationSchema = z.object({
   code: z.string().length(6, "Verification code must be 6 digits"),
 });
 
+// Forgot password schemas
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Valid email is required"),
+});
+
+export const resetPasswordSchema = z.object({
+  email: z.string().email("Valid email is required"),
+  code: z.string().length(6, "Reset code must be 6 digits"),
+  newPassword: z.string().min(6, "Password must be at least 6 characters"),
+});
+
 // Filter schema for meetup search
 export const meetupFilterSchema = z.object({
   meetupType: z.enum(['1v1', 'group']),
@@ -322,3 +346,7 @@ export type Match = typeof matches.$inferSelect;
 export type MatchWithUsers = Match & { users: User[] };
 export type InsertPendingRegistration = z.infer<typeof insertPendingRegistrationSchema>;
 export type PendingRegistration = typeof pendingRegistrations.$inferSelect;
+export type InsertPasswordReset = z.infer<typeof insertPasswordResetSchema>;
+export type PasswordReset = typeof passwordResets.$inferSelect;
+export type ForgotPasswordData = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;

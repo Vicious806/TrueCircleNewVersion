@@ -7,6 +7,7 @@ import {
   meetupRequests,
   matches,
   pendingRegistrations,
+  passwordResets,
   type User,
   type UpsertUser,
   type InsertUser,
@@ -28,6 +29,8 @@ import {
   type MatchWithUsers,
   type InsertPendingRegistration,
   type PendingRegistration,
+  type InsertPasswordReset,
+  type PasswordReset,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, or, inArray, desc, asc, sql, not } from "drizzle-orm";
@@ -48,6 +51,12 @@ export interface IStorage {
   updatePendingRegistrationCode(email: string, code: string, expiry: Date): Promise<boolean>;
   verifyEmailAndCreateUser(email: string, code: string): Promise<User | null>;
   deletePendingRegistration(email: string): Promise<boolean>;
+  
+  // Password reset operations
+  createPasswordReset(reset: InsertPasswordReset): Promise<PasswordReset>;
+  getPasswordResetByEmail(email: string): Promise<PasswordReset | undefined>;
+  verifyResetCodeAndUpdatePassword(email: string, code: string, newPassword: string): Promise<boolean>;
+  deletePasswordReset(email: string): Promise<boolean>;
   
   // Meetup operations
   createMeetup(meetup: InsertMeetup): Promise<Meetup>;
@@ -211,6 +220,59 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(pendingRegistrations)
       .where(eq(pendingRegistrations.email, email));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Password reset operations
+  async createPasswordReset(resetData: InsertPasswordReset): Promise<PasswordReset> {
+    // Delete any existing reset for this email first
+    await this.deletePasswordReset(resetData.email);
+    
+    const [reset] = await db
+      .insert(passwordResets)
+      .values(resetData)
+      .returning();
+    return reset;
+  }
+
+  async getPasswordResetByEmail(email: string): Promise<PasswordReset | undefined> {
+    const [reset] = await db
+      .select()
+      .from(passwordResets)
+      .where(and(
+        eq(passwordResets.email, email),
+        gte(passwordResets.resetExpiry, new Date())
+      ))
+      .orderBy(desc(passwordResets.createdAt));
+    return reset;
+  }
+
+  async verifyResetCodeAndUpdatePassword(email: string, code: string, newPassword: string): Promise<boolean> {
+    const reset = await this.getPasswordResetByEmail(email);
+    
+    if (!reset || reset.resetCode !== code) {
+      return false;
+    }
+
+    // Update user password
+    const result = await db
+      .update(users)
+      .set({ password: newPassword })
+      .where(eq(users.email, email));
+
+    if ((result.rowCount ?? 0) > 0) {
+      // Delete the reset code after successful use
+      await this.deletePasswordReset(email);
+      return true;
+    }
+
+    return false;
+  }
+
+  async deletePasswordReset(email: string): Promise<boolean> {
+    const result = await db
+      .delete(passwordResets)
+      .where(eq(passwordResets.email, email));
     return (result.rowCount ?? 0) > 0;
   }
 
