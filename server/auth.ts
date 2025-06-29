@@ -101,7 +101,7 @@ export function setupAuth(app: Express) {
   });
 
   // Register route
-  app.post("/api/register", async (req, res) => {
+  app.post("/api/auth/register", async (req, res) => {
     try {
       const { username, email, password, dateOfBirth, firstName, lastName } = req.body;
 
@@ -177,7 +177,7 @@ export function setupAuth(app: Express) {
   });
 
   // Email verification route with code
-  app.post("/api/verify-email", async (req, res) => {
+  app.post("/api/auth/verify-email", async (req, res) => {
     try {
       const { email, code } = req.body;
       
@@ -199,7 +199,7 @@ export function setupAuth(app: Express) {
   });
 
   // Resend verification code route
-  app.post("/api/resend-verification", async (req, res) => {
+  app.post("/api/auth/resend-verification", async (req, res) => {
     try {
       const { email } = req.body;
       
@@ -249,7 +249,7 @@ export function setupAuth(app: Express) {
   });
 
   // Login route
-  app.post("/api/login", (req, res, next) => {
+  app.post("/api/auth/login", (req, res, next) => {
     passport.authenticate("local", (err: any, user: User | false, info: any) => {
       if (err) {
         return res.status(500).json({ message: "Login failed" });
@@ -275,7 +275,7 @@ export function setupAuth(app: Express) {
   });
 
   // Logout route
-  app.post("/api/logout", (req, res) => {
+  app.post("/api/auth/logout", (req, res) => {
     req.logout((err) => {
       if (err) {
         return res.status(500).json({ message: "Logout failed" });
