@@ -18,10 +18,11 @@ interface SmartMatchingModalProps {
   isOpen: boolean;
   onClose: () => void;
   meetupType: 'group';
-  preselectedMealTime?: 'lunch' | 'dinner';
+  preselectedVenueType?: 'cafe' | 'restaurant';
 }
 
 const timeOptions = [
+  { value: 'brunch', label: '11:00 AM (Brunch)', icon: '🥐' },
   { value: 'lunch', label: '1:00 PM (Lunch)', icon: '🍽️' },
   { value: 'dinner', label: '6:00 PM (Dinner)', icon: '🌆' },
 ];
@@ -76,14 +77,14 @@ function getNextSaturdays(count: number) {
   return saturdays;
 }
 
-export default function SmartMatchingModal({ isOpen, onClose, meetupType, preselectedMealTime }: SmartMatchingModalProps) {
+export default function SmartMatchingModal({ isOpen, onClose, meetupType, preselectedVenueType }: SmartMatchingModalProps) {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   const [preferredDate, setPreferredDate] = useState('');
-  const [preferredTime, setPreferredTime] = useState(preselectedMealTime || '');
-  const [venueType, setVenueType] = useState('');
+  const [preferredTime, setPreferredTime] = useState('');
+  const [venueType, setVenueType] = useState(preselectedVenueType || '');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([10]);
   const [ageRange, setAgeRange] = useState([18, 24]);
@@ -212,10 +213,10 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
   };
 
   const handleSubmit = () => {
-    if (!venueType || !preferredDate || !preferredTime) {
+    if (!preferredDate || !preferredTime) {
       toast({
         title: "Missing Information",
-        description: "Please select venue type, date, and time preferences.",
+        description: "Please select date and time preferences.",
         variant: "destructive",
       });
       return;
@@ -223,7 +224,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
 
     const requestData: MeetupRequestFormData = {
       meetupType,
-      venueType: venueType as any,
+      venueType: (venueType || preselectedVenueType) as any,
       preferredDate,
       preferredTime: preferredTime as any,
       maxDistance: maxDistance[0],
@@ -234,12 +235,12 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
     createMatchingRequest.mutate(requestData);
   };
 
-  const modalTitle = preselectedMealTime === 'lunch' 
-    ? 'Find Your Group Lunch' 
-    : 'Find Your Group Dinner';
-  const modalDescription = preselectedMealTime === 'lunch'
-    ? 'Join college students for Saturday lunch at 1:00 PM.'
-    : 'Join college students for Saturday dinner at 6:00 PM.';
+  const modalTitle = preselectedVenueType === 'cafe' 
+    ? 'Find Your Group Cafe' 
+    : 'Find Your Group Restaurant';
+  const modalDescription = preselectedVenueType === 'cafe'
+    ? 'Join college students at a cozy cafe this Saturday.'
+    : 'Join college students for a restaurant meal this Saturday.';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -275,7 +276,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">18-20</h4>
-                    <p className="text-sm text-gray-600">Freshmen/Sophomore</p>
+                    <p className="text-xs text-gray-600">Freshmen/Soph</p>
                   </div>
                 </div>
                 <div
@@ -288,7 +289,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">21-24</h4>
-                    <p className="text-sm text-gray-600">Junior/Senior</p>
+                    <p className="text-xs text-gray-600">Junior/Senior</p>
                   </div>
                 </div>
                 <div
@@ -301,7 +302,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">No Preference</h4>
-                    <p className="text-sm text-gray-600">All College Ages</p>
+                    <p className="text-xs text-gray-600">All College Ages</p>
                   </div>
                 </div>
               </div>
@@ -355,33 +356,52 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
             </div>
           </div>
 
-          {/* Selected Meal Time Confirmation */}
+          {/* Selected Venue Type Confirmation */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <div className="flex items-center space-x-3">
-              <Clock className="w-5 h-5 text-blue-600" />
+              {preselectedVenueType === 'cafe' ? (
+                <Coffee className="w-5 h-5 text-blue-600" />
+              ) : (
+                <Utensils className="w-5 h-5 text-blue-600" />
+              )}
               <div>
-                <h4 className="font-medium text-gray-900">Selected Time</h4>
+                <h4 className="font-medium text-gray-900">Selected Venue</h4>
                 <p className="text-sm text-gray-600">
-                  {preselectedMealTime === 'lunch' ? '🍽️ Saturday Lunch at 1:00 PM' : '🌆 Saturday Dinner at 6:00 PM'}
+                  {preselectedVenueType === 'cafe' ? '☕ Cafe - Coffee & Casual' : '🍽️ Restaurant - Full Dining'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Date Selection - Only Saturdays */}
+          {/* Date and Time Selection */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">
               <Clock className="w-4 h-4 mr-2" />
-              Which Saturday would you like to meet?
+              When would you like to meet?
             </Label>
             <Select value={preferredDate} onValueChange={setPreferredDate}>
-              <SelectTrigger>
+              <SelectTrigger className="mb-3">
                 <SelectValue placeholder="Select a Saturday" />
               </SelectTrigger>
               <SelectContent>
                 {getNextSaturdays(2).map((saturday: { value: string; label: string }) => (
                   <SelectItem key={saturday.value} value={saturday.value}>
                     {saturday.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={preferredTime} onValueChange={setPreferredTime}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select preferred time" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    <span className="flex items-center">
+                      <span className="mr-2">{option.icon}</span>
+                      {option.label}
+                    </span>
                   </SelectItem>
                 ))}
               </SelectContent>

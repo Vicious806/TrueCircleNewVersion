@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck } from "lucide-react";
+import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck, Coffee, Utensils } from "lucide-react";
 import { useLocation } from "wouter";
 import { useState } from "react";
 import SmartMatchingModal from "@/components/SmartMatchingModal";
@@ -19,7 +19,7 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [showMatchingModal, setShowMatchingModal] = useState(false);
   const [selectedMeetupType, setSelectedMeetupType] = useState<'group'>('group');
-  const [selectedMealTime, setSelectedMealTime] = useState<'lunch' | 'dinner'>('lunch');
+  const [selectedVenueType, setSelectedVenueType] = useState<'cafe' | 'restaurant'>('cafe');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
 
@@ -36,9 +36,9 @@ export default function Home() {
 
 
 
-  const handleMeetupTypeSelect = (type: 'group', mealTime: 'lunch' | 'dinner') => {
+  const handleMeetupTypeSelect = (type: 'group', venueType: 'cafe' | 'restaurant') => {
     setSelectedMeetupType(type);
-    setSelectedMealTime(mealTime);
+    setSelectedVenueType(venueType);
     setShowMatchingModal(true);
   };
 
@@ -122,23 +122,23 @@ export default function Home() {
         <div className="space-y-4 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Find Your Saturday Study Break</h2>
           
-          {/* Group Lunch */}
+          {/* Group Cafe */}
           <Card 
             className="cursor-pointer hover:shadow-md transition-shadow border-gray-100"
-            onClick={() => handleMeetupTypeSelect('group', 'lunch')}
+            onClick={() => handleMeetupTypeSelect('group', 'cafe')}
           >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center">
-                    <Users className="text-white h-7 w-7" />
+                  <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center">
+                    <Coffee className="text-white h-7 w-7" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Group Lunch</h3>
-                    <p className="text-gray-600 text-sm">Join college students for Saturday lunch (1:00 PM)</p>
+                    <h3 className="font-semibold text-gray-900 text-lg">Group Cafe</h3>
+                    <p className="text-gray-600 text-sm">Meet college students at a cozy cafe this Saturday</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
-                        🍽️ 1:00 PM
+                        ☕ Coffee & Casual
                       </Badge>
                     </div>
                   </div>
@@ -150,23 +150,23 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          {/* Group Dinner */}
+          {/* Group Restaurant */}
           <Card 
             className="cursor-pointer hover:shadow-md transition-shadow border-gray-100"
-            onClick={() => handleMeetupTypeSelect('group', 'dinner')}
+            onClick={() => handleMeetupTypeSelect('group', 'restaurant')}
           >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center">
-                    <Users className="text-white h-7 w-7" />
+                    <Utensils className="text-white h-7 w-7" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 text-lg">Group Dinner</h3>
-                    <p className="text-gray-600 text-sm">Join college students for Saturday dinner (6:00 PM)</p>
+                    <h3 className="font-semibold text-gray-900 text-lg">Group Restaurant</h3>
+                    <p className="text-gray-600 text-sm">Join college students for a restaurant meal this Saturday</p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge variant="secondary" className="text-xs">
-                        🌆 6:00 PM
+                        🍽️ Full Dining
                       </Badge>
                     </div>
                   </div>
@@ -220,7 +220,7 @@ export default function Home() {
         isOpen={showMatchingModal}
         onClose={() => setShowMatchingModal(false)}
         meetupType={selectedMeetupType}
-        preselectedMealTime={selectedMealTime}
+        preselectedVenueType={selectedVenueType}
       />
 
       <LocationModal
