@@ -17,14 +17,21 @@ function Router() {
   const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
   }
 
   // Check if authenticated user needs to take the survey
   if (isAuthenticated && user) {
     const userData = user as User;
     if (!userData.hasTakenSurvey) {
-      return <WelcomeSurvey onComplete={() => window.location.reload()} />;
+      return <WelcomeSurvey onComplete={() => {
+        queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+        window.location.reload();
+      }} />;
     }
   }
 

@@ -1,10 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Utensils } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function Landing() {
+  const [, setLocation] = useLocation();
+
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative page-container">
       {/* Professional background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
         {/* Subtle geometric pattern overlay */}
@@ -57,7 +60,7 @@ export default function Landing() {
             </div>
 
             <Button 
-              onClick={() => window.location.href = '/auth'}
+              onClick={() => setLocation('/auth')}
               className="w-full gradient-primary text-white py-3 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
             >
               Get Started

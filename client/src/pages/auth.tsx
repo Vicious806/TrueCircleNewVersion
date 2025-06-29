@@ -105,10 +105,7 @@ export default function Auth() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
+      // Fast navigation without toast delay
       setLocation('/');
     },
     onError: (error: Error) => {
@@ -356,7 +353,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative page-container">
       {/* Professional background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
         {/* Subtle geometric pattern overlay */}

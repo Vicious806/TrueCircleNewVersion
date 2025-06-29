@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fast page transitions - only for specific elements */
+.page-transition {
+  transition-property: opacity, transform;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Optimize rendering performance */
+.page-container {
+  opacity: 1;
+  transform: translateY(0);
+  animation: fadeInUp 200ms ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);
