@@ -137,6 +137,7 @@ Changelog:
 - June 29, 2025. Implemented global location support with reverse geocoding. "Use Current Location" button now converts GPS coordinates to actual street addresses worldwide using OpenStreetMap. Removed country restrictions from address search to enable international usage for college students globally.
 - June 29, 2025. Redesigned authentication pages with professional welcoming design. Removed sterile white backgrounds, replaced with sophisticated dark gradient and subtle geometric patterns. Improved copy to emphasize authentic connections and real friendships. Added student testimonial and mature styling appropriate for college students to establish trust and credibility.
 - June 29, 2025. Removed all "college student" references from authentication, landing, and welcome survey pages while maintaining 18+ age requirement. Updated messaging to target "adults aged 18-25" instead of specifically college students. Changed platform focus from college-exclusive to general young adult community while keeping same age verification and matching algorithms.
+- June 29, 2025. Simplified date of birth input by replacing complex date picker with intuitive dropdown menus (Month/Day/Year). Implemented complete forgot password functionality with secure email verification system, professional reset interface using 6-digit codes, and seamless integration with existing authentication flow. All age matching and core functionality preserved.
 
 ## User Preferences
 
