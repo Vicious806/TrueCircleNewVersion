@@ -389,13 +389,13 @@ export default function Auth() {
               Find Your True Circle
             </h1>
             <p className="text-xl text-gray-100 mb-8 leading-relaxed">
-              Join college students across the world for authentic Saturday dining experiences. Real people, real conversations, real friendships.
+              Join people across the world for authentic Saturday dining experiences. Real people, real conversations, real friendships.
             </p>
             
             <div className="space-y-4">
               <div className="flex items-center text-gray-100">
                 <Users className="h-5 w-5 mr-3 text-amber-300" />
-                <span>Meet 2-4 students in your area</span>
+                <span>Meet 2-4 people in your area</span>
               </div>
               <div className="flex items-center text-gray-100">
                 <Coffee className="h-5 w-5 mr-3 text-amber-300" />
@@ -415,7 +415,7 @@ export default function Auth() {
               <p className="text-sm text-gray-200 italic">
                 "I've met some of my closest friends through TrueCircle Saturday dinners. It's amazing how sharing a meal can create such deep connections!"
               </p>
-              <p className="text-xs text-amber-300 mt-2">- Sarah, UCLA Student</p>
+              <p className="text-xs text-amber-300 mt-2">- Sarah, TrueCircle Member</p>
             </div>
           </div>
         </div>
@@ -425,7 +425,7 @@ export default function Auth() {
           <div className="w-full max-w-md">
             <div className="text-center mb-8 lg:hidden">
               <h1 className="text-2xl font-bold text-white">TrueCircle</h1>
-              <p className="text-gray-200 mt-1">College student meetups every Saturday</p>
+              <p className="text-gray-200 mt-1">Saturday meetups for adults 18+</p>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -493,7 +493,7 @@ export default function Auth() {
                   <CardHeader className="pb-4">
                     <CardTitle className="text-2xl text-center text-gray-900">Join TrueCircle</CardTitle>
                     <CardDescription className="text-center text-base text-gray-600">
-                      Start making real connections with college students
+                      Start making real connections with people in your area
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -601,7 +601,7 @@ export default function Auth() {
                           className="border-2 border-amber-400"
                         />
                         <Label htmlFor="isAdult" className="text-sm font-medium text-amber-900 leading-tight">
-                          I confirm that I am 18+ years old and currently enrolled as a college student
+                          I confirm that I am 18+ years old
                         </Label>
                       </div>
 

@@ -29,7 +29,7 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       toast({
-        title: "Welcome to FriendMeet!",
+        title: "Welcome to TrueCircle!",
         description: "Your preferences have been saved. Let's find your perfect dining companions!",
       });
       onComplete();

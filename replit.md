@@ -1,8 +1,8 @@
-# TrueCircle - College Student Saturday Meetups
+# TrueCircle - Adult Saturday Meetups
 
 ## Overview
 
-TrueCircle is a social dining platform exclusively for college students (ages 18-25) to meet every Saturday for meals. The application uses smart matching to connect students for 1-on-1 or group meetups at restaurants and cafes, with scheduling options for brunch (11 AM), lunch (1 PM), or dinner (6 PM).
+TrueCircle is a social dining platform exclusively for adults (ages 18-25) to meet every Saturday for meals. The application uses smart matching to connect people for group meetups at restaurants and cafes, with scheduling options for brunch (11 AM), lunch (1 PM), or dinner (6 PM).
 
 ## System Architecture
 
@@ -136,6 +136,7 @@ Changelog:
 - June 29, 2025. Removed 1-on-1 matching functionality completely to focus exclusively on group dining experiences. Updated frontend components, backend routes, database schema, and validation to support only group matching (2-4 college students). Simplified smart matching algorithm and user interface for better group social experiences.
 - June 29, 2025. Implemented global location support with reverse geocoding. "Use Current Location" button now converts GPS coordinates to actual street addresses worldwide using OpenStreetMap. Removed country restrictions from address search to enable international usage for college students globally.
 - June 29, 2025. Redesigned authentication pages with professional welcoming design. Removed sterile white backgrounds, replaced with sophisticated dark gradient and subtle geometric patterns. Improved copy to emphasize authentic connections and real friendships. Added student testimonial and mature styling appropriate for college students to establish trust and credibility.
+- June 29, 2025. Removed all "college student" references from authentication, landing, and welcome survey pages while maintaining 18+ age requirement. Updated messaging to target "adults aged 18-25" instead of specifically college students. Changed platform focus from college-exclusive to general young adult community while keeping same age verification and matching algorithms.
 
 ## User Preferences
 
