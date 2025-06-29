@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { MessageCircle, MapPin, Users, Zap, Calendar } from "lucide-react";
 import type { SurveyFormData } from "@shared/schema";
-import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751234065363.png";
+
 
 interface WelcomeSurveyProps {
   onComplete: () => void;
@@ -143,11 +143,9 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
-          <img 
-            src={truecircleLogo} 
-            alt="TrueCircle" 
-            className="mx-auto h-16 w-16 mb-4"
-          />
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Icon className="text-white h-8 w-8" />
+          </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
             Welcome to TrueCircle! 
           </CardTitle>

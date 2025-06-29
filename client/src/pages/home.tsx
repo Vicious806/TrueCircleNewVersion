@@ -13,7 +13,7 @@ import LocationModal from "@/components/LocationModal";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { MeetupWithCreator, User } from "@shared/schema";
-import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751234065363.png";
+
 
 export default function Home() {
   const { user, logout } = useAuth();
@@ -49,11 +49,6 @@ export default function Home() {
       <header className="bg-white shadow-sm border-b border-gray-100">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <img 
-              src={truecircleLogo} 
-              alt="TrueCircle" 
-              className="h-8 w-8"
-            />
             <div>
               <h1 className="font-bold text-gray-900">
                 Hi, {userData?.firstName || 'there'}!

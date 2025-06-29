@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Users, Coffee, Calendar, Heart } from "lucide-react";
-import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751234065363.png";
+
 
 import { loginSchema, registerSchema, emailVerificationSchema, type LoginData, type RegisterData, type EmailVerification } from "@shared/schema";
 
@@ -267,11 +267,6 @@ export default function Auth() {
         <div className="relative flex min-h-screen items-center justify-center px-4">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <img 
-                src={truecircleLogo} 
-                alt="TrueCircle" 
-                className="mx-auto h-24 w-24 mb-4 brightness-0 invert"
-              />
               <h1 className="text-3xl font-bold text-white">Almost There!</h1>
               <p className="text-blue-100 mt-2">Check your email for the verification code</p>
             </div>
@@ -384,11 +379,6 @@ export default function Auth() {
         {/* Left side - Welcome content */}
         <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12">
           <div className="max-w-md">
-            <img 
-              src={truecircleLogo} 
-              alt="TrueCircle" 
-              className="h-20 w-20 mb-8 brightness-0 invert"
-            />
             <h1 className="text-4xl font-bold text-white mb-6">
               Find Your True Circle
             </h1>
@@ -428,11 +418,6 @@ export default function Auth() {
         <div className="w-full lg:w-1/2 flex items-center justify-center px-6 lg:px-12">
           <div className="w-full max-w-md">
             <div className="text-center mb-8 lg:hidden">
-              <img 
-                src={truecircleLogo} 
-                alt="TrueCircle" 
-                className="mx-auto h-20 w-20 mb-4 brightness-0 invert"
-              />
               <h1 className="text-2xl font-bold text-white">TrueCircle</h1>
               <p className="text-gray-200 mt-1">College student meetups every Saturday</p>
             </div>
