@@ -51,7 +51,7 @@ export default function Landing() {
               
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                 <p className="text-sm text-gray-700 font-medium">
-                  <strong>College Students Only:</strong> This platform is exclusively for students aged 18-24.
+                  <strong>College Students Only:</strong> This platform is exclusively for students aged 18-25.
                 </p>
               </div>
             </div>

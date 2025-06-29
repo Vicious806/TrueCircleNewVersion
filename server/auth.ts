@@ -115,9 +115,9 @@ export function setupAuth(app: Express) {
         calculatedAge = calculatedAge - 1;
       }
 
-      // Validate age requirement (college students 18-24)
-      if (calculatedAge < 18 || calculatedAge > 24) {
-        return res.status(400).json({ message: "You must be between 18-24 years old (college age) to join" });
+      // Validate age requirement (college students 18-25)
+      if (calculatedAge < 18 || calculatedAge > 25) {
+        return res.status(400).json({ message: "You must be between 18-25 years old (college age) to join" });
       }
 
       // Check if username or email already exists in confirmed users
