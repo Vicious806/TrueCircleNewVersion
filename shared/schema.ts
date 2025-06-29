@@ -265,6 +265,7 @@ export const registerSchema = insertUserSchema.extend({
     return age >= 18 && age <= 25;
   }, "You must be between 18-25 years old (college age) to join"),
   age: z.number().min(18).max(25).optional(),
+  isAdult: z.boolean().refine((val) => val === true, "You must confirm you are 18+ and a college student"),
 });
 
 // Login schema

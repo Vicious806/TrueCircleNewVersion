@@ -12,6 +12,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
+import { Users, Coffee, Calendar, Heart } from "lucide-react";
+import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751234065363.png";
 
 import { loginSchema, registerSchema, emailVerificationSchema, type LoginData, type RegisterData, type EmailVerification } from "@shared/schema";
 
@@ -37,7 +39,6 @@ export default function Auth() {
         variant: "default",
       });
       setActiveTab("login");
-      // Clear the URL parameter
       window.history.replaceState({}, document.title, window.location.pathname);
     } else if (verified === 'false') {
       toast({
@@ -45,7 +46,6 @@ export default function Auth() {
         description: "Email verification failed or link expired. Please try registering again.",
         variant: "destructive",
       });
-      // Clear the URL parameter
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [toast]);
@@ -70,87 +70,81 @@ export default function Auth() {
     },
   });
 
+  const verifyForm = useForm<EmailVerification>({
+    resolver: zodResolver(emailVerificationSchema),
+    defaultValues: {
+      email: "",
+      code: "",
+    },
+  });
+
+  // Set email in verify form when it changes
+  useEffect(() => {
+    if (registrationEmail) {
+      verifyForm.setValue("email", registrationEmail);
+    }
+  }, [registrationEmail, verifyForm]);
+
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
-      const response = await apiRequest("POST", "/api/login", data);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+      
       return response.json();
     },
     onSuccess: (data) => {
-      // Update the user cache with the logged-in user data
-      queryClient.setQueryData(["/api/user"], data.user);
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       toast({
         title: "Welcome back!",
-        description: "You've successfully logged in.",
+        description: "You have successfully signed in.",
       });
-      setLocation("/");
+      setLocation('/');
     },
     onError: (error: Error) => {
-      // Check if error is about unverified email
-      if (error.message.includes("verify your email") || error.message.includes("email address")) {
-        // Extract email from login form to enable resend
-        const email = loginForm.getValues("usernameOrEmail");
-        if (email.includes("@")) {
-          setRegistrationEmail(email);
-          setShowVerification(true);
-          toast({
-            title: "Email not verified",
-            description: "Please verify your email address. A new code has been provided below.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Email verification required",
-            description: "Please verify your email address before logging in.",
-            variant: "destructive",
-          });
-        }
-      } else {
-        toast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Login failed",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
-      const response = await apiRequest("POST", "/api/register", data);
-      return response.json();
-    },
-    onSuccess: async (result) => {
-      setRegistrationEmail(registerForm.getValues("email"));
-      setShowVerification(true);
-      
-      toast({
-        title: "Registration successful!",
-        description: "Please check your email for your verification code.",
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        credentials: 'include',
       });
       
-      if (result.emailSent) {
-        toast({
-          title: "Verification code sent",
-          description: "Check your inbox (including spam folder) for the 6-digit code.",
-        });
-        
-        // In development, show the verification code for manual testing
-        if (result.verificationCode) {
-          setTimeout(() => {
-            toast({
-              title: "Development Mode",
-              description: `Verification code: ${result.verificationCode}`,
-              variant: "default",
-            });
-          }, 2000);
-        }
-      } else {
-        toast({
-          title: "Email delivery issue",
-          description: "We couldn't send the verification email. Please contact support.",
-          variant: "destructive",
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
       }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Check your email!",
+        description: "We've sent you a verification code to complete your registration.",
+      });
+      setRegistrationEmail(registerForm.getValues("email"));
+      setShowVerification(true);
     },
     onError: (error: Error) => {
       toast({
@@ -163,16 +157,29 @@ export default function Auth() {
 
   const verifyMutation = useMutation({
     mutationFn: async (data: EmailVerification) => {
-      const response = await apiRequest("POST", "/api/verify-email", data);
+      const response = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Verification failed');
+      }
+      
       return response.json();
     },
-    onSuccess: async () => {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       toast({
         title: "Email verified!",
-        description: "Your email has been successfully verified. You can now log in.",
+        description: "Your account has been created successfully.",
       });
-      setShowVerification(false);
-      setActiveTab("login");
+      setLocation('/');
     },
     onError: (error: Error) => {
       toast({
@@ -185,25 +192,27 @@ export default function Auth() {
 
   const resendMutation = useMutation({
     mutationFn: async (email: string) => {
-      const response = await apiRequest("POST", "/api/resend-verification", { email });
-      return response.json();
-    },
-    onSuccess: (result) => {
-      toast({
-        title: "Code resent!",
-        description: "Check your email for the new verification code.",
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+        credentials: 'include',
       });
       
-      // In development, show the verification code for manual testing
-      if (result.verificationCode) {
-        setTimeout(() => {
-          toast({
-            title: "Development Mode",
-            description: `Verification code: ${result.verificationCode}`,
-            variant: "default",
-          });
-        }, 1000);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to resend verification');
       }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Code sent!",
+        description: "A new verification code has been sent to your email.",
+      });
     },
     onError: (error: Error) => {
       toast({
@@ -214,114 +223,108 @@ export default function Auth() {
     },
   });
 
-  // Verification form
-  const verifyForm = useForm<EmailVerification>({
-    resolver: zodResolver(emailVerificationSchema),
-    defaultValues: {
-      email: "",
-      code: "",
-    },
-  });
-
-  // Update email when registration email changes
-  useEffect(() => {
-    if (registrationEmail) {
-      verifyForm.setValue("email", registrationEmail);
-    }
-  }, [registrationEmail, verifyForm]);
-
   const onLoginSubmit = (data: LoginFormData) => {
     loginMutation.mutate(data);
   };
 
   const onRegisterSubmit = (data: RegisterFormData) => {
-    // Calculate age from date of birth
     const birthDate = new Date(data.dateOfBirth);
     const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
+    const age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
     
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age = age - 1;
+    // Adjust age if birthday hasn't occurred this year
+    const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+    
+    if (actualAge < 18) {
+      toast({
+        title: "Age Requirement",
+        description: "You must be at least 18 years old to join TrueCircle.",
+        variant: "destructive",
+      });
+      return;
     }
 
     const registrationData = {
       ...data,
-      age: age
+      age: actualAge
     };
     
     registerMutation.mutate(registrationData);
   };
 
   const onVerifySubmit = (data: EmailVerification) => {
-    console.log("Verification form data:", data);
     verifyMutation.mutate(data);
   };
 
-  return (
-    <div className="min-h-screen flex">
-      {/* Left side - Forms */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
-          {showVerification ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Verify Your Email</CardTitle>
-                <CardDescription>
-                  Enter the 6-digit verification code sent to {registrationEmail}
+  if (showVerification) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100">
+        <div className="flex min-h-screen items-center justify-center px-4">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-8">
+              <img 
+                src={truecircleLogo} 
+                alt="TrueCircle" 
+                className="mx-auto h-24 w-24 mb-4"
+              />
+              <h1 className="text-3xl font-bold text-gray-900">Almost There!</h1>
+              <p className="text-gray-600 mt-2">Check your email for the verification code</p>
+            </div>
+
+            <Card className="shadow-xl border-0">
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-xl">Verify Your Email</CardTitle>
+                <CardDescription className="text-base">
+                  We sent a 6-digit code to <span className="font-semibold text-blue-600">{registrationEmail}</span>
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={verifyForm.handleSubmit(onVerifySubmit)} className="space-y-4">
+                <form onSubmit={verifyForm.handleSubmit(onVerifySubmit)} className="space-y-6">
                   <input 
                     type="hidden" 
                     {...verifyForm.register("email")} 
                   />
                   <div className="space-y-2">
-                    <Label htmlFor="code">Verification Code</Label>
+                    <Label htmlFor="code" className="text-sm font-medium">Verification Code</Label>
                     <Input
                       id="code"
                       type="text"
                       maxLength={6}
                       {...verifyForm.register("code")}
-                      placeholder="Enter 6-digit code"
-                      className="text-center text-2xl font-mono tracking-widest"
+                      placeholder="000000"
+                      className="text-center text-2xl font-mono tracking-widest h-14 border-2 focus:border-blue-400"
                     />
                     {verifyForm.formState.errors.code && (
-                      <p className="text-sm text-red-500">
+                      <p className="text-sm text-red-500 text-center">
                         {verifyForm.formState.errors.code.message}
-                      </p>
-                    )}
-                    {verifyForm.formState.errors.email && (
-                      <p className="text-sm text-red-500">
-                        {verifyForm.formState.errors.email.message}
                       </p>
                     )}
                   </div>
 
                   <Button 
                     type="submit" 
-                    className="w-full"
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-lg font-medium"
                     disabled={verifyMutation.isPending}
                   >
-                    {verifyMutation.isPending ? "Verifying..." : "Verify Email"}
+                    {verifyMutation.isPending ? "Verifying..." : "Verify & Continue"}
                   </Button>
 
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-3">
                     <Button 
                       type="button" 
                       variant="outline" 
-                      className="flex-1"
+                      className="flex-1 h-10"
                       onClick={() => resendMutation.mutate(registrationEmail)}
                       disabled={resendMutation.isPending}
                     >
                       {resendMutation.isPending ? "Sending..." : "Resend Code"}
                     </Button>
-
                     <Button 
                       type="button" 
                       variant="outline" 
-                      className="flex-1"
+                      className="flex-1 h-10"
                       onClick={() => setShowVerification(false)}
                     >
                       Back to Login
@@ -330,196 +333,253 @@ export default function Auth() {
                 </form>
               </CardContent>
             </Card>
-          ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Sign Up</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="login">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Welcome Back</CardTitle>
-                  <CardDescription>
-                    Sign in to your account to continue meeting new friends
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="usernameOrEmail">Username or Email</Label>
-                      <Input
-                        id="usernameOrEmail"
-                        type="text"
-                        {...loginForm.register("usernameOrEmail")}
-                        placeholder="Enter your username or email"
-                      />
-                      {loginForm.formState.errors.usernameOrEmail && (
-                        <p className="text-sm text-red-500">
-                          {loginForm.formState.errors.usernameOrEmail.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        {...loginForm.register("password")}
-                        placeholder="Enter your password"
-                      />
-                      {loginForm.formState.errors.password && (
-                        <p className="text-sm text-red-500">
-                          {loginForm.formState.errors.password.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={loginMutation.isPending}
-                    >
-                      {loginMutation.isPending ? "Signing in..." : "Sign In"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="register">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Join TrueCircle</CardTitle>
-                  <CardDescription>
-                    Create your account to start meeting new friends over delicious meals
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name</Label>
-                        <Input
-                          id="firstName"
-                          type="text"
-                          {...registerForm.register("firstName")}
-                          placeholder="John"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name</Label>
-                        <Input
-                          id="lastName"
-                          type="text"
-                          {...registerForm.register("lastName")}
-                          placeholder="Doe"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="username">Username</Label>
-                      <Input
-                        id="username"
-                        type="text"
-                        {...registerForm.register("username")}
-                        placeholder="Choose a unique username"
-                      />
-                      {registerForm.formState.errors.username && (
-                        <p className="text-sm text-red-500">
-                          {registerForm.formState.errors.username.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        {...registerForm.register("email")}
-                        placeholder="your.email@example.com"
-                      />
-                      {registerForm.formState.errors.email && (
-                        <p className="text-sm text-red-500">
-                          {registerForm.formState.errors.email.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="registerPassword">Password</Label>
-                      <Input
-                        id="registerPassword"
-                        type="password"
-                        {...registerForm.register("password")}
-                        placeholder="Choose a secure password"
-                      />
-                      {registerForm.formState.errors.password && (
-                        <p className="text-sm text-red-500">
-                          {registerForm.formState.errors.password.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                      <Input
-                        id="dateOfBirth"
-                        type="date"
-                        {...registerForm.register("dateOfBirth")}
-                        max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-                      />
-                      {registerForm.formState.errors.dateOfBirth && (
-                        <p className="text-sm text-red-500">
-                          {registerForm.formState.errors.dateOfBirth.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={registerMutation.isPending}
-                    >
-                      {registerMutation.isPending ? "Creating account..." : "Create Account"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-          )}
+          </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Right side - Hero section */}
-      <div className="flex-1 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center p-8">
-        <div className="text-center text-white max-w-md">
-          <h1 className="text-4xl font-bold mb-6">Make Friends Over Food</h1>
-          <p className="text-xl mb-8 opacity-90">
-            Connect with like-minded people in your area and discover amazing restaurants and cafes together
-          </p>
-          <div className="space-y-4 text-left">
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-              <span>Join 1-on-1, small group, or large group meetups</span>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100">
+      <div className="flex min-h-screen">
+        {/* Left side - Welcome content */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-center px-12 bg-gradient-to-br from-blue-600 to-indigo-700">
+          <div className="max-w-md">
+            <img 
+              src={truecircleLogo} 
+              alt="TrueCircle" 
+              className="h-20 w-20 mb-8 brightness-0 invert"
+            />
+            <h1 className="text-4xl font-bold text-white mb-6">
+              Find Your True Circle
+            </h1>
+            <p className="text-xl text-blue-100 mb-8 leading-relaxed">
+              Connect with fellow college students every Saturday for meaningful meals and authentic conversations.
+            </p>
+            
+            <div className="space-y-4">
+              <div className="flex items-center text-blue-100">
+                <Users className="h-5 w-5 mr-3 text-blue-300" />
+                <span>Meet 2-4 students in your area</span>
+              </div>
+              <div className="flex items-center text-blue-100">
+                <Coffee className="h-5 w-5 mr-3 text-blue-300" />
+                <span>Enjoy cafes and restaurants together</span>
+              </div>
+              <div className="flex items-center text-blue-100">
+                <Calendar className="h-5 w-5 mr-3 text-blue-300" />
+                <span>Every Saturday: brunch, lunch, or dinner</span>
+              </div>
+              <div className="flex items-center text-blue-100">
+                <Heart className="h-5 w-5 mr-3 text-blue-300" />
+                <span>Build genuine friendships that last</span>
+              </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-              <span>Chat with participants before meeting</span>
+          </div>
+        </div>
+
+        {/* Right side - Auth forms */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center px-6 lg:px-12">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-8 lg:hidden">
+              <img 
+                src={truecircleLogo} 
+                alt="TrueCircle" 
+                className="mx-auto h-20 w-20 mb-4"
+              />
+              <h1 className="text-2xl font-bold text-gray-900">TrueCircle</h1>
+              <p className="text-gray-600 mt-1">College student meetups every Saturday</p>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-              <span>Discover new restaurants, cafes and cuisines</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
-              <span>Safe 18+ community</span>
-            </div>
+
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6 h-12">
+                <TabsTrigger value="login" className="text-base font-medium">Sign In</TabsTrigger>
+                <TabsTrigger value="register" className="text-base font-medium">Join Now</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="login">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-2xl text-center">Welcome Back!</CardTitle>
+                    <CardDescription className="text-center text-base">
+                      Ready to meet new friends this Saturday?
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="usernameOrEmail" className="text-sm font-medium">Username or Email</Label>
+                        <Input
+                          id="usernameOrEmail"
+                          type="text"
+                          {...loginForm.register("usernameOrEmail")}
+                          placeholder="Enter your username or email"
+                          className="h-11 border-2 focus:border-blue-400"
+                        />
+                        {loginForm.formState.errors.usernameOrEmail && (
+                          <p className="text-sm text-red-500">
+                            {loginForm.formState.errors.usernameOrEmail.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          {...loginForm.register("password")}
+                          placeholder="Enter your password"
+                          className="h-11 border-2 focus:border-blue-400"
+                        />
+                        {loginForm.formState.errors.password && (
+                          <p className="text-sm text-red-500">
+                            {loginForm.formState.errors.password.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <Button 
+                        type="submit" 
+                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-lg font-medium"
+                        disabled={loginMutation.isPending}
+                      >
+                        {loginMutation.isPending ? "Signing in..." : "Sign In"}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="register">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-2xl text-center">Join TrueCircle</CardTitle>
+                    <CardDescription className="text-center text-base">
+                      Start making real connections with college students
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
+                          <Input
+                            id="firstName"
+                            type="text"
+                            {...registerForm.register("firstName")}
+                            placeholder="First name"
+                            className="h-11 border-2 focus:border-blue-400"
+                          />
+                          {registerForm.formState.errors.firstName && (
+                            <p className="text-xs text-red-500">
+                              {registerForm.formState.errors.firstName.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="lastName" className="text-sm font-medium">Last Name</Label>
+                          <Input
+                            id="lastName"
+                            type="text"
+                            {...registerForm.register("lastName")}
+                            placeholder="Last name"
+                            className="h-11 border-2 focus:border-blue-400"
+                          />
+                          {registerForm.formState.errors.lastName && (
+                            <p className="text-xs text-red-500">
+                              {registerForm.formState.errors.lastName.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="username" className="text-sm font-medium">Username</Label>
+                        <Input
+                          id="username"
+                          type="text"
+                          {...registerForm.register("username")}
+                          placeholder="Choose a username"
+                          className="h-11 border-2 focus:border-blue-400"
+                        />
+                        {registerForm.formState.errors.username && (
+                          <p className="text-sm text-red-500">
+                            {registerForm.formState.errors.username.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          {...registerForm.register("email")}
+                          placeholder="Your email address"
+                          className="h-11 border-2 focus:border-blue-400"
+                        />
+                        {registerForm.formState.errors.email && (
+                          <p className="text-sm text-red-500">
+                            {registerForm.formState.errors.email.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          {...registerForm.register("password")}
+                          placeholder="Create a password"
+                          className="h-11 border-2 focus:border-blue-400"
+                        />
+                        {registerForm.formState.errors.password && (
+                          <p className="text-sm text-red-500">
+                            {registerForm.formState.errors.password.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="dateOfBirth" className="text-sm font-medium">Date of Birth</Label>
+                        <Input
+                          id="dateOfBirth"
+                          type="date"
+                          {...registerForm.register("dateOfBirth")}
+                          className="h-11 border-2 focus:border-blue-400"
+                        />
+                        {registerForm.formState.errors.dateOfBirth && (
+                          <p className="text-sm text-red-500">
+                            {registerForm.formState.errors.dateOfBirth.message}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center space-x-2 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <Checkbox
+                          id="isAdult"
+                          className="border-2 border-blue-400"
+                        />
+                        <Label htmlFor="isAdult" className="text-sm font-medium text-blue-900 leading-tight">
+                          I confirm that I am 18 years of age or older and currently enrolled as a college student
+                        </Label>
+                      </div>
+
+                      <Button 
+                        type="submit" 
+                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-lg font-medium"
+                        disabled={registerMutation.isPending}
+                      >
+                        {registerMutation.isPending ? "Creating account..." : "Join TrueCircle"}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
