@@ -118,6 +118,28 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
       setLocation('/matches');
     },
     onError: (error) => {
+      try {
+        const errorObj = JSON.parse(error.message);
+        if (errorObj.type === 'conflict') {
+          setConflictInfo({
+            message: errorObj.message,
+            existingRequest: errorObj.existingRequest
+          });
+          setPendingRequest({
+            meetupType,
+            venueType: venueType as any,
+            preferredDate,
+            preferredTime: preferredTime as any,
+            maxDistance: maxDistance[0],
+            ageRangeMin: ageRange[0],
+            ageRangeMax: ageRange[1],
+          });
+          return;
+        }
+      } catch (e) {
+        // Not a JSON error, fall through to other checks
+      }
+
       // Check if this is a conflict error (409 status)
       if (error.message.includes('You already have an active request')) {
         setConflictInfo({
@@ -203,6 +225,13 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
     setPendingRequest(null);
   };
 
+  const handleModalClose = () => {
+    // Clear any pending conflict when closing modal
+    setConflictInfo(null);
+    setPendingRequest(null);
+    onClose();
+  };
+
   const handleSubmit = () => {
     if (!preferredDate || !preferredTime) {
       toast({
@@ -234,7 +263,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
     : 'Join college students for a restaurant meal this Saturday.';
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleModalClose}>
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <div className="w-16 h-16 mx-auto mb-4">
@@ -480,12 +509,11 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
       
       {/* Conflict Resolution Dialog */}
       {conflictInfo && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
           <div className="bg-white p-6 rounded-lg max-w-md mx-4">
             <h3 className="text-lg font-semibold mb-3">Existing Request Found</h3>
             <p className="text-gray-600 mb-4">
-              You already have an active matching request. You can only have one active request at a time.
-              Would you like to cancel your existing request and create this new {meetupType} request instead?
+              {conflictInfo.message}
             </p>
             <div className="flex gap-3">
               <Button 

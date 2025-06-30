@@ -278,16 +278,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const requestData = meetupRequestSchema.parse(req.body);
       
-      // Check for any existing active request from this user (any meetup type)
-      const existingRequest = await storage.getUserAnyActiveRequest(userId);
+      // Check for existing active request on the same date
+      const existingRequest = await storage.getUserActiveRequestForDate(userId, requestData.preferredDate);
       if (existingRequest) {
         return res.status(409).json({ 
-          message: "You already have an active request. Would you like to cancel it and create a new one?",
+          message: "You already have an active request for this date. Would you like to cancel it and create a new one?",
           conflict: true,
           existingRequest: {
             id: existingRequest.id,
             meetupType: existingRequest.meetupType,
-            venueType: existingRequest.venueType
+            venueType: existingRequest.venueType,
+            preferredDate: existingRequest.preferredDate
           }
         });
       }
