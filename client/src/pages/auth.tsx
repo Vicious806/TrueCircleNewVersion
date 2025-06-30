@@ -48,6 +48,7 @@ export default function Auth() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [registrationEmail, setRegistrationEmail] = useState("");
+  const [resetPasswordEmail, setResetPasswordEmail] = useState("");
 
   // Login form
   const loginForm = useForm<LoginData>({
@@ -138,9 +139,10 @@ export default function Auth() {
       const response = await apiRequest("POST", "/api/auth/register", payload);
       return response.json();
     },
-    onSuccess: (data) => {
-      setRegistrationEmail(data.email);
-      verifyForm.setValue("email", data.email);
+    onSuccess: (data, variables) => {
+      const email = data.email || variables.email;
+      setRegistrationEmail(email);
+      verifyForm.setValue("email", email);
       setShowVerification(true);
       toast({
         title: "Registration started",
@@ -205,9 +207,11 @@ export default function Auth() {
       const response = await apiRequest("POST", "/api/auth/forgot-password", data);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      const email = data.email || variables.email;
+      setResetPasswordEmail(email);
       setShowResetPassword(true);
-      resetPasswordForm.setValue("email", forgotPasswordForm.getValues("email"));
+      resetPasswordForm.setValue("email", email);
       toast({
         title: "Reset code sent",
         description: "Check your email for password reset code",
@@ -300,7 +304,7 @@ export default function Auth() {
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-xl text-gray-900">Create New Password</CardTitle>
               <CardDescription className="text-base text-gray-600">
-                Code sent to your email
+                Code sent to <span className="font-semibold text-primary">{resetPasswordEmail}</span>
               </CardDescription>
             </CardHeader>
             <CardContent>

@@ -170,6 +170,7 @@ export function setupAuth(app: Express) {
 
       res.status(201).json({ 
         message: "Check email for verification code",
+        email: email,
         emailSent: emailSent,
         verificationCode: process.env.NODE_ENV === 'development' ? verificationCode : undefined
       });
@@ -325,7 +326,10 @@ export function setupAuth(app: Express) {
         return res.status(500).json({ message: "Failed to send reset email" });
       }
 
-      res.json({ message: "If an account with that email exists, you will receive a password reset email." });
+      res.json({ 
+        message: "If an account with that email exists, you will receive a password reset email.",
+        email: email
+      });
     } catch (error) {
       console.error("Forgot password error:", error);
       res.status(500).json({ message: "Failed to process password reset request" });
