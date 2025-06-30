@@ -165,6 +165,8 @@ export default function Auth() {
       return response.json();
     },
     onSuccess: () => {
+      // Refresh user data since they're now logged in
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       setLocation("/");
       toast({
         title: "Email verified",

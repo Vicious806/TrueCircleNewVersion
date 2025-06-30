@@ -192,7 +192,18 @@ export function setupAuth(app: Express) {
       const user = await storage.verifyEmailAndCreateUser(email, code);
       
       if (user) {
-        res.json({ message: "Email verified! You can now log in.", verified: true });
+        // Automatically log the user in after successful verification
+        req.logIn(user, (err) => {
+          if (err) {
+            console.error("Auto-login error after verification:", err);
+            return res.json({ message: "Email verified! You can now log in.", verified: true });
+          }
+          res.json({ 
+            message: "Email verified! Welcome to TrueCircle!", 
+            verified: true,
+            user: { ...user, password: undefined }
+          });
+        });
       } else {
         res.status(400).json({ message: "Invalid code", verified: false });
       }
