@@ -195,6 +195,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/meetups/:id', async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid meetup ID" });
+      }
       const meetup = await storage.getMeetup(id);
       
       if (!meetup) {

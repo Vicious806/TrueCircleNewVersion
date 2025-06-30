@@ -115,9 +115,9 @@ export function setupAuth(app: Express) {
         calculatedAge = calculatedAge - 1;
       }
 
-      // Validate age requirement (18-25)
-      if (calculatedAge < 18 || calculatedAge > 25) {
-        return res.status(400).json({ message: "Must be 18-25 years old" });
+      // Validate age requirement (18+)
+      if (calculatedAge < 18) {
+        return res.status(400).json({ message: "Must be 18 years or older" });
       }
 
       // Check if username or email already exists in confirmed users
