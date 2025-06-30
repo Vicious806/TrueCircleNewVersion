@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck, Coffee, Utensils } from "lucide-react";
+import { MapPin, Settings, Clock, Star, Users, User as UserIcon, UserPlus, Users2, UserCheck, Coffee, Utensils, Shield } from "lucide-react";
 import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751237338042.webp";
 import { useLocation } from "wouter";
 import { useState } from "react";
@@ -12,6 +12,7 @@ import MeetupCard from "@/components/MeetupCard";
 import ProfileModal from "@/components/ProfileModal";
 import LocationModal from "@/components/LocationModal";
 import LocationBanner from "@/components/LocationBanner";
+import TrustVerification from "@/components/TrustVerification";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { MeetupWithCreator, User } from "@shared/schema";
@@ -25,6 +26,7 @@ export default function Home() {
   const [selectedVenueType, setSelectedVenueType] = useState<'cafe' | 'restaurant'>('cafe');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
+  const [showTrustVerification, setShowTrustVerification] = useState(false);
 
   const { data: userMatches = [] } = useQuery({
     queryKey: ['/api/user/matches'],
@@ -65,6 +67,15 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center space-x-2">
+            <Button
+              variant="outline" 
+              size="sm"
+              onClick={() => setShowTrustVerification(true)}
+              className="p-2"
+              title="Trust verification"
+            >
+              <Shield className="w-4 h-4 text-blue-600" />
+            </Button>
             <Button
               variant="outline" 
               size="sm"
@@ -154,6 +165,44 @@ export default function Home() {
           </Card>
         </div>
 
+        {/* Browse Existing Meetups */}
+        <div className="space-y-4 mb-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-900">Browse Meetups</h2>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setLocation('/browse')}
+              className="text-primary"
+            >
+              View All →
+            </Button>
+          </div>
+          
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 border-gray-200 hover:border-primary/30"
+            onClick={() => setLocation('/browse')}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                    <Users className="text-white h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Join Existing Groups</h3>
+                    <p className="text-gray-600 text-sm">Browse and join meetups others have created</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-medium text-gray-900">View Personalities</div>
+                  <div className="text-xs text-gray-500">See survey responses & trust scores</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Current Active Match */}
         {userMatches.length > 0 && (
           <Card className="border-gray-200">
@@ -202,6 +251,11 @@ export default function Home() {
         isOpen={showLocationModal}
         onClose={() => setShowLocationModal(false)}
         currentLocation={userData?.location || undefined}
+      />
+
+      <TrustVerification
+        isOpen={showTrustVerification}
+        onClose={() => setShowTrustVerification(false)}
       />
     </div>
   );

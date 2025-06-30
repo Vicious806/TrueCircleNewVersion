@@ -62,6 +62,7 @@ export interface IStorage {
   createMeetup(meetup: InsertMeetup): Promise<Meetup>;
   getMeetup(id: number): Promise<MeetupWithParticipants | undefined>;
   getMeetups(filters?: Partial<MeetupFilter>): Promise<MeetupWithCreator[]>;
+  getBrowsableMeetups(userId: number): Promise<any[]>;
   updateMeetup(id: number, updates: Partial<Meetup>): Promise<Meetup | undefined>;
   deleteMeetup(id: number): Promise<boolean>;
   
@@ -352,6 +353,130 @@ export class DatabaseStorage implements IStorage {
       ...result.meetups,
       creator: result.users!,
     }));
+  }
+
+  async getBrowsableMeetups(userId: number): Promise<any[]> {
+    // Create sample meetups for demonstration
+    const sampleMeetups = [
+      {
+        id: 1,
+        title: "Saturday Cafe Hangout",
+        description: "Casual coffee and conversation",
+        venueType: "cafe",
+        location: "Downtown Coffee House, 123 Main St",
+        venueImageUrl: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120' fill='%23f3f4f6'><rect width='200' height='120' fill='%23f9fafb'/><circle cx='100' cy='60' r='25' fill='%236b7280'/><text x='100' y='90' text-anchor='middle' fill='%23374151' font-family='Arial' font-size='12'>☕ Cafe</text></svg>",
+        scheduledDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        scheduledTime: "brunch",
+        currentParticipants: 2,
+        maxParticipants: 4,
+        ageRangeMin: 18,
+        ageRangeMax: 27,
+        distance: 1.2,
+        creator: {
+          id: 100,
+          username: "sarah_coffee",
+          profileImageUrl: null,
+          trustScore: 85,
+          bio: "Love meeting new people over coffee! Big fan of indie music and travel stories.",
+          isIdVerified: true,
+          isPhoneVerified: true,
+          isProfilePictureVerified: true
+        },
+        participants: [
+          {
+            id: 101,
+            username: "alex_beats",
+            profileImageUrl: null,
+            trustScore: 72,
+            surveyData: {
+              favoriteConversationTopic: "travel",
+              favoriteMusic: "indie rock",
+              personalityType: "outgoing"
+            },
+            bio: "Software engineer who loves exploring new places"
+          }
+        ]
+      },
+      {
+        id: 2,
+        title: "Brunch Squad",
+        description: "Weekend brunch with good vibes",
+        venueType: "restaurant",
+        location: "Sunrise Bistro, 456 Oak Avenue",
+        venueImageUrl: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120' fill='%23f3f4f6'><rect width='200' height='120' fill='%23fef3c7'/><circle cx='100' cy='60' r='25' fill='%23d97706'/><text x='100' y='90' text-anchor='middle' fill='%2392400e' font-family='Arial' font-size='12'>🍽️ Restaurant</text></svg>",
+        scheduledDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        scheduledTime: "brunch",
+        currentParticipants: 1,
+        maxParticipants: 4,
+        ageRangeMin: 23,
+        ageRangeMax: 35,
+        distance: 2.8,
+        creator: {
+          id: 102,
+          username: "mike_foodie",
+          profileImageUrl: null,
+          trustScore: 90,
+          bio: "Food enthusiast and weekend explorer. Always down for trying new restaurants!",
+          isIdVerified: true,
+          isPhoneVerified: true,
+          isProfilePictureVerified: true
+        },
+        participants: []
+      },
+      {
+        id: 3,
+        title: "Study Cafe Session",
+        description: "Productive co-working at a cozy cafe",
+        venueType: "cafe",
+        location: "Bean & Books Cafe, 789 University Blvd",
+        venueImageUrl: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120' fill='%23f3f4f6'><rect width='200' height='120' fill='%23f9fafb'/><circle cx='100' cy='60' r='25' fill='%236b7280'/><text x='100' y='90' text-anchor='middle' fill='%23374151' font-family='Arial' font-size='12'>☕ Cafe</text></svg>",
+        scheduledDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        scheduledTime: "lunch",
+        currentParticipants: 3,
+        maxParticipants: 4,
+        ageRangeMin: 18,
+        ageRangeMax: 22,
+        distance: 0.5,
+        creator: {
+          id: 103,
+          username: "emma_student",
+          profileImageUrl: null,
+          trustScore: 65,
+          bio: "Psychology major who loves productive study sessions with coffee",
+          isIdVerified: false,
+          isPhoneVerified: true,
+          isProfilePictureVerified: true
+        },
+        participants: [
+          {
+            id: 104,
+            username: "david_cs",
+            profileImageUrl: null,
+            trustScore: 78,
+            surveyData: {
+              favoriteConversationTopic: "technology",
+              favoriteMusic: "electronic",
+              personalityType: "focused"
+            },
+            bio: "Computer science student building cool projects"
+          },
+          {
+            id: 105,
+            username: "lisa_art",
+            profileImageUrl: null,
+            trustScore: 82,
+            surveyData: {
+              favoriteConversationTopic: "art",
+              favoriteMusic: "classical",
+              personalityType: "creative"
+            },
+            bio: "Art student with a passion for creative expression"
+          }
+        ]
+      }
+    ];
+
+    return sampleMeetups;
   }
 
   async updateMeetup(id: number, updates: Partial<Meetup>): Promise<Meetup | undefined> {

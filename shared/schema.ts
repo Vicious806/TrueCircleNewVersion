@@ -8,6 +8,7 @@ import {
   serial,
   integer,
   boolean,
+  decimal,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -63,6 +64,15 @@ export const users = pgTable("users", {
   bio: text("bio"),
   interests: text("interests").array(),
   location: varchar("location"),
+  latitude: varchar("latitude"),
+  longitude: varchar("longitude"),
+  // Trust verification fields
+  trustScore: integer("trust_score").default(0),
+  isIdVerified: boolean("is_id_verified").default(false),
+  isPhoneVerified: boolean("is_phone_verified").default(false),
+  phoneNumber: varchar("phone_number"),
+  isProfilePictureVerified: boolean("is_profile_picture_verified").default(false),
+  verificationStatus: varchar("verification_status").default("pending"), // pending, approved, rejected
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

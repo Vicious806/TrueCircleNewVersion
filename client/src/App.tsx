@@ -10,6 +10,7 @@ import Home from "@/pages/home";
 import Chat from "@/pages/chat";
 import Auth from "@/pages/auth";
 import Matches from "@/pages/matches";
+import BrowseMeetups from "@/pages/BrowseMeetups";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import WelcomeSurvey from "@/components/WelcomeSurvey";
@@ -57,6 +58,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/browse" component={BrowseMeetups} />
           <Route path="/matches" component={Matches} />
           <Route path="/chat/:id?" component={Chat} />
           <Route path="/chat" component={Chat} />

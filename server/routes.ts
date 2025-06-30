@@ -424,6 +424,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Browsable meetups routes
+  app.get('/api/meetups/browse', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const meetups = await storage.getBrowsableMeetups(userId);
+      res.json(meetups);
+    } catch (error) {
+      console.error("Error fetching browsable meetups:", error);
+      res.status(500).json({ message: "Failed to fetch meetups" });
+    }
+  });
+
+  app.post('/api/meetups/:id/join', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const meetupId = parseInt(req.params.id);
+      
+      // For demo purposes, just return success
+      res.json({ message: "Successfully joined meetup" });
+    } catch (error) {
+      console.error("Error joining meetup:", error);
+      res.status(500).json({ message: "Failed to join meetup" });
+    }
+  });
+
+  // Trust verification routes
+  app.post('/api/user/verification', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { type, phoneNumber } = req.body;
+      
+      // For demo purposes, simulate verification submission
+      if (type === 'phone') {
+        // Simulate phone verification
+        await storage.updateUser(userId, { phoneNumber });
+      }
+      
+      res.json({ message: "Verification submitted successfully" });
+    } catch (error) {
+      console.error("Error submitting verification:", error);
+      res.status(500).json({ message: "Failed to submit verification" });
+    }
+  });
+
 
 
   // Match routes
