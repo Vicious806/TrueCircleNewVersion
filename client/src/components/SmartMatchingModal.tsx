@@ -37,27 +37,17 @@ const venueOptions = [
 function getNextSaturdays(count: number) {
   const saturdays = [];
   const today = new Date();
+  
+  // Start from today and look for Saturdays at least 2 days away
   let currentDate = new Date(today);
+  currentDate.setDate(currentDate.getDate() + 2); // At least 2 days away
   
-  // Find the next Saturday
-  const daysUntilSaturday = (6 - currentDate.getDay() + 7) % 7;
-  
-  // Skip current Saturday if it's Friday after 10 PM or later
-  const shouldSkipCurrentSaturday = 
-    (currentDate.getDay() === 5 && currentDate.getHours() >= 22) || // Friday 10 PM or later
-    (currentDate.getDay() === 6) || // Saturday (any time)
-    (currentDate.getDay() === 0); // Sunday
-  
-  if (shouldSkipCurrentSaturday || daysUntilSaturday === 0) {
-    // Start from next Saturday
-    currentDate.setDate(currentDate.getDate() + 7 - daysUntilSaturday);
-    if (daysUntilSaturday === 0) {
-      currentDate.setDate(currentDate.getDate() + 7);
-    }
-  } else {
-    currentDate.setDate(currentDate.getDate() + daysUntilSaturday);
+  // Find the next Saturday from that point
+  while (currentDate.getDay() !== 6) { // 6 = Saturday
+    currentDate.setDate(currentDate.getDate() + 1);
   }
   
+  // Generate the requested number of Saturdays
   for (let i = 0; i < count; i++) {
     const dateStr = currentDate.toISOString().split('T')[0];
     const formatted = currentDate.toLocaleDateString('en-US', { 
@@ -71,7 +61,7 @@ function getNextSaturdays(count: number) {
       label: formatted
     });
     
-    // Move to next Saturday
+    // Move to next Saturday (7 days later)
     currentDate.setDate(currentDate.getDate() + 7);
   }
   
@@ -88,7 +78,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
   const [venueType, setVenueType] = useState(preselectedVenueType || '');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([5]);
-  const [ageRange, setAgeRange] = useState([18, 50]);
+  const [ageRange, setAgeRange] = useState([18, 80]);
   const [conflictInfo, setConflictInfo] = useState<any>(null);
   const [pendingRequest, setPendingRequest] = useState<MeetupRequestFormData | null>(null);
 
@@ -262,7 +252,8 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+          <div className="space-y-6">
           {/* Age Range Preference */}
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block flex items-center">
@@ -312,11 +303,50 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 </div>
                 <div
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 18 && ageRange[1] === 50
+                    ageRange[0] === 36 && ageRange[1] === 45
                       ? 'border-primary bg-primary/10'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => setAgeRange([18, 50])}
+                  onClick={() => setAgeRange([36, 45])}
+                >
+                  <div className="text-center">
+                    <h4 className="font-medium text-gray-900">36-45</h4>
+                    <p className="text-xs text-gray-600">Established</p>
+                  </div>
+                </div>
+                <div
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    ageRange[0] === 46 && ageRange[1] === 60
+                      ? 'border-primary bg-primary/10'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setAgeRange([46, 60])}
+                >
+                  <div className="text-center">
+                    <h4 className="font-medium text-gray-900">46-60</h4>
+                    <p className="text-xs text-gray-600">Experienced</p>
+                  </div>
+                </div>
+                <div
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    ageRange[0] === 61 && ageRange[1] === 80
+                      ? 'border-primary bg-primary/10'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setAgeRange([61, 80])}
+                >
+                  <div className="text-center">
+                    <h4 className="font-medium text-gray-900">61-80</h4>
+                    <p className="text-xs text-gray-600">Senior</p>
+                  </div>
+                </div>
+                <div
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    ageRange[0] === 18 && ageRange[1] === 80
+                      ? 'border-primary bg-primary/10'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  onClick={() => setAgeRange([18, 80])}
                 >
                   <div className="text-center">
                     <h4 className="font-medium text-gray-900">No Preference</h4>
@@ -330,16 +360,16 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                   value={ageRange}
                   onValueChange={setAgeRange}
                   min={18}
-                  max={50}
+                  max={80}
                   step={1}
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
                   <span>18</span>
-                  <span>50+</span>
+                  <span>80</span>
                 </div>
                 <div className="text-center text-sm text-gray-700 mt-2">
-                  Match with ages {ageRange[0]} - {ageRange[1] === 50 ? '50+' : ageRange[1]}
+                  Match with ages {ageRange[0]} - {ageRange[1]}
                 </div>
               </div>
             )}
@@ -375,7 +405,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 <SelectValue placeholder="Select a Saturday" />
               </SelectTrigger>
               <SelectContent>
-                {getNextSaturdays(2).map((saturday: { value: string; label: string }) => (
+                {getNextSaturdays(3).map((saturday: { value: string; label: string }) => (
                   <SelectItem key={saturday.value} value={saturday.value}>
                     {saturday.label}
                   </SelectItem>
@@ -434,17 +464,18 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
               shared interests, and venue preferences from your survey.
             </p>
           </div>
-        </div>
+          </div>
 
-        <div className="sticky bottom-0 bg-white pt-4 border-t border-gray-100">
-          <Button 
-            onClick={handleSubmit}
-            disabled={createMatchingRequest.isPending || !venueType || !preferredDate || !preferredTime}
-            className="w-full bg-primary hover:bg-primary/90 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
-          >
-            {createMatchingRequest.isPending ? 'Finding Your True Circle...' : 'Find Your True Circle'}
-          </Button>
-        </div>
+          <div className="sticky bottom-0 bg-white pt-4 border-t border-gray-100">
+            <Button 
+              type="submit"
+              disabled={createMatchingRequest.isPending || !venueType || !preferredDate || !preferredTime}
+              className="w-full bg-primary hover:bg-primary/90 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+            >
+              {createMatchingRequest.isPending ? 'Finding Your True Circle...' : 'Find Your True Circle'}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
       
       {/* Conflict Resolution Dialog */}

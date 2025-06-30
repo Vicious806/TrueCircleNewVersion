@@ -255,8 +255,8 @@ export const meetupRequestSchema = z.object({
   preferredTime: z.enum(['brunch', 'lunch', 'dinner']),
   preferredDate: z.string().min(1, "Date is required"),
   maxDistance: z.number().min(5).max(50).default(5),
-  ageRangeMin: z.number().min(18).max(50).optional(),
-  ageRangeMax: z.number().min(18).max(50).optional()
+  ageRangeMin: z.number().min(18).max(80).optional(),
+  ageRangeMax: z.number().min(18).max(80).optional()
 });
 
 // Registration schema with date of birth validation
@@ -303,8 +303,8 @@ export const resetPasswordSchema = z.object({
 // Filter schema for meetup search
 export const meetupFilterSchema = z.object({
   meetupType: z.enum(['1v1', 'group']),
-  ageRangeMin: z.number().min(18).max(50).optional(),
-  ageRangeMax: z.number().min(18).max(50).optional(),
+  ageRangeMin: z.number().min(18).max(80).optional(),
+  ageRangeMax: z.number().min(18).max(80).optional(),
   interests: z.array(z.string()).optional(),
   restaurantType: z.enum(['casual', 'fine', 'fast', 'any']).optional(),
   maxDistance: z.number().positive().optional(),
