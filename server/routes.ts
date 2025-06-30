@@ -458,13 +458,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       const { type, phoneNumber } = req.body;
       
-      // For demo purposes, simulate verification submission
-      if (type === 'phone') {
-        // Simulate phone verification
-        await storage.updateUser(userId, { phoneNumber });
+      const currentUser = await storage.getUser(userId);
+      if (!currentUser) {
+        return res.status(404).json({ message: "User not found" });
       }
+
+      let updateData: any = {};
+      let trustScoreIncrease = 0;
+
+      if (type === 'phone' && phoneNumber && !currentUser.isPhoneVerified) {
+        updateData.phoneNumber = phoneNumber;
+        updateData.isPhoneVerified = true;
+        trustScoreIncrease = 20;
+      } else if (type === 'id' && !currentUser.isIdVerified) {
+        updateData.isIdVerified = true;
+        trustScoreIncrease = 20;
+      } else if (type === 'profile_picture' && !currentUser.isProfilePictureVerified) {
+        updateData.isProfilePictureVerified = true;
+        trustScoreIncrease = 20;
+      }
+
+      // Calculate new trust score
+      const currentTrustScore = currentUser.trustScore || 0;
+      updateData.trustScore = currentTrustScore + trustScoreIncrease;
+
+      await storage.updateUser(userId, updateData);
       
-      res.json({ message: "Verification submitted successfully" });
+      res.json({ 
+        message: "Verification completed successfully",
+        trustScore: updateData.trustScore,
+        increase: trustScoreIncrease
+      });
     } catch (error) {
       console.error("Error submitting verification:", error);
       res.status(500).json({ message: "Failed to submit verification" });

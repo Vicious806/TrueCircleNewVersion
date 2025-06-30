@@ -31,7 +31,7 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const userData = user as User | undefined;
+  const userData = user && typeof user === 'object' && 'id' in user && 'username' in user ? user as User : undefined;
   const [phoneNumber, setPhoneNumber] = useState(userData?.phoneNumber || '');
   const [idFile, setIdFile] = useState<File | null>(null);
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
@@ -76,13 +76,21 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
     },
   });
 
-  const calculateTrustScore = () => {
+  const calculateTrustScore = (): number => {
+    if (!userData) return 0;
+    
+    // Use stored trust score from database, but fallback to calculation for existing users
+    if (userData.trustScore !== undefined && userData.trustScore !== null && userData.trustScore > 0) {
+      return userData.trustScore;
+    }
+    
+    // Fallback calculation for existing users who don't have stored trust score
     let score = 0;
-    if (userData?.isEmailVerified) score += 20;
-    if (userData?.dateOfBirth) score += 20; // Exact birth date
-    if (userData?.isPhoneVerified) score += 20;
-    if (userData?.isIdVerified) score += 20;
-    if (userData?.isProfilePictureVerified) score += 20;
+    if (userData.isEmailVerified) score += 20;
+    if (userData.dateOfBirth) score += 20; // Exact birth date
+    if (userData.isPhoneVerified) score += 20;
+    if (userData.isIdVerified) score += 20;
+    if (userData.isProfilePictureVerified) score += 20;
     return score;
   };
 
@@ -155,7 +163,7 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">+20 points</span>
-                    {user?.isEmailVerified ? (
+                    {userData?.isEmailVerified ? (
                       <Badge variant="outline" className="text-green-600 border-green-600">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified
@@ -184,7 +192,7 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">+20 points</span>
-                    {user?.dateOfBirth ? (
+                    {userData?.dateOfBirth ? (
                       <Badge variant="outline" className="text-green-600 border-green-600">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified
@@ -213,7 +221,7 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">+20 points</span>
-                    {user?.isPhoneVerified ? (
+                    {userData?.isPhoneVerified ? (
                       <Badge variant="outline" className="text-green-600 border-green-600">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified
@@ -226,7 +234,7 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
                     )}
                   </div>
                 </div>
-                {!user?.isPhoneVerified && (
+                {!userData?.isPhoneVerified && (
                   <div className="space-y-3">
                     <div>
                       <Label htmlFor="phone">Phone Number</Label>
@@ -263,7 +271,7 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">+20 points</span>
-                    {user?.isIdVerified ? (
+                    {userData?.isIdVerified ? (
                       <Badge variant="outline" className="text-green-600 border-green-600">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified
@@ -276,7 +284,7 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
                     )}
                   </div>
                 </div>
-                {!user?.isIdVerified && (
+                {!userData?.isIdVerified && (
                   <div className="space-y-3">
                     <div>
                       <Label htmlFor="id-upload">Upload ID Document</Label>
@@ -315,7 +323,7 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium">+20 points</span>
-                    {user?.isProfilePictureVerified ? (
+                    {userData?.isProfilePictureVerified ? (
                       <Badge variant="outline" className="text-green-600 border-green-600">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified
@@ -328,7 +336,7 @@ export default function TrustVerification({ isOpen, onClose }: TrustVerification
                     )}
                   </div>
                 </div>
-                {!user?.isProfilePictureVerified && (
+                {!userData?.isProfilePictureVerified && (
                   <div className="space-y-3">
                     <div>
                       <Label htmlFor="photo-upload">Upload Profile Photo</Label>

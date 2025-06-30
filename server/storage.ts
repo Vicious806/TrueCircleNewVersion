@@ -199,6 +199,13 @@ export class DatabaseStorage implements IStorage {
       pendingReg.verificationCode === code &&
       new Date() < pendingReg.verificationExpiry
     ) {
+      // Calculate initial trust score
+      let initialTrustScore = 0;
+      initialTrustScore += 20; // Email verification
+      if (pendingReg.dateOfBirth) {
+        initialTrustScore += 20; // Date of birth provided
+      }
+
       // Create the actual user account
       const [user] = await db
         .insert(users)
@@ -211,6 +218,7 @@ export class DatabaseStorage implements IStorage {
           dateOfBirth: pendingReg.dateOfBirth,
           age: pendingReg.age,
           isEmailVerified: true,
+          trustScore: initialTrustScore,
         })
         .returning();
 
