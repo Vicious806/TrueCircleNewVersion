@@ -331,7 +331,7 @@ export default function FilterModal({ isOpen, onClose, meetupType }: FilterModal
           <Button 
             onClick={handleCreateMeetup}
             disabled={createMeetupMutation.isPending}
-            className="w-full gradient-primary text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+            className="w-full bg-primary hover:bg-primary/90 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
           >
             {createMeetupMutation.isPending ? 'Creating...' : 'Create New Meetup'}
           </Button>

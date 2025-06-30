@@ -273,7 +273,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
           <Button 
             onClick={handleSave}
             disabled={updateProfileMutation.isPending}
-            className="flex-1 gradient-primary text-white font-semibold"
+            className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold"
           >
             {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
           </Button>

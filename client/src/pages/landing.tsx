@@ -8,30 +8,7 @@ export default function Landing() {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-screen relative page-container bg-white">
-      {/* Clean white background with subtle pattern */}
-      <div className="absolute inset-0 bg-white">
-        {/* Very subtle pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(`
-              <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                <g fill="none" fill-rule="evenodd">
-                  <g fill="#48b2b5" fill-opacity="0.1">
-                    <circle cx="30" cy="30" r="2"/>
-                    <circle cx="10" cy="10" r="1"/>
-                    <circle cx="50" cy="10" r="1"/>
-                    <circle cx="10" cy="50" r="1"/>
-                    <circle cx="50" cy="50" r="1"/>
-                  </g>
-                </g>
-              </svg>
-            `)})`,
-            backgroundSize: '60px 60px'
-          }}
-        />
-      </div>
+    <div className="min-h-screen bg-white page-container">
       
       <div className="relative flex items-center justify-center min-h-screen p-4">
         <Card className="w-full max-w-md mx-4 shadow-xl rounded-3xl bg-white border border-gray-200">
@@ -45,17 +22,10 @@ export default function Landing() {
                 />
               </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">TrueCircle</h1>
-              <p className="text-gray-600">Saturday Meetups</p>
+              <p className="text-gray-600 mb-8">Saturday meetups</p>
             </div>
 
           <div className="space-y-6">
-            <div className="text-center space-y-4">
-              <p className="text-gray-600 text-sm">
-                Saturday meetups at local restaurants and cafes.
-              </p>
-              
-
-            </div>
 
             <Button 
               onClick={() => setLocation('/auth')}
@@ -69,14 +39,14 @@ export default function Landing() {
                 By signing in, you agree to our{' '}
                 <button 
                   onClick={() => setLocation('/terms')}
-                  className="text-blue-600 hover:text-blue-700 underline"
+                  className="text-primary hover:text-primary/80 underline"
                 >
                   Terms of Service
                 </button>
                 {' '}and{' '}
                 <button 
                   onClick={() => setLocation('/privacy')}
-                  className="text-blue-600 hover:text-blue-700 underline"
+                  className="text-primary hover:text-primary/80 underline"
                 >
                   Privacy Policy
                 </button>

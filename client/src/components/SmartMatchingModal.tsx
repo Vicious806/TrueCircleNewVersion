@@ -13,6 +13,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { useLocation } from "wouter";
 import { Clock, MapPin, Users, Sparkles, Coffee, Utensils } from "lucide-react";
 import type { MeetupRequestFormData } from "@shared/schema";
+import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751237338042.webp";
 
 interface SmartMatchingModalProps {
   isOpen: boolean;
@@ -246,8 +247,12 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Sparkles className="text-white h-8 w-8" />
+          <div className="w-16 h-16 mx-auto mb-4">
+            <img 
+              src={truecircleLogo} 
+              alt="TrueCircle Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
           <DialogTitle className="text-xl font-bold text-gray-900 text-center">
             {modalTitle}
@@ -406,9 +411,9 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
 
 
           {/* Smart Matching Info */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <div className="flex items-center mb-2">
-              <Sparkles className="w-5 h-5 text-blue-500 mr-2" />
+              <Sparkles className="w-5 h-5 text-primary mr-2" />
               <h4 className="font-medium text-gray-900">Smart Matching</h4>
             </div>
             <p className="text-sm text-gray-600">
@@ -422,7 +427,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
           <Button 
             onClick={handleSubmit}
             disabled={createMatchingRequest.isPending || !venueType || !preferredDate || !preferredTime}
-            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
+            className="w-full bg-primary hover:bg-primary/90 text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
           >
             {createMatchingRequest.isPending ? 'Finding Your True Circle...' : 'Find Your True Circle'}
           </Button>

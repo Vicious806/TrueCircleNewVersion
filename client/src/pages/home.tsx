@@ -62,7 +62,6 @@ export default function Home() {
               <h1 className="font-bold text-gray-900">
                 Hi, {userData?.firstName || 'there'}!
               </h1>
-              <p className="text-sm text-gray-500">Ready to meet new people?</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -73,7 +72,7 @@ export default function Home() {
               className="p-2"
               title="Edit profile"
             >
-              <div className="w-6 h-6 gradient-primary rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
                 {userData?.profileImageUrl ? (
                   <img 
                     src={userData.profileImageUrl} 

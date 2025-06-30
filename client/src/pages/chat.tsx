@@ -284,7 +284,7 @@ export default function Chat() {
             // Anonymous participants for group chats
             match.users.map((matchUser: any, index: number) => (
               <div key={matchUser.id} className="flex items-center space-x-1">
-                <div className="w-6 h-6 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 bg-gray-500 rounded-full flex items-center justify-center">
                   <span className="text-white text-xs font-semibold">
                     A{index + 1}
                   </span>
@@ -517,7 +517,7 @@ export default function Chat() {
           <Button
             onClick={sendMessage}
             disabled={!message.trim() || !socket}
-            className="p-3 gradient-primary text-white rounded-full hover:shadow-lg transition-all"
+            className="p-3 bg-primary hover:bg-primary/90 text-white rounded-full hover:shadow-lg transition-all"
           >
             <Send className="h-5 w-5" />
           </Button>

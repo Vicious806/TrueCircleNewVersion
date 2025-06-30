@@ -526,28 +526,9 @@ export default function Auth() {
   // Main auth page
   return (
     <div className="min-h-screen bg-white page-container">
-      {/* Clean white background */}
-      <div className="absolute inset-0 bg-white">
-        {/* Very subtle pattern overlay */}
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(`
-              <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-                <g fill="none" fill-rule="evenodd">
-                  <g fill="#48b2b5" fill-opacity="0.1">
-                    <circle cx="30" cy="30" r="2"/>
-                  </g>
-                </g>
-              </svg>
-            `)})`,
-          }}
-        />
-      </div>
-
-      <div className="relative z-10 min-h-screen flex">
+      <div className="min-h-screen flex">
         {/* Left side - Logo and welcome */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/5 to-primary/10 flex-col justify-center items-center p-12">
+        <div className="hidden lg:flex lg:w-1/2 bg-white flex-col justify-center items-center p-12">
           <div className="max-w-md text-center">
             <div className="w-20 h-20 mx-auto mb-8">
               <img 
@@ -556,8 +537,8 @@ export default function Auth() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to TrueCircle</h1>
-            <p className="text-lg text-gray-600 mb-8">Connect with people around Saturday meetups at cafes and restaurants</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">TrueCircle</h1>
+            <p className="text-gray-600 mb-8">Saturday meetups</p>
             <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 shadow-sm">
               <p className="text-sm text-gray-700 italic">"I've met amazing people through TrueCircle. The Saturday meetups are the highlight of my week!"</p>
               <p className="text-xs text-gray-500 mt-2">- Sarah, Community Member</p>
@@ -608,10 +589,7 @@ export default function Auth() {
             {isLogin && (
               <Card className="shadow-lg border border-gray-200 bg-white rounded-xl">
                 <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-xl text-gray-900">Welcome back</CardTitle>
-                  <CardDescription className="text-base text-gray-600">
-                    Sign in to your account
-                  </CardDescription>
+                  <CardTitle className="text-lg text-gray-900">Sign In</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
@@ -673,10 +651,7 @@ export default function Auth() {
             {!isLogin && (
               <Card className="shadow-lg border border-gray-200 bg-white rounded-xl">
                 <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-xl text-gray-900">Join TrueCircle</CardTitle>
-                  <CardDescription className="text-base text-gray-600">
-                    Create your account to start meeting people
-                  </CardDescription>
+                  <CardTitle className="text-lg text-gray-900">Create Account</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={registerForm.handleSubmit(onRegisterSubmit)} className="space-y-6">

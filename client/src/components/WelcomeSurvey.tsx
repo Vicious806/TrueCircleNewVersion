@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { MessageCircle, MapPin, Users, Zap, Calendar } from "lucide-react";
 import type { SurveyFormData } from "@shared/schema";
+import truecircleLogo from "@assets/Screen_Shot_2025-06-27_at_4_1751237338042.webp";
 
 
 interface WelcomeSurveyProps {
@@ -46,69 +47,41 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
   const questions = [
     {
       id: 'favoriteConversationTopic',
-      title: "What's your favorite conversation topic?",
-      description: "Helps us match you with similar people",
+      title: "Favorite topic?",
       icon: MessageCircle,
       options: [
-        { value: 'travel', label: 'Travel & Adventures', description: 'Share stories from around the world' },
-        { value: 'food', label: 'Food & Cooking', description: 'Discuss cuisines, recipes, and dining experiences' },
-        { value: 'career', label: 'Career & Goals', description: 'Talk about professional growth and aspirations' },
-        { value: 'hobbies', label: 'Hobbies & Interests', description: 'Share your passions and creative pursuits' },
-        { value: 'current_events', label: 'Current Events', description: 'Discuss news, trends, and what\'s happening' },
+        { value: 'travel', label: 'Travel' },
+        { value: 'food', label: 'Food' },
+        { value: 'career', label: 'Career' },
+        { value: 'hobbies', label: 'Hobbies' },
+        { value: 'current_events', label: 'Current Events' },
       ]
     },
     {
       id: 'favoriteMusic',
-      title: "What's your favorite music genre?",
-      description: "Music creates great conversations",
+      title: "Music genre?",
       icon: MapPin,
       options: [
-        { value: 'pop', label: 'Pop & Top 40', description: 'Love the latest hits and mainstream favorites' },
-        { value: 'rock', label: 'Rock & Alternative', description: 'Classic rock, indie, or alternative vibes' },
-        { value: 'hiphop', label: 'Hip-Hop & R&B', description: 'Beats, rap, and soulful R&B tracks' },
-        { value: 'electronic', label: 'Electronic & EDM', description: 'House, techno, and electronic beats' },
-        { value: 'indie', label: 'Indie & Folk', description: 'Independent artists and acoustic sounds' },
-      ]
-    },
-    {
-      id: 'favoriteShow',
-      title: "What type of TV shows or movies do you love?",
-      description: "Shared entertainment creates discussions",
-      icon: Users,
-      options: [
-        { value: 'comedy', label: 'Comedy & Sitcoms', description: 'Love to laugh and share funny moments' },
-        { value: 'drama', label: 'Drama & Thrillers', description: 'Enjoy complex stories and character development' },
-        { value: 'scifi', label: 'Sci-Fi & Fantasy', description: 'Fascinated by futuristic worlds and magic' },
-        { value: 'reality', label: 'Reality & Competition', description: 'Enjoy real people and competitive shows' },
-        { value: 'documentary', label: 'Documentaries & True Crime', description: 'Love learning and real-life mysteries' },
+        { value: 'pop', label: 'Pop' },
+        { value: 'rock', label: 'Rock' },
+        { value: 'hiphop', label: 'Hip-Hop' },
+        { value: 'electronic', label: 'Electronic' },
+        { value: 'indie', label: 'Indie' },
       ]
     },
     {
       id: 'personalityType',
-      title: "How would you describe your personality?",
-      description: "Helps create compatible connections",
+      title: "Your vibe?",
       icon: Zap,
       options: [
-        { value: 'outgoing', label: 'Outgoing & Social', description: 'Love meeting new people and being around others' },
-        { value: 'thoughtful', label: 'Thoughtful & Deep', description: 'Enjoy meaningful conversations and reflection' },
-        { value: 'adventurous', label: 'Adventurous & Spontaneous', description: 'Always up for trying new things and experiences' },
-        { value: 'chill', label: 'Chill & Easygoing', description: 'Relaxed approach to life and go with the flow' },
-        { value: 'passionate', label: 'Passionate & Driven', description: 'Enthusiastic about goals and interests' },
+        { value: 'outgoing', label: 'Outgoing' },
+        { value: 'thoughtful', label: 'Thoughtful' },
+        { value: 'adventurous', label: 'Adventurous' },
+        { value: 'chill', label: 'Chill' },
+        { value: 'passionate', label: 'Passionate' },
       ]
     },
-    {
-      id: 'hobbies',
-      title: "What's your main hobby or interest?",
-      description: "Shared hobbies create connections",
-      icon: Calendar,
-      options: [
-        { value: 'fitness', label: 'Fitness & Sports', description: 'Working out, yoga, running, or team sports' },
-        { value: 'creative', label: 'Creative Arts', description: 'Photography, painting, music, or writing' },
-        { value: 'tech', label: 'Technology & Gaming', description: 'Gadgets, video games, or coding' },
-        { value: 'nature', label: 'Outdoor & Nature', description: 'Hiking, camping, or environmental activities' },
-        { value: 'learning', label: 'Learning & Reading', description: 'Books, courses, podcasts, or new skills' },
-      ]
-    }
+
   ];
 
   const currentQuestion = questions[currentStep - 1];
@@ -140,17 +113,21 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
   const Icon = currentQuestion.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Icon className="text-white h-8 w-8" />
+          <div className="w-16 h-16 mx-auto mb-4">
+            <img 
+              src={truecircleLogo} 
+              alt="TrueCircle Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">
-            Welcome to TrueCircle! 
+          <CardTitle className="text-xl font-bold text-gray-900">
+            Welcome to TrueCircle
           </CardTitle>
-          <p className="text-gray-600 mt-2">
-            Let's get to know you better so we can find your perfect dining companions
+          <p className="text-gray-600 mt-2 text-sm">
+            Quick setup
           </p>
           <div className="mt-4">
             <div className="flex justify-between text-sm text-gray-500 mb-2">
@@ -162,34 +139,26 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <div className="text-center mb-6">
+            <h3 className="text-lg font-semibold text-gray-900">
               {currentQuestion.title}
             </h3>
-            <p className="text-gray-600">
-              {currentQuestion.description}
-            </p>
           </div>
 
           <RadioGroup
             value={responses[currentQuestion.id as keyof SurveyFormData] || ''}
             onValueChange={handleResponseChange}
-            className="space-y-3"
+            className="space-y-2"
           >
             {currentQuestion.options.map((option) => (
               <Label 
                 key={option.value} 
                 htmlFor={option.value} 
-                className="flex items-start space-x-3 p-4 rounded-lg border hover:bg-gray-50 cursor-pointer transition-colors"
+                className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-gray-50 cursor-pointer transition-colors"
               >
-                <RadioGroupItem value={option.value} id={option.value} className="mt-1" />
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">
-                    {option.label}
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {option.description}
-                  </p>
+                <RadioGroupItem value={option.value} id={option.value} />
+                <div className="font-medium text-gray-900">
+                  {option.label}
                 </div>
               </Label>
             ))}
@@ -206,7 +175,7 @@ export default function WelcomeSurvey({ onComplete }: WelcomeSurveyProps) {
             <Button
               onClick={handleNext}
               disabled={!isStepComplete || submitSurvey.isPending}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+              className="bg-primary hover:bg-primary/90"
             >
               {currentStep === questions.length ? (
                 submitSurvey.isPending ? 'Saving...' : 'Complete Survey'

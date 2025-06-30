@@ -44,7 +44,7 @@ export default function MatchResultModal({ isOpen, onClose, match }: MatchResult
 
         <div className="space-y-6">
           {/* Match Details */}
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <Card className="bg-gray-50 border-gray-200">
             <CardContent className="p-4">
               <div className="text-center space-y-3">
                 <h3 className="font-semibold text-gray-900">{getMeetupTypeLabel()}</h3>

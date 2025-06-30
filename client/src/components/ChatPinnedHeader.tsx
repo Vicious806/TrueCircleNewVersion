@@ -74,7 +74,7 @@ export default function ChatPinnedHeader({
   };
 
   return (
-    <Card className="mx-4 mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 sticky top-0 z-10">
+    <Card className="mx-4 mb-4 bg-gray-50 border-gray-200 sticky top-0 z-10">
       <CardContent className="p-4">
         <div className="space-y-3">
           {/* Header with venue type and buttons */}
