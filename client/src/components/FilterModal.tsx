@@ -293,7 +293,6 @@ export default function FilterModal({ isOpen, onClose, meetupType }: FilterModal
                 <SelectContent>
                   <SelectItem value="lunch">Lunch (12-2 PM)</SelectItem>
                   <SelectItem value="dinner">Dinner (6-8 PM)</SelectItem>
-                  <SelectItem value="brunch">Brunch (10-12 PM)</SelectItem>
                   <SelectItem value="late-dinner">Late Dinner (8-10 PM)</SelectItem>
                 </SelectContent>
               </Select>

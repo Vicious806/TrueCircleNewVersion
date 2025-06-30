@@ -149,13 +149,14 @@ Changelog:
 - June 30, 2025. Improved conflict detection system to allow multiple requests on different dates. Users can now create multiple matching requests as long as they're for different Saturday dates. Modified backend to check for date-specific conflicts instead of blocking all new requests. Enhanced modal behavior so conflict dialog appears on top of smart matching modal with proper z-index and prevents spurious conflict messages when closing modal.
 - June 30, 2025. Implemented comprehensive browsable meetups system with personality matching and trust verification. Added BrowseMeetups page showing existing groups with venue images, participant counts, proximity distances, and detailed participant personality information from survey responses. Created comprehensive trust verification system with ID scanning, phone verification, email verification, and profile picture verification - each contributing to a public trust score (0-100). Users can view other participants' conversation topics, music preferences, personality types, and bio information to make informed decisions about joining groups. Added sample meetups with realistic data for demonstration.
 - June 30, 2025. Replaced clickable age range selection cards with dual-handle slider that skips 4 years per tick (18-22, 22-26, 26-30, etc.) for more intuitive age range selection. Slider ranges from 18 to 60+ with default setting of 18-60+ for broad age matching. Updated age validation to support full adult age range (18+) instead of previous 18-25 limit.
+- June 30, 2025. Removed brunch (11 AM) time option from all components and backend validation. Saturday meetups now support only lunch (1 PM) and dinner (6 PM) time slots. Updated SmartMatchingModal, FilterModal, and schema validation to maintain consistent time options across the platform.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 Target audience: Young adults.
 Meeting schedule: Saturday meetups only with Friday 10 PM cutoff.
-Time options: Brunch (11 AM), lunch (1 PM), dinner (6 PM).
+Time options: Lunch (1 PM), dinner (6 PM).
 App scope: Meetups are for both restaurants and cafes (not just restaurants).
 Minimum distance setting: 10 miles minimum for all smart matching requests.
 Smart matching requirement: Only match users with same meetup type (1v1 with 1v1, group with group). Removed 3-people option entirely from the app.

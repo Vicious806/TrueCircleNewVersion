@@ -23,7 +23,6 @@ interface SmartMatchingModalProps {
 }
 
 const timeOptions = [
-  { value: 'brunch', label: '11:00 AM (Brunch)', icon: '🥐' },
   { value: 'lunch', label: '1:00 PM (Lunch)', icon: '🍽️' },
   { value: 'dinner', label: '6:00 PM (Dinner)', icon: '🌆' },
 ];

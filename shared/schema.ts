@@ -262,7 +262,7 @@ export const surveyResponseSchema = z.object({
 export const meetupRequestSchema = z.object({
   meetupType: z.enum(['group']),
   venueType: z.enum(['restaurant', 'cafe']),
-  preferredTime: z.enum(['brunch', 'lunch', 'dinner']),
+  preferredTime: z.enum(['lunch', 'dinner']),
   preferredDate: z.string().min(1, "Date is required"),
   maxDistance: z.number().min(5).max(50).default(5),
   ageRangeMin: z.number().min(18).max(80).optional(),
