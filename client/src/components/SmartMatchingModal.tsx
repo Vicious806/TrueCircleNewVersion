@@ -78,7 +78,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
   const [venueType, setVenueType] = useState(preselectedVenueType || '');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([5]);
-  const [ageRange, setAgeRange] = useState([18, 22]);
+  const [ageRange, setAgeRange] = useState([18, 60]);
   const [conflictInfo, setConflictInfo] = useState<any>(null);
   const [pendingRequest, setPendingRequest] = useState<MeetupRequestFormData | null>(null);
 
@@ -294,16 +294,16 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
                 value={ageRange}
                 onValueChange={setAgeRange}
                 min={18}
-                max={78}
+                max={60}
                 step={4}
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
                 <span>18</span>
-                <span>78</span>
+                <span>60+</span>
               </div>
               <div className="text-center text-sm text-gray-700 mt-2">
-                Ages {ageRange[0]} - {ageRange[1]}
+                Ages {ageRange[0]} - {ageRange[1] === 60 ? '60+' : ageRange[1]}
               </div>
             </div>
           </div>
