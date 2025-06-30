@@ -78,7 +78,7 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
   const [venueType, setVenueType] = useState(preselectedVenueType || '');
   const [preferredLocation, setPreferredLocation] = useState('');
   const [maxDistance, setMaxDistance] = useState([5]);
-  const [ageRange, setAgeRange] = useState([18, 80]);
+  const [ageRange, setAgeRange] = useState([18, 22]);
   const [conflictInfo, setConflictInfo] = useState<any>(null);
   const [pendingRequest, setPendingRequest] = useState<MeetupRequestFormData | null>(null);
 
@@ -289,119 +289,23 @@ export default function SmartMatchingModal({ isOpen, onClose, meetupType, presel
               <Users className="w-4 h-4 mr-2" />
               Age Range Preference
             </Label>
-            {meetupType === 'group' ? (
-              <div className="grid grid-cols-2 gap-3">
-                <div
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 18 && ageRange[1] === 22
-                      ? 'border-primary bg-primary/10'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setAgeRange([18, 22])}
-                >
-                  <div className="text-center">
-                    <h4 className="font-medium text-gray-900">18-22</h4>
-                    <p className="text-xs text-gray-600">College Age</p>
-                  </div>
-                </div>
-                <div
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 23 && ageRange[1] === 27
-                      ? 'border-primary bg-primary/10'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setAgeRange([23, 27])}
-                >
-                  <div className="text-center">
-                    <h4 className="font-medium text-gray-900">23-27</h4>
-                    <p className="text-xs text-gray-600">Post-Grad</p>
-                  </div>
-                </div>
-                <div
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 28 && ageRange[1] === 35
-                      ? 'border-primary bg-primary/10'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setAgeRange([28, 35])}
-                >
-                  <div className="text-center">
-                    <h4 className="font-medium text-gray-900">28-35</h4>
-                    <p className="text-xs text-gray-600">Young Professional</p>
-                  </div>
-                </div>
-                <div
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 36 && ageRange[1] === 45
-                      ? 'border-primary bg-primary/10'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setAgeRange([36, 45])}
-                >
-                  <div className="text-center">
-                    <h4 className="font-medium text-gray-900">36-45</h4>
-                    <p className="text-xs text-gray-600">Established</p>
-                  </div>
-                </div>
-                <div
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 46 && ageRange[1] === 60
-                      ? 'border-primary bg-primary/10'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setAgeRange([46, 60])}
-                >
-                  <div className="text-center">
-                    <h4 className="font-medium text-gray-900">46-60</h4>
-                    <p className="text-xs text-gray-600">Experienced</p>
-                  </div>
-                </div>
-                <div
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 61 && ageRange[1] === 80
-                      ? 'border-primary bg-primary/10'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setAgeRange([61, 80])}
-                >
-                  <div className="text-center">
-                    <h4 className="font-medium text-gray-900">61-80</h4>
-                    <p className="text-xs text-gray-600">Senior</p>
-                  </div>
-                </div>
-                <div
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    ageRange[0] === 18 && ageRange[1] === 80
-                      ? 'border-primary bg-primary/10'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  onClick={() => setAgeRange([18, 80])}
-                >
-                  <div className="text-center">
-                    <h4 className="font-medium text-gray-900">No Preference</h4>
-                    <p className="text-xs text-gray-600">All Ages</p>
-                  </div>
-                </div>
+            <div className="px-3">
+              <Slider
+                value={ageRange}
+                onValueChange={setAgeRange}
+                min={18}
+                max={78}
+                step={4}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>18</span>
+                <span>78</span>
               </div>
-            ) : (
-              <div className="px-3">
-                <Slider
-                  value={ageRange}
-                  onValueChange={setAgeRange}
-                  min={18}
-                  max={80}
-                  step={1}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>18</span>
-                  <span>80</span>
-                </div>
-                <div className="text-center text-sm text-gray-700 mt-2">
-                  Match with ages {ageRange[0]} - {ageRange[1]}
-                </div>
+              <div className="text-center text-sm text-gray-700 mt-2">
+                Ages {ageRange[0]} - {ageRange[1]}
               </div>
-            )}
+            </div>
           </div>
 
 
