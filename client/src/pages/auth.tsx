@@ -216,7 +216,7 @@ export default function Auth() {
       resetPasswordForm.setValue("email", email);
       toast({
         title: "Reset code sent",
-        description: "Check your email for password reset code",
+        description: "Check your email (including spam folder) for the 6-digit reset code",
       });
     },
     onError: (error: Error) => {

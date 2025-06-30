@@ -302,18 +302,24 @@ export function setupAuth(app: Express) {
   // Forgot password route
   app.post("/api/auth/forgot-password", async (req, res) => {
     try {
+      console.log("Forgot password request received:", req.body);
       const { email } = req.body;
       
       if (!email) {
+        console.log("Missing email in forgot password request");
         return res.status(400).json({ message: "Email is required" });
       }
 
+      console.log(`Checking if user exists for email: ${email}`);
       // Check if user exists
       const user = await storage.getUserByEmail(email);
       if (!user) {
+        console.log(`No user found for email: ${email}`);
         // Return success anyway to avoid email enumeration
         return res.json({ message: "If an account with that email exists, you will receive a password reset email." });
       }
+
+      console.log(`User found for email: ${email}, proceeding with reset`);
 
       // Generate reset code and expiry
       const resetCode = generateVerificationCode();
@@ -327,14 +333,23 @@ export function setupAuth(app: Express) {
       });
 
       // Send reset email
+      console.log(`Attempting to send password reset email to: ${email}`);
       const emailSent = await sendEmail({
         to: email,
         subject: "TrueCircle Password Reset",
         html: generatePasswordResetEmail(user.firstName || 'User', resetCode),
       });
 
+      console.log(`Password reset email sent status: ${emailSent}`);
+
       if (!emailSent) {
+        console.error(`Failed to send password reset email to: ${email}`);
         return res.status(500).json({ message: "Failed to send reset email" });
+      }
+
+      // For development, also log the reset code for manual testing
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Password reset code for ${email}: ${resetCode}`);
       }
 
       res.json({ 

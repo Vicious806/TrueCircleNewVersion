@@ -28,7 +28,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
       to: options.to,
       subject: options.subject,
       html: options.html,
-      text: `Email verification code: ${options.html.match(/font-family: monospace;">([^<]+)</)?.[1] || 'Please check HTML version'}. This code expires in 15 minutes.`,
+      text: `Password reset code: ${options.html.match(/font-family: monospace;">([^<]+)</)?.[1] || 'Please check HTML version'}. This code expires in 15 minutes. If you did not request this reset, please ignore this email.`,
       headers: {
         'X-Priority': '3'
       }
