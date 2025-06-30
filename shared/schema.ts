@@ -72,9 +72,7 @@ export const userSurveyResponses = pgTable("user_survey_responses", {
   userId: integer("user_id").references(() => users.id).notNull(),
   favoriteConversationTopic: varchar("favorite_conversation_topic"),
   favoriteMusic: varchar("favorite_music"),
-  favoriteShow: varchar("favorite_show"),
   personalityType: varchar("personality_type"),
-  hobbies: varchar("hobbies"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -247,9 +245,7 @@ export const insertPasswordResetSchema = createInsertSchema(passwordResets).omit
 export const surveyResponseSchema = z.object({
   favoriteConversationTopic: z.enum(['travel', 'food', 'career', 'hobbies', 'current_events']),
   favoriteMusic: z.enum(['pop', 'rock', 'hiphop', 'electronic', 'indie']),
-  favoriteShow: z.enum(['comedy', 'drama', 'scifi', 'reality', 'documentary']),
-  personalityType: z.enum(['outgoing', 'thoughtful', 'adventurous', 'chill', 'passionate']),
-  hobbies: z.enum(['fitness', 'creative', 'tech', 'nature', 'learning'])
+  personalityType: z.enum(['outgoing', 'thoughtful', 'adventurous', 'chill', 'passionate'])
 });
 
 // Meetup request schema - group matching only

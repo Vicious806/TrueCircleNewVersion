@@ -754,14 +754,8 @@ export class DatabaseStorage implements IStorage {
     if (user1Survey.favoriteMusic === user2Survey.favoriteMusic) {
       return `Both love ${user1Survey.favoriteMusic} music`;
     }
-    if (user1Survey.favoriteShow === user2Survey.favoriteShow) {
-      return `Both enjoy ${user1Survey.favoriteShow} shows`;
-    }
     if (user1Survey.personalityType === user2Survey.personalityType) {
       return `Both have ${user1Survey.personalityType} personalities`;
-    }
-    if (user1Survey.hobbies === user2Survey.hobbies) {
-      return `Both enjoy ${user1Survey.hobbies}`;
     }
 
     return null; // No shared interests found
@@ -776,14 +770,8 @@ export class DatabaseStorage implements IStorage {
     // Same music genre +20
     if (user1.favoriteMusic === user2.favoriteMusic) score += 20;
     
-    // Same show preference +20
-    if (user1.favoriteShow === user2.favoriteShow) score += 20;
-    
     // Compatible personality types +20
     if (this.arePersonalitiesCompatible(user1.personalityType, user2.personalityType)) score += 20;
-    
-    // Same hobbies +20
-    if (user1.hobbies === user2.hobbies) score += 20;
     
     return score;
   }
